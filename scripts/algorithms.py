@@ -9,7 +9,7 @@ def ejecutar_algoritmos(opcion, datosfiltrados):
     }
 
     comandos = {
-        '1': ['python3', '-u', 'private_hcms.py', '-k', '3', '-m', '64', '-e', '0.0001', '-d', datosfiltrados],
+        '1': ['python3', '-u', 'private_hcms.py', '-k', '10', '-m', '64', '-e', '5.0', '-d', datosfiltrados],
         '2': ['python3', '-u', 'private_cms.py', '-k', '3', '-m', '64', '-e', '0.0001', '-d', datosfiltrados],
         '3': ['python3', '-u', 'rappor.py', '-k', '16', '-h', '4', '-f', '0.25', '-p', '0.4', '-q', '0.6' ,'-d', datosfiltrados]
     }
