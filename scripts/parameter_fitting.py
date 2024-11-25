@@ -1,7 +1,12 @@
 import subprocess
 import re
-import matplotlib.pyplot as plt
+import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+option = {
+    1: "../external/DP-Sketching-Algorithms/Private Count Mean/private_cms.py",
+    2: "../external/DP-Sketching-Algorithms/Private Hadmard Count Mean/private_hcms.py",
+}
 
 # Extract metrics from the output
 def parse_results(output):
@@ -20,9 +25,9 @@ def parse_results(output):
     print(f"Error porcentual: {error_porcentual}, Frecuencias negativas: {frecuencias_negativas}")
     return error_porcentual, frecuencias_negativas
 
-def run_command(k, m, e, data_file):
+def run_command(k, m, e, data_file, algorithm_option):
     # Build the command with all parameters
-    cmd = ["python3","../external/DP-Sketching-Algorithms/Private Count Mean/private_cms.py", 
+    cmd = ["python3", option[algorithm_option], 
             "-k", str(k),
             "-m", str(m),
             "-e", str(e),
@@ -36,7 +41,7 @@ def run_command(k, m, e, data_file):
     return parse_results(result.stdout)
 
 # Find the best parameters for a given algorithm
-def find_best_parameters(data_file):
+def find_best_parameters(data_file, algorithm_option):
     best_params = {"-k": 1, "-m": 32, "-e": 8}
     best_error = float('inf')
 
@@ -50,7 +55,7 @@ def find_best_parameters(data_file):
         for k in k_values:
             for m in m_values:
                 for e in e_values:
-                    futures.append(executor.submit(run_command, k, m, e, data_file))
+                    futures.append(executor.submit(run_command, k, m, e, data_file, algorithm_option))
         
         # Analyse the output
         for future in as_completed(futures):
@@ -61,7 +66,16 @@ def find_best_parameters(data_file):
     return best_params, best_error
 
 if __name__ == "__main__":
-    data_file = "filtrado2"
-    best_params, best_error = find_best_parameters(data_file)
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Script to find the best parameters for a given algorithm")
+    parser.add_argument("-d", type=str, required=True, help='Name of the dataset to use')
+    parser.add_argument("-o", type=int, choices=[1, 2], required=True, help='Algorithm to use')
+    
+    args = parser.parse_args()
+
+    data_file = args.d
+    algorithm_option = args.o
+
+    best_params, best_error = find_best_parameters(data_file, algorithm_option)
     print(f"Mejores parámetros: {best_params}")
     print(f"Error porcentual más bajo: {best_error:.2f}")
