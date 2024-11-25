@@ -1,7 +1,6 @@
 import subprocess
 import re
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 option = {
     1: "../external/DP-Sketching-Algorithms/Private Count Mean/private_cms.py",
@@ -33,11 +32,14 @@ def run_command(k, m, e, data_file, algorithm_option):
             "-e", str(e),
             "-d", data_file 
         ]
+    
     print(f"Running parameters: -k {k}, -m {m}, -e {e}")
+
     # Run the command
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         return None, None
+   
     return parse_results(result.stdout)
 
 # Find the best parameters for a given algorithm
@@ -46,23 +48,23 @@ def find_best_parameters(data_file, algorithm_option):
     best_error = float('inf')
 
     # Range of values for each parameter
-    k_values = [1, 2, 3, 4, 5]
-    m_values = [32, 64, 128, 256, 512]
-    e_values = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+    #k_values = [1, 2, 3, 4, 5]
+    k_values = [2]
+    #m_values = [32, 64, 128, 256, 512]
+    m_values = [32]
+    #e_values = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+    e_values = [3, 6, 1]
 
-    with ThreadPoolExecutor() as executor:
-        futures = []
-        for k in k_values:
-            for m in m_values:
-                for e in e_values:
-                    futures.append(executor.submit(run_command, k, m, e, data_file, algorithm_option))
-        
-        # Analyse the output
-        for future in as_completed(futures):
-            error_porcentual, frecuencias_negativas = future.result()
-            if error_porcentual is not None and not frecuencias_negativas and error_porcentual < best_error:
-                best_error = error_porcentual
-                best_params = {"-k": k, "-m": m, "-e": e}
+  
+    for k in k_values:
+        for m in m_values:
+            for e in e_values:
+                error_porcentual, frecuencias_negativas = run_command(k, m, e, data_file, algorithm_option)
+                if error_porcentual is not None and not frecuencias_negativas:
+                    if error_porcentual < best_error:
+                        best_error = error_porcentual
+                        best_params = {"-k": k, "-m": m, "-e": e}
+            
     return best_params, best_error
 
 if __name__ == "__main__":

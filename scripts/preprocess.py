@@ -3,10 +3,10 @@ import pandas as pd
 
 def convertir_excel_a_csv(archivo_excel, archivo_csv):
     df = pd.read_excel(archivo_excel)
-    df.to_csv(archivo_csv, index=False) # Guardar archivo
+    df.to_csv(archivo_csv, index=False) # Save dataframe to csv
 
-# Preproceso la tabla con los aoi hits para 
-# obtener si se ha hecho un hit
+# Preprocess the table with the aoi hits to get 
+# if a hit has been made
 def aoi_hits(df):
     rows = []
     for _, row in df.iterrows():
