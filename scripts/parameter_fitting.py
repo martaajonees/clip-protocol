@@ -1,6 +1,7 @@
 import subprocess
 import re
 import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Extract metrics from the output
 def parse_results(output):
@@ -19,6 +20,21 @@ def parse_results(output):
     print(f"Error porcentual: {error_porcentual}, Frecuencias negativas: {frecuencias_negativas}")
     return error_porcentual, frecuencias_negativas
 
+def run_command(k, m, e, data_file):
+    # Build the command with all parameters
+    cmd = ["python3","../external/DP-Sketching-Algorithms/Private Count Mean/private_cms.py", 
+            "-k", str(k),
+            "-m", str(m),
+            "-e", str(e),
+            "-d", data_file 
+        ]
+    print(f"Running parameters: -k {k}, -m {m}, -e {e}")
+    # Run the command
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        return None, None
+    return parse_results(result.stdout)
+
 # Find the best parameters for a given algorithm
 def find_best_parameters(data_file):
     best_params = {"-k": 1, "-m": 32, "-e": 8}
@@ -29,32 +45,19 @@ def find_best_parameters(data_file):
     m_values = [32, 64, 128, 256, 512]
     e_values = [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
 
-    # Adjust parameters
-    for k in k_values:
-        for m in m_values:
-            for e in e_values:
-                # Build the command with all parameters
-                cmd = ["python3","../external/DP-Sketching-Algorithms/Private Count Mean/private_cms.py", 
-                    "-k", str(k),
-                    "-m", str(m),
-                    "-e", str(e),
-                    "-d", data_file
-                ]
-                print(f"Running parameters: -k {k}, -m {m}, -e {e}")
-                
-                # Run the command
-                result = subprocess.run(cmd, capture_output=True, text=True)
-                if result.returncode != 0:
-                    print(f"Error al ejecutar el comando: {cmd}")
-                    print(f"Salida de error: {result.stderr}")
-                    continue
-                plt.close()  # Close the plot window
-
-                # Analyse the output
-                error_porcentual, frecuencias_negativas = parse_results(result.stdout)
-                if not frecuencias_negativas and error_porcentual < best_error:
-                    best_error = error_porcentual
-                    best_params = {"-k": k, "-m": m, "-e": e}
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for k in k_values:
+            for m in m_values:
+                for e in e_values:
+                    futures.append(executor.submit(run_command, k, m, e, data_file))
+        
+        # Analyse the output
+        for future in as_completed(futures):
+            error_porcentual, frecuencias_negativas = future.result()
+            if error_porcentual is not None and not frecuencias_negativas and error_porcentual < best_error:
+                best_error = error_porcentual
+                best_params = {"-k": k, "-m": m, "-e": e}
     return best_params, best_error
 
 if __name__ == "__main__":
