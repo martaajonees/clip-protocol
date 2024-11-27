@@ -5,18 +5,19 @@ This repository contains an adaption of differential privacy algorithms on learn
 ```
 Local_Privacy
 │
-├── data/                # Data Archive
-│   ├── raw/             # Original Data (Excel, CSV without processing)
-│   ├── processed/       # Processed Data
+├── data/                
+│   ├── raw/             
+│   ├── processed/       
 │
-├── scripts/             # Scripts para análisis y preprocesamiento
-│   ├── preprocess.py    # Preprocesa datos y genera archivo filtrado
-│   ├── algorithms.py    # Ejecuta algoritmos importados
+├── scripts/             
+│   ├── preprocess.py    
+│   ├── algorithms.py    
+│   ├── parameter_fitting.py    
 │
-├── sketching-algorithms/  # Privacy code
-│   ├── Private Count Mean/   # Código del repositorio original
-|   ├── Private Hadmard Count Mean/
-|   ├── RAPPOR/
+├── src/  # Privacy code
+│   ├── private_count_mean/   
+|   ├── private_hadamard_count_mean/
+|   ├── rappor/
 │
-├── requirements.txt     # Project dependencies
+├── requirements.txt     
 ```
