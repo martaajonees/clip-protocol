@@ -1,7 +1,11 @@
 import subprocess
 import re
 import argparse
-
+# a la hora del ajuste, una vez que tenemos el error que nos queremos quedar tenemos que quedarnos 
+# con el resultado de la base de datos privatizada porque si no nos puede ejecutar sobre otra base de datos distinta
+# poner una variable el error minimo del ajuste que queremos
+# del mejor ajuste guardar los datos del cliente privatizados
+# es una simulacion de lo que va a pasar y segun esto se envia al cliente la base de datos privatizada
 option = {
     1: "../external/DP-Sketching-Algorithms/Private Count Mean/private_cms.py",
     2: "../external/DP-Sketching-Algorithms/Private Hadmard Count Mean/private_hcms.py",
