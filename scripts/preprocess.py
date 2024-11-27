@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     excel_file = '../data/raw/' + fileName
     csv_file = '../data/processed/' + fileName.replace('.xlsx', '.csv')
-    output_csv = '../data/processed/' + fileName.replace('.xlsx', '_filtered.csv')
+    output_csv = '../data/filtered/' + fileName.replace('.xlsx', '_filtered.csv')
 
     columns = [
         'Participant', 
