@@ -1,9 +1,11 @@
 
 import pandas as pd
+import argparse
+import os
 
-def convertir_excel_a_csv(archivo_excel, archivo_csv):
-    df = pd.read_excel(archivo_excel)
-    df.to_csv(archivo_csv, index=False) # Save dataframe to csv
+def convert_excel_to_csv (excel_file, csv_file):
+    df = pd.read_excel(excel_file) # Read excel file
+    df.to_csv(csv_file, index=False) # Save dataframe to csv
 
 # Preprocess the table with the aoi hits to get 
 # if a hit has been made
@@ -11,50 +13,59 @@ def aoi_hits(df):
     rows = []
     for _, row in df.iterrows():
         hit = False
-        user_id = row['Participant name']
+        user_id = row['Participant']
         for col in df.columns[1:]:
-            if row[col] == 1:
-                rows.append({'user_id': user_id, 'value': col})
+            if row[col] != "-":
+                rows.append({'user_id': user_id, 'value': row[col]})
                 hit = True
                 break
         if not hit:
             rows.append({'user_id': user_id, 'value': 'No hit'})
     return pd.DataFrame(rows)
 
-def filtrar_fixation(df):
-    df = df[df['Eye movement type'] == 'Fixation']
-    df = df.drop(columns=['Eye movement type']) # Eliminar la columna Eye movement type
+# Filter the columns of the csv file
+def filter_fixation(df):
+    df = df[df['Fixation Position X [px]'] != '-']
+    df = df.drop(columns=['Fixation Position X [px]']) 
+    df = df.drop(columns=['Fixation Position Y [px]']) 
     return df
 
-def filtrar_columnas(archivo_csv, columnas):
-    df = pd.read_csv(archivo_csv)
-    df_filtrado = filtrar_fixation(df[columnas].dropna())
-    df_filtrado.to_csv(archivo_csv, index=False) # Guardar df_filtrado
-    return aoi_hits(df_filtrado)
+# Filter the columns of the csv file
+def filter_columns(csv_file, columns):
+    df = pd.read_csv(csv_file)
+    df_filtered = filter_fixation(df[columns].dropna())
+    df_filtered.to_csv(csv_file, index=False) # Save dataframe to csv
+    return aoi_hits(df_filtered)
 
 if __name__ == '__main__':  
-    archivo_excel = '../data/raw/project.xlsx'
-    archivo_csv = '../data/processed/project.xlsx'
-    output_csv = '../external/DP-Sketching-Algorithms/utils/datasets/filtrado.csv'
+    parser = argparse.ArgumentParser(description="Preprocess the data")
+    parser.add_argument("-d", type=str, required=True, help="Name of the dataset to use")
 
-    columnas = [
-        'Participant name', 
-        'Eye movement type',
-        'AOI hit [clase prueba - campus]',
-        'AOI hit [clase prueba - conceptos]',
-        'AOI hit [clase prueba - locutor]',
-        'AOI hit [clase prueba - logo uni]',
+    args = parser.parse_args()
+
+    fileName = f"{args.d}.xlsx"
+    print(f"Preprocessing file: {fileName}")
+
+    excel_file = '../data/raw/' + fileName
+    csv_file = '../data/processed/' + fileName.replace('.xlsx', '.csv')
+    output_csv = '../data/processed/' + fileName.replace('.xlsx', '_filtered.csv')
+
+    columns = [
+        'Participant', 
+        'Fixation Position X [px]',
+        'Fixation Position Y [px]',
+        'AOI Name',
     ]
 
-    # Convertir archivo de excel a csv
-    convertir_excel_a_csv(archivo_excel, archivo_csv)
+    # Convert excel to csv
+    convert_excel_to_csv(excel_file, csv_file)
 
-    # Filtrar columnas
-    df_filtrado = filtrar_columnas(archivo_csv, columnas)
+    # Filter columns
+    df_filtered = filter_columns(csv_file, columns)
 
-    # Cambiar el nombre de las columnas
-    df_filtrado.columns = ['user_id', 'value']
+    # Change column names
+    df_filtered.columns = ['user_id', 'value']
 
-    # Guardar el dataframe en un archivo de csv
-    df_filtrado.to_csv(output_csv, index=False)
-    print(f"Archivo filtrado guardado en: {output_csv}")
+    # Save the filtered file
+    df_filtered.to_csv(output_csv, index=False)
+    print(f"Filtered file saved in: {output_csv}")
