@@ -62,7 +62,7 @@ class privateCMS:
         for i in range (self.m):
             self.M[j,i] += x[i]
 
-    def estimate_d(self,d):
+    def estimate_client(self,d):
         sum_aux = 0
         for i in range(self.k):
             selected_hash = self.H[i]
@@ -81,6 +81,21 @@ class privateCMS:
         bar.finish()
         return privatized_data
     
+    def server_simulator(self,privatized_data):
+        bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
+        for data in privatized_data:
+            self.update_sketch_matrix(data[0],data[1])
+            bar.next()
+        bar.finish()
+
+        F_estimated = {}
+        for x in self.domain:
+            F_estimated[x] = self.estimate_client(x)
+            bar.next()
+        bar.finish()
+        return F_estimated
+    
+    # ======================== SERVER SIDE ========================
     def execute_server(self,privatized_data):
         bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
         for data in privatized_data:
@@ -94,6 +109,15 @@ class privateCMS:
             bar.next()
         bar.finish()
         return F_estimated
+    
+    def estimate_server(self,d):
+        sum_aux = 0
+        for i in range(self.k):
+            selected_hash = self.H[i]
+            sum_aux += self.M[i, selected_hash(d)]
+        
+        f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
+        return f_estimated
 
 
 if __name__ == "__main__":
@@ -113,6 +137,8 @@ if __name__ == "__main__":
 
     # Client side: process the private data
     privatized_data = PCMS.execute_client()
+    f_estimated_client = PCMS.server_simulator(privatized_data)
+    # Usamos f_estimated_client para ajustar los parámetros
 
     # Server side: process the private data
     f_estimated = PCMS.execute_server(privatized_data)

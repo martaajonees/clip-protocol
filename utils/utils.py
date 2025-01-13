@@ -54,7 +54,7 @@ def load_dataset(csv_filename):
         df (DataFrame): Dataset in Pandas DataFrame format.
         unique_values (list): Unique values (domain) of the dataset.
     """
-    dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/processed', csv_filename + '.csv'))
+    dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/filtered', csv_filename + '.csv'))
     df = pd.read_csv(dataset_path)
     df = df[['value']]
     values = df['value'].tolist()

@@ -9,6 +9,10 @@ ALGORITHM_PATHS = {
     2: "../src/private_hadamard_count_mean/private_hcms.py",
 }
 
+## Estimacion de m -> entrada el porcentaje % (tolerancia)
+# k es 1/fallo -> se va a estimar 
+# el fallo es un parametro de entrada -> por defecto 0.01
+
 def parse_results(output):
     """Parse the output of the command and return the percentage error."""
     percentage_error = 0.0
@@ -38,6 +42,8 @@ def run_command(k, m, e, data_file, algorithm_option):
         return None
     return parse_results(result.stdout)
 
+# Para estimar e DP -> creamos parametro de error -> todos los valores entre un rango -> entrada: minimo, maximo, incremento -> nos quedamos con el menor
+# error: Metrica Lp
 def adaptive_search(data_file, algorithm_option, tolerance, max_iters=20):
     """Adaptive parameter search to minimize error."""
 
@@ -48,8 +54,8 @@ def adaptive_search(data_file, algorithm_option, tolerance, max_iters=20):
     for iteration in range(max_iters):
         print(f"\nIteration {iteration + 1} of {max_iters}")
 
-        k = max(1, best_params["-k"] + random.choice([-1, 0, 1]))
-        m = random.choice(valid_m_values)
+        # k = max(1, best_params["-k"] + random.choice([-1, 0, 1]))
+        # m = random.choice(valid_m_values)
         e = max(0.1, best_params["-e"] + random.uniform(-0.5, 0.5))
 
         # Run the command and get the output
@@ -86,3 +92,4 @@ if __name__ == "__main__":
     print("\n === Results ===\n")
     print(f"Best parameters: {best_params}")
     print(f"Lowest percentage error: {best_error:.2f}")
+
