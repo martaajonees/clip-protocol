@@ -19,12 +19,20 @@ def function_LP(N, f_estimated, f_real, p):
         sum_error += abs(row["Frequency_estimated"] - row["Frequency_real"]) ** p
     return (1 / N) * sum_error
 
+def load_dataset(csv_filename):
+    dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/filtered', csv_filename + '.csv'))
+    df = pd.read_csv(dataset_path)
+    df = df[['value']]
+    unique_values = df['value'].unique().tolist()
+    return unique_values
+
 def run_command(k, m, e, data_file, algorithm_option):
     cmd = ["python3", ALGORITHM_PATHS[algorithm_option], "-k", str(k), "-m", str(m), "-e", str(e), "-d", data_file]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error al ejecutar el comando: {result.stderr}")
         return None
+    
 
 def real_frequency(args):
     dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/filtered', args.d + '.csv'))
@@ -45,45 +53,52 @@ def frequencies(args):
     f_real = real_frequency(args)
     return f_estimada, f_real
 
-def optimize_e_with_optuna(k, m, target_error, args, p):
-    def objective(trial):
-        e = trial.suggest_float('e', 0.01, 20, step = 0.01)
+def exponential_search(k, m, target_error, args):
+    max_e = 1e6 # Maximum value of e
+    e = 1 # Initial value of e
+    e_prev = 0.1 # Previous value of e
+
+    # Run the command with the initial value of e
+    run_command(k, m, e, args.d, 1)
+    f_estimated, f_real = frequencies(args)
+    
+    actual_error = function_LP(N, f_estimated, f_real, e)
+    
+    print("Exponential search begins ...")
+
+    # Exponential search to find the best range of e
+    while actual_error > target_error and e < max_e:
+        e_prev = e
+        e *= 2 # Double the value of e
         run_command(k, m, e, args.d, 1)
         f_estimated, f_real = frequencies(args)
-        actual_error = function_LP(N, f_estimated, f_real, p)
-        # Minimize the diference: LP - target_error
-        return abs(actual_error - target_error)
-
-    # Create a study object and optimize the objective function
-    study = optuna.create_study(direction='minimize')
-    study.optimize(objective, n_trials=30)
-
-    best_e = study.best_params['e']
-
-    print(f"Best value of e: {best_e}")
-    print(f"Closest error (LP - target_error): {study.best_value}")
+        actual_error = function_LP(N, f_estimated, f_real, e)
     
-    return best_e
+    if e >= max_e:
+        print("Error: Maximum value of e reached.")
+        return e_prev
+    
+    print(f"Range of e: [{e_prev}, {e}]")
 
-def utility_error(args):
-    Lp = float(input("Enter the percentage error to reach (Lp): "))
-    p = float(input("Enter the type of error (p): "))
+    print("Binary search begins ...")
+    # Binary search to find the best value of e
+    while abs(actual_error - target_error) > 1e-6 and e_prev < e:
+        e_mid = (e + e_prev) / 2
+        run_command(k, m, e_mid, args.d, 1)
+        f_estimated, f_real = frequencies(args)
+        actual_error = function_LP(N, f_estimated, f_real, e_mid)
+        
+        if actual_error > target_error:
+            e_prev = e_mid
+        else:
+            e = e_mid
+    return e
 
-    # Adjust the value of e to reach the desired error
-    e = optimize_e_with_optuna(k, m, Lp, args, p)
+def utility_error():
+    Lp = input("Enter the percentage error to reach: ")
+    # estimar e DP, empezar e -> 50
 
-    # Show database with the e
-    run_command(k, m, e, args.d, 1)
-    dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/privatized', args.d + '_private.csv'))
-    df = pd.read_csv(dataset_path)
-    print(df)
-
-    # Ask the user if he is satisfied with the results
-    option = input("Are you satisfied with the results? (y/n): ")
-    if option == "n":
-        utility_error(args)
-    else:
-        print("Sending database to server ...")
+    # guardar BBDD
 
 def privacy_error(N, k, m, f_estimated, f_real, args):
     p = float(input("Enter the type of error (p): "))
@@ -91,7 +106,7 @@ def privacy_error(N, k, m, f_estimated, f_real, args):
     print(f"Initial Privacy Error (LP): {error}")
 
     # Adjust the value of e to reach the desired error
-    e = optimize_e_with_optuna(k, m, error, args, p)
+    e = exponential_search(k, m, error, args)
 
     # Show database with the e
     run_command(k, m, e, args.d, 1)
@@ -136,7 +151,7 @@ if __name__ == "__main__":
     choice = input("Choose Utility or Privacy (u/p): ")
 
     if choice == "u":
-        utility_error(args)
+        utility_error()
     elif choice == "p":
         privacy_error(N, k, m, f_estimated, f_real, args)
     else:

@@ -8,6 +8,7 @@ import time
 from progress.bar import Bar
 from tabulate import tabulate
 import sys
+import pandas as pd
 
 # Link with the route for the utilities (common functions)
 file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..',  'utils', 'utils.py'))
@@ -53,7 +54,6 @@ class privateCMS:
         v_aux = v*b
         # Store the privatized matrix
         self.client_matrix.append((v_aux,j))
-        
         return v_aux,j
 
     def update_sketch_matrix(self,v,j):
@@ -79,6 +79,13 @@ class privateCMS:
             privatized_data.append((v_i,j_i))
             bar.next()
         bar.finish()
+        # Save the privatized data to a file
+        data = {
+            'v': [list(v) for v, _ in privatized_data],
+            'j': [j for _, j in privatized_data]
+        }
+        df_client_matrix = pd.DataFrame(data)
+        df_client_matrix.to_csv(f"../data/privatized/{args.d}_private.csv", index=False)
         return privatized_data
     
     def server_simulator(self,privatized_data):
@@ -105,7 +112,7 @@ class privateCMS:
 
         F_estimated = {}
         for x in self.domain:
-            F_estimated[x] = self.estimate_d(x)
+            F_estimated[x] = self.estimate_server(x)
             bar.next()
         bar.finish()
         return F_estimated
@@ -137,11 +144,15 @@ if __name__ == "__main__":
 
     # Client side: process the private data
     privatized_data = PCMS.execute_client()
-    f_estimated_client = PCMS.server_simulator(privatized_data)
+    #f_estimated_client = PCMS.server_simulator(privatized_data)
     # Usamos f_estimated_client para ajustar los parámetros
-
+ 
     # Server side: process the private data
     f_estimated = PCMS.execute_server(privatized_data)
+
+    # Save f_estimated to a file
+    df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
+    df_estimated.to_csv(f"../data/frequencies/{args.d}_freq_estimated_cms.csv", index=False)
 
     # Show the results
     os.system('cls' if os.name == 'nt' else 'clear>/dev/null')
