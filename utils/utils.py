@@ -81,6 +81,42 @@ def generate_hash_functions(k, p, c, m):
         hash_functions.append(hash_func)
     return hash_functions
 
+def generate_hash_function_G(k, p, a, b):
+    hash_functions = []
+    for _ in range(k):
+        coefficients = [random.randint(1, p - 1) for _ in range(c)]
+        hash_func = 1 if ((a + b) % p) % 2 == 0 else -1
+        hash_functions.append(hash_func)
+    return hash_functions
+
+def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
+    output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/error_tables'))
+
+   # Calculate errors
+    f = real_freq['value'].value_counts()
+    real_num_freq = f.sort_index().to_dict()
+
+    error_data = []
+    for element in real_num_freq:
+        real_count = real_num_freq[element]
+        estimated_count = estimated_freq.get(element, 0)
+        if real_count > 0:
+            percent_error = abs(real_count - estimated_count) / real_count * 100
+        else:
+            percent_error = 0.0
+        error_data.append({
+            "Item": element,
+            "Percentage Error": f"{percent_error:.2f}%"
+        })
+
+    # Save the error table
+    error_table = pd.DataFrame(error_data)
+    consolidated_filename = os.path.join(output_folder, "errors_table.csv")
+    error_table.to_csv(consolidated_filename, index=False)
+
+    print(f"Error table saved to: {consolidated_filename}")
+
+
 def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
     """
     Displays and compares real and estimated frequencies, along with error metrics.
@@ -131,3 +167,5 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
         print("RESULTS")
         print(tabulate(data_table, headers=["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference"], tablefmt="pretty"))
         print('\n' + tabulate(error_table, tablefmt="pretty"))
+        generate_error_table(real_freq, estimated_freq)
+    
