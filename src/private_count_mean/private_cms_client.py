@@ -93,7 +93,7 @@ class privateCMSClient:
         with open(output_file, 'wb') as f:
             pickle.dump(privatized_data, f)
     
-        #df_client_matrix.to_csv(os.path.join(output_dir, f"{args.d}_private.csv"), index=False)
+        df_client_matrix.to_csv(os.path.join(output_dir, f"{args.d}_private.csv"), index=False)
         return privatized_data
     
     def server_simulator(self,privatized_data):
