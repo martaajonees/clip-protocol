@@ -48,15 +48,21 @@ class privateHCMS:
         return h
 
     def cliente(self,d):
-        v = np.zeros(self.m)
-        for j in range(self.k):
-            v[self.hashes[j](d)] = 1
+        j = random.randint(0, self.k-1)
+        v = np.full(self.m, 0)
+        selected_hash = self.hashes[j]
+        v[selected_hash(d)] = 1
         w = np.dot(self.H, v)
-        return w
+        l = random.randint(0, self.m-1)
+
+        P_active = np.exp(self.epsilon) / (np.exp(self.epsilon) + 1)
+    
+        self.client_matrix.append((w[l], j, l))
+        return w[l],j,l
 
     def update_sketch_matrix(self, w):
-        for j in range(self.k):
-            self.M[j, :] += w
+        x = self.k *  w
+        self.M[j,l] =  self.M[j,l] + x
 
     def traspose_M(self):
         self.M = self.M @ np.transpose(self.H)

@@ -56,13 +56,13 @@ class privateCMSServer:
         return F_estimated
 
     def estimate_server(self,d):
-            sum_aux = 0
-            for i in range(self.k):
-                selected_hash = self.H[i]
-                sum_aux += self.M[i, selected_hash(d)]
-            
-            f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
-            return f_estimated
+        sum_aux = 0
+        for i in range(self.k):
+            selected_hash = self.H[i]
+            sum_aux += self.M[i, selected_hash(d)]
+        
+        f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
+        return f_estimated
    
 
 

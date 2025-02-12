@@ -33,9 +33,13 @@ class PrivacyUtilityOptimizer:
 
     def function_LP(self, f_estimated, f_real, p):
         sum_error = 0
+        median_error = []
         merged = f_estimated.merge(f_real, on="Element", suffixes=("_estimated", "_real"))
         for _, row in merged.iterrows():
             sum_error += abs(row["Frequency_estimated"] - row["Frequency_real"]) ** p
+            median_error.append(abs(row["Frequency_estimated"] - row["Frequency_real"]))
+        median_error.sort()
+        print(f"Median error: {median_error[int(len(median_error)/2)]}")
         return (1 / self.N) * sum_error
 
     def run_command(self, e):
@@ -104,9 +108,7 @@ class PrivacyUtilityOptimizer:
 
         # Show database with the e
         run_command(e)
-        dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/privatized', args.d + '_private.csv'))
-        df = pd.read_csv(dataset_path)
-        print(df)
+        self.display_error_table()
 
         # Ask the user if he is satisfied with the results
         option = input("Are you satisfied with the results? (y/n): ")
@@ -120,25 +122,27 @@ class PrivacyUtilityOptimizer:
         error = self.function_LP(self.frequency_estimation, self.real_frequency, p)
         print(f"Initial Privacy Error (LP): {error}")
 
-        # Ask for a range for e to optimize 
-        e_min = input("Enter the minimum value of e: ")
-        e_max = input("Enter the maximum value of e: ")
+        while True:
+            # Ask for a range for e to optimize 
+            e_min = input("Enter the minimum value of e: ")
+            e_max = input("Enter the maximum value of e: ")
 
-        step = input("Enter the step value: ")
+            step = input("Enter the step value: ")
 
-        for e in range(int(e_min), int(e_max), int(step)):
-            self.run_command(e)
-            f_estimated, f_real = self.frequencies()
-            error = self.function_LP(f_estimated, f_real, p)
-            print(f"Error for e = {e}: {error}")
-        
+            for e in range(int(e_min), int(e_max), int(step)):
+                self.run_command(e)
+                f_estimated, f_real = self.frequencies()
+                error = self.function_LP(f_estimated, f_real, p)
+                print(f"\nError for e = {e}: {error}")
+                self.display_error_table()
+            choice = input("\nDo you want to change the range of e? (yes/no): ")
+            if choice == "no":
+                break
         e = input("Enter the value of e to use: ")
 
         # Show database with the e
         self.run_command(e)
-        dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/privatized', self.dataset_name + '_private.csv'))
-        df = pd.read_csv(dataset_path)
-        print(df)
+        self.display_error_table()
 
         # Ask the user if he is satisfied with the results
         option = input("Are you satisfied with the results? (y/n): ")
@@ -171,35 +175,6 @@ if __name__ == "__main__":
     E = float(args.E)
     optimizer = PrivacyUtilityOptimizer(args.d, f, E)
     optimizer.run()
-
-    # Sketch frequency estimation
-    # dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/frequencies', args.d + '_freq_estimated_cms.csv'))
-    #f_estimated = pd.read_csv(dataset_path)
-
-    # Real frequency
-    # f_real = real_frequency(args)
-    #N = f_real['Frequency'].sum()
-
-    # Constants
-    #DATA_FILE = args.d
-    # f = 0.01 # Failure probability
-    # E = 0.5 # Overestimation factor
-    #euler = 2.71828 # Euler's number
-    
-    # Calculation of m and k
-    #k = int(1/f)
-    #m = int(euler/ E )
-    #print(f"Initial values: k = {k}, m = {m}")
-
-    # Utility or Privacy?
-    # choice = input("Choose Utility or Privacy (u/p): ")
-
-    # if choice == "u":
-    #     utility_error(args)
-    # elif choice == "p":
-    #     privacy_error(N, k, m, f_estimated, f_real, args)
-    # else:
-    #     print("Invalid choice. Please try again.")
 
     
 
