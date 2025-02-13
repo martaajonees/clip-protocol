@@ -11,15 +11,7 @@ import sys
 import pandas as pd
 import pickle
 
-# Enlace con la ruta para las utilidades (funciones de uso comun)
-file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..',  'utils', 'utils.py'))
-module_name = 'utils'
-
-spec = importlib.util.spec_from_file_location(module_name, file_path)
-utils = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(utils)
-
-TEST_MODE = False
+from utils.utils import load_dataset, generate_error_table, generate_hash_functions
 
 class CMSClient:
     def __init__(self, k, m, dataset, domain):
@@ -35,7 +27,7 @@ class CMSClient:
         # Definition of the hash family 3 by 3
         primes = list(primerange(10**6, 10**7))
         p = primes[random.randint(0, len(primes)-1)]
-        self.H = utils.generate_hash_functions(self.k,p, 3,self.m)
+        self.H = generate_hash_functions(self.k,p, 3,self.m)
 
     def client(self, d):
         j = random.randint(0, self.k-1)
@@ -73,21 +65,13 @@ class CMSClient:
         bar.finish()
         return F_estimated
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Count Mean Sketch Algorithm for frequency estimation from a known domain.")
-    parser.add_argument("-k", type=int, required=True, help="Number of hash functions used (Rows in the sketch matrix).")
-    parser.add_argument("-m", type=int, required=True, help="Maximum domain value of the hash functions (Columns in the sketch matrix).")
-    parser.add_argument("-d", type=str, required=True, help="Name of the dataset used.")
-    parser.add_argument("--verbose_time", action="store_true", help="Display execution times of the functions.")
-    args = parser.parse_args()
-
+def run_cms_client(k, m, d):
     # Load the dataset
-    dataset_name = f"{args.d}_filtered"
-    dataset, df, domain = utils.load_dataset(dataset_name)
+    dataset_name = f"{d}_filtered"
+    dataset, df, domain = load_dataset(dataset_name)
 
     # Initialize the CMSClient
-    PCMS = CMSClient(args.k, args.m, dataset, domain)
+    PCMS = CMSClient(k, m, dataset, domain)
 
     # Simulate the server side
     f_estimated = PCMS.server_simulator()
@@ -97,11 +81,12 @@ if __name__ == "__main__":
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(script_dir, "../../data/frequencies")
-    df_estimated.to_csv(os.path.join(output_dir, f"{args.d}_freq_estimated_cms.csv"), index=False)
+    df_estimated.to_csv(os.path.join(output_dir, f"{dataset_name}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    os.system('cls' if os.name == 'nt' else 'clear>/dev/null')
-    utils.display_results(df, f_estimated)
+    generate_error_table(df, f_estimated)
+
+
 
 
   
