@@ -84,11 +84,14 @@ def generate_hash_functions(k, p, c, m):
         functions_params.append(coefficients)
     return hash_functions
 
-def generate_hash_function_G(k, p, a, b):
+def generate_hash_function_G(k, p, a, b, c):
     hash_functions = []
     for _ in range(k):
         coefficients = [random.randint(1, p - 1) for _ in range(c)]
-        hash_func = 1 if ((a + b) % p) % 2 == 0 else -1
+
+        def hash_func(d, coeffs=coefficients, p=p, a=a, b=b):
+            hash_value = 2 * (sum(coeff * (hash(d) ** i) %p for i, coeff in enumerate(coeffs)) % 2) - 1
+            return hash_value
         hash_functions.append(hash_func)
     return hash_functions
 

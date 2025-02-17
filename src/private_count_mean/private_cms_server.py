@@ -54,6 +54,13 @@ class privateCMSServer:
         f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
         return f_estimated
     
+    def query_server(self, query_element):
+        if query_element not in self.domain:
+            return "Element not in the domain"
+        estimation = self.estimate_server(query_element)
+        return estimation
+
+    
 def run_private_cms_server(k, m, e, d, H):
     dataset, df, domain = load_dataset(f"{d}_filtered")
     
@@ -77,3 +84,11 @@ def run_private_cms_server(k, m, e, d, H):
     # Show the results
     os.system('cls' if os.name == 'nt' else 'clear>/dev/null')
     display_results(df, f_estimated)
+
+    # Query the server
+    while True:
+        query = input("Enter an element to query the server or 'exit' to finish: ")
+        if query.lower() == 'exit':
+            break
+        estimation = server.query_server(query)
+        print(f"The estimated frequency of {query} is {estimation}")

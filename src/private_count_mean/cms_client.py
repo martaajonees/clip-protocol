@@ -81,7 +81,7 @@ def run_cms_client(k, m, d):
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(script_dir, "../../data/frequencies")
-    df_estimated.to_csv(os.path.join(output_dir, f"{dataset_name}_freq_estimated_cms.csv"), index=False)
+    df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
     generate_error_table(df, f_estimated)

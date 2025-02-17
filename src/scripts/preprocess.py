@@ -2,14 +2,20 @@
 import pandas as pd
 import argparse
 from tqdm import tqdm
+import os
 
 class DataProcessor:
     def __init__(self, dataset_name):
         self.file_name = f"{dataset_name}.xlsx"
-        self.excel_file = f"../data/raw/{self.file_name}"
-        self.output_csv = f"../data/filtered/{self.file_name.replace('.xlsx', '_filtered.csv')}"
         self.columns = ['Participant', 'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name']
         self.df = None
+
+        base_path_1 = os.path.join('..', '..', 'data', 'raw')
+        base_path_2 = os.path.join('..', 'data', 'raw')
+
+        self.excel_file = os.path.join(base_path_1, self.file_name) if os.path.exists(base_path_1) else os.path.join(base_path_2, self.file_name)
+        self.output_csv = os.path.join(base_path_1.replace('raw', 'filtered'), self.file_name.replace('.xlsx', '_filtered.csv')) if os.path.exists(base_path_1) else os.path.join(base_path_2.replace('raw', 'filtered'), self.file_name.replace('.xlsx', '_filtered.csv'))
+
 
     def load_excel(self):
         print(f"Loading excel file: {self.excel_file}")
@@ -27,8 +33,8 @@ class DataProcessor:
                     rows.append({'user_id': user_id, 'value': row[col]})
                     hit = True
                     break
-            #if not hit:
-                #rows.append({'user_id': user_id, 'value': 'No hit'})
+            if not hit:
+                rows.append({'user_id': user_id, 'value': 'No hit'})
         self.df = pd.DataFrame(rows)
 
     def filter_fixation(self):

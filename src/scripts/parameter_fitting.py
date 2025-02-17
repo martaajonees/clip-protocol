@@ -8,15 +8,13 @@ import optuna
 import statistics
 
 from private_count_mean.private_cms_client import run_private_cms_client
+from private_count_sketch.private_cs_client import run_private_cs_client
+from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
-
-ALGORITHM_PATHS = {
-        1: "../src/private_count_mean/private_cms_client.py",
-        2: "../src/private_hadamard_count_mean/private_hcms.py",
-}   
 
 class PrivacyUtilityOptimizer:
-    def __init__(self, dataset_name, failure_probability, overestimation_factor):
+    def __init__(self, dataset_name, failure_probability, overestimation_factor, algorithm):
+        self.algorithm = algorithm
         self.dataset_name = dataset_name
         self.failure_probability = failure_probability
         self.overestimation_factor = overestimation_factor
@@ -47,9 +45,16 @@ class PrivacyUtilityOptimizer:
         return (1 / self.N) * sum_error
 
     def run_command(self, e):
-        H = run_private_cms_client(self.k, self.m, e, self.dataset_name)
+        result = {"H": None, "G": None, "hashes": None}
+        if self.algorithm == '1':
+            result["H"] = run_private_cms_client(self.k, self.m, e, self.dataset_name)
+        elif self.algorithm == '2':
+            result["H"] = run_private_cs_client(self.k, self.m, e, self.dataset_name)
+        elif self.algorithm == '3':
+            result["hashes"] = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
+
         self.load_frequency_estimation()
-        return H
+        return result
 
     def get_real_frequency(self):
         df = pd.read_csv(self.filtered_path)
@@ -107,7 +112,7 @@ class PrivacyUtilityOptimizer:
         e = self.optimize_e_with_optuna(Lp, p)
 
         # Show database with the e
-        H = run_command(e)
+        result = run_command(e)
         self.display_error_table()
 
         # Ask the user if he is satisfied with the results
@@ -116,7 +121,7 @@ class PrivacyUtilityOptimizer:
             utility_error()
         else:
             print("Sending database to server ...")
-        return e, H
+        return e, result
 
     def privacy_error(self):
         from method_init import execute
@@ -134,7 +139,7 @@ class PrivacyUtilityOptimizer:
             saved_e = 0
 
             for e in range(int(e_min), int(e_max), int(step)):
-                H = self.run_command(e)
+                result = self.run_command(e)
                 f_estimated, f_real = self.frequencies()
                 error = self.function_LP(f_estimated, f_real, p)
                 print(f"\nError for e = {e}: {error}")
@@ -142,7 +147,7 @@ class PrivacyUtilityOptimizer:
                 save = input("Do you want to save this privatized values? (y/n): ")
                 if save == "y":
                     saved_e = e
-                    H_fav = H
+                    H_fav = result
                     privatized_data = pd.read_csv(self.privatized_path)
                     privatized_data.to_csv(self.privatized_path.replace('.csv', f'_fav.csv'), index=False)
 
@@ -177,18 +182,18 @@ class PrivacyUtilityOptimizer:
         e = 0
         choice = input("Choose Utility or Privacy (u/p): ")
         if choice == "u":
-            e, H = self.utility_error()
+            e, result = self.utility_error()
         elif choice == "p":
-            e, H = self.privacy_error()
+            e, result = self.privacy_error()
         else:
             print("Invalid choice. Please try again.")
-        return e, H
+        return e, result
 
     
-def run_parameter_fitting(d, f, E):
-    optimizer = PrivacyUtilityOptimizer(d, f, E)
-    e, H = optimizer.run()
-    return e, H
+def run_parameter_fitting(d, f, E, algorithm):
+    optimizer = PrivacyUtilityOptimizer(d, f, E, algorithm)
+    e, result = optimizer.run()
+    return e, result
 
     
 

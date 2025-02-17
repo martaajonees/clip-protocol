@@ -12,7 +12,7 @@ import pandas as pd
 import pickle
 import statistics
 
-from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
+from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
 
 class privateCMSClient:
     def __init__(self, epsilon, k, m, dataset, domain, dataset_name):
@@ -127,4 +127,5 @@ def run_private_cms_client(k, m, e, d):
 
     # Show the results
     display_results(df, f_estimated)
+    generate_error_table(df, f_estimated)
     return H
