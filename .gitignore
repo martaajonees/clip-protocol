@@ -2,3 +2,7 @@
 .DS_Store
 .pkgdata/privatized/dataOviedo_private_fav.pkl
 /datadata/privatized/dataOviedo_private_fav.pkl
+*.csv
+*.pkl
+/data
+/data
