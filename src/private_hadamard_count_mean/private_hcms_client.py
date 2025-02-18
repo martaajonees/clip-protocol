@@ -34,7 +34,7 @@ class privateHCMSClient:
         # Definition of the hash family 3 by 3
         primes = list(primerange(10**6, 10**7))
         p = primes[random.randint(0, len(primes)-1)]
-        self.hashes = utils.generate_hash_functions(self.k,p, 3,self.m)
+        self.hashes = generate_hash_functions(self.k,p, 3,self.m)
     
     def hadamard_matrix(self,n):
         if n == 1:
@@ -82,7 +82,7 @@ class privateHCMSClient:
             bar.next()
         bar.finish()
 
-        df_client_matrix = pd.DataFrame(privatized_data, columns=['v', 'j'])
+        df_client_matrix = pd.DataFrame(privatized_data, columns=['v', 'j', 'l'])
 
         data_dict = df_client_matrix.to_dict(orient='list')
 
@@ -126,7 +126,7 @@ def run_private_hcms_client(k, m, e, d):
     privatized_data = client.execute_client()
 
     # Simulate the server side
-    f_estimated, hashes = PCMS.server_simulator(privatized_data)
+    f_estimated, hashes = client.server_simulator(privatized_data)
 
     # Save f_estimated to a file
     df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
@@ -135,9 +135,9 @@ def run_private_hcms_client(k, m, e, d):
     output_dir = os.path.join(script_dir, "../../data/frequencies")
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
-    generate_error_table(df, f_estimated)
+    error_table = display_results(df, f_estimated)
 
-    return hashes
+    return hashes, error_table
 
 
   

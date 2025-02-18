@@ -37,6 +37,9 @@ def execute_client(database, algorithm):
         pass
        # run_private_cs_client(k, m, 11.0, database) # Sustitue for no privacy cs
     elif algorithm == '3':
+        if math.log2(m).is_integer() == False:
+            m = 2 ** math.ceil(math.log2(m))
+            print("m must be a power of 2: m ={m}")
         run_hcms_client(k, m, database)
 
     error_table = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/error_tables', 'errors_table.csv'))

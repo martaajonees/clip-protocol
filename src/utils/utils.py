@@ -174,3 +174,4 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
         print('\n' + tabulate(error_table, tablefmt="pretty"))
         generate_error_table(real_freq, estimated_freq)
     
+    return error_table
