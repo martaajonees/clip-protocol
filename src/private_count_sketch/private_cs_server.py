@@ -28,7 +28,7 @@ class privateCSServer:
         c_e = (np.exp(self.epsilon/2)+1) / ((np.exp(self.epsilon/2))-1)
         x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
-            self.M[j,i] += x[i] * G_d
+            self.M[j,i] += x[i] 
 
     def execute_server(self,privatized_data):
         bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')

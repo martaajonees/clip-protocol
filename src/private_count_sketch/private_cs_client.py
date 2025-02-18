@@ -52,7 +52,7 @@ class privateCSClient:
         v = np.full(self.m, -1)
         selected_hash = self.H[j]
         G_d = self.G[j](d)
-        v[selected_hash(d)] = 1 
+        v[selected_hash(d)] = 1 * G_d
         b = self.bernoulli_vector()
         v_aux = v*b
         self.client_matrix.append((v_aux,j))
@@ -62,7 +62,7 @@ class privateCSClient:
         c_e = (np.exp(self.epsilon/2) + 1) / ((np.exp(self.epsilon/2))-1)
         x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
-            self.M[j,i] += x[i] * G
+            self.M[j,i] += x[i] 
 
     def estimate_client(self,d):
         sum_aux = 0

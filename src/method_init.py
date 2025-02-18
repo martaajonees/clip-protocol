@@ -56,7 +56,6 @@ def execute(database, algorithm):
     e, result = run_parameter_fitting(database, f, E, algorithm)
 
     H = result["H"]
-    G = result["G"]
     hashes = result["hashes"]
 
     print("\nExecuting server ...")

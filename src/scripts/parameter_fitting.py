@@ -45,7 +45,7 @@ class PrivacyUtilityOptimizer:
         return (1 / self.N) * sum_error
 
     def run_command(self, e):
-        result = {"H": None, "G": None, "hashes": None}
+        result = {"H": None, "hashes": None}
         if self.algorithm == '1':
             result["H"] = run_private_cms_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '2':
@@ -157,7 +157,7 @@ class PrivacyUtilityOptimizer:
                     
             choice = input("\n1. Change e\n2. Change k or m\n3. Continue\n Select (1, 2 or 3): ")
             if choice == "2":
-                execute(self.dataset_name)
+                execute(self.dataset_name, self.algorithm)
                 break
             elif choice == "3":
                 break
