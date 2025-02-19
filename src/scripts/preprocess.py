@@ -33,8 +33,8 @@ class DataProcessor:
                     rows.append({'user_id': user_id, 'value': row[col]})
                     hit = True
                     break
-            if not hit:
-                rows.append({'user_id': user_id, 'value': 'No hit'})
+            # if not hit:
+            #     rows.append({'user_id': user_id, 'value': 'No hit'})
         self.df = pd.DataFrame(rows)
 
     def filter_fixation(self):

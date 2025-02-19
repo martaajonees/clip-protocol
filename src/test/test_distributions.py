@@ -1,85 +1,104 @@
-import pandas as pd
-from scipy import stats
-import matplotlib.pyplot as plt
-from scipy.stats import norm, laplace, uniform
-from statsmodels.distributions.empirical_distribution import ECDF
-from matplotlib import style
-from tqdm import tqdm
-import os
-import sys
 import numpy as np
+import pandas as pd
+import random
+import string
+import sys
+import os
+from tabulate import tabulate
+import matplotlib.pyplot as plt
 
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from private_count_mean.private_cms_client import run_private_cms_client
 from scripts.preprocess import run_data_processor
 
-def transform_dataset(file_name, target_distribution):
+
+def generate_user_id(length=10):
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+
+def generate_dataset(distribution, n):
+    if distribution == 'normal':
+        valores = np.random.normal(loc=12, scale=2, size=n).astype(int)
+    elif distribution == 'laplace':
+        valores = np.random.laplace(loc=12, scale=2, size=n).astype(int)
+    elif distribution == 'uniform':
+        valores = np.random.uniform(low=0, high=4, size=n).astype(int)
+    elif distribution == "exp":
+        valores = np.random.exponential(scale=2.0, size=n).astype(int)
+
+    # user_ids = set()
+    # while len(user_ids) < n:
+    #     user_ids.add("S01post")
+
+    user_ids = ["S01post"] * n
+
     
-    # matplotlib configuration
-    plt.rcParams['savefig.bbox'] = "tight"
-    style.use('ggplot') or plt.style.use('ggplot')
+    user_ids = list(user_ids)
 
-    # Load the dataset
-    df = pd.read_excel(f'../../data/raw/{file_name}.xlsx')
-    # delete first column
-    df = df.drop(df.columns[0], axis=1)
+    data = {'user_id': user_ids, 'value': valores}
+    df = pd.DataFrame(data)
 
-    # Define distributions
-    distributions = {
-        'gaussian': norm,
-        'normal': norm,
-        'laplace': laplace,
-        'uniform': uniform
-    }
-    
-    # Apply the transformation
-    distribution = distributions[target_distribution]
-    columns = df.select_dtypes(include='number').columns
-
-    for column_name in tqdm(columns, desc='Transforming columns'):
-        column_data = df[column_name].dropna().values
-        if len(column_data) > 0:
-            ecdf = ECDF(column_data)
-            uniform_values = ecdf(column_data)
-            transformed_values = distribution.ppf(uniform_values)
-            df[column_name] = transformed_values
-    
-
-    # Save the transformed dataset
-    df.to_excel(f'../../data/raw/{file_name}_{target_distribution}.xlsx', index=False)
-
-def display_error_table():
-        # Go to data/error_tables and show the error table
-        dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/error_tables'))
-        error_table_path = os.path.join(dir, 'errors_table.csv')
-        if os.path.exists(error_table_path):
-            error_table = pd.read_csv(error_table_path)
-            print(error_table)
-        else:
-            print(f"Error: El archivo no existe en la ruta especificada: {error_table_path}")
+    # Save the new dataset 
+    df.to_csv(f'../../data/filtered/{distribution}_{n}_filtered.csv', index=False)
 
 def run_distribution_test():
 
+    N = 50000
+    k = [16, 128, 128, 1024, 32768]
+    m = [16, 16, 1024, 256, 256]
+    e = 2
+
     # Define distributions
-    distributions = ['gaussian', 'laplace', 'uniform', 'normal']
+    distributions = ['laplace', 'uniform', 'normal', 'exp']
 
-    for distribution in distributions:
-        print(f"\n============= {distribution} =============")
-        file_name = "dataOviedo"
-        # Transform the raw dataset 
-        transform_dataset(file_name, distribution)
+    for i in range(len(distributions)):
+        print(f"\n================== {distributions[i]} ==================")
+        
+        # Generate the dataset
+        generate_dataset(distributions[i], N)
 
-        # Filter the transformed dataset
-        file_name = f"{file_name}_{distribution}"
-        run_data_processor(file_name)
+        filename = f"{distributions[i]}_{N}"
 
-        # Test how the private CMS behaves with the transformed dataset
-        run_private_cms_client(100, 543, 11, file_name)
+        general_table = []
 
-        # Display the error table
-        display_error_table()
+        for j in range(5):
+            print(f"\nk={k[j]}, m={m[j]} ==================")
+            _, error_table, estimated_freq = run_private_cms_client(k[j], m[j], e, filename)
+
+            error_dict = { key: value for key, value in error_table }
+
+            row = [
+                k[j],
+                m[j],
+                error_dict.get("Mean Error", ""),
+                error_dict.get("Percentage Error", ""),
+                error_dict.get("MSE", ""),
+                error_dict.get("RMSE", ""),
+                error_dict.get("Normalized MSE", ""),
+                error_dict.get("Normalized RMSE", ""),
+                error_dict.get("Pearson Correlation Coefficient", "")
+            ]
+            general_table.append(row)
+
+            if j == 4:
+                keys = list(estimated_freq.keys())
+                values = list(estimated_freq.values())
+                
+                plt.figure(figsize=(10, 6))
+                plt.bar(keys, values, color='skyblue')
+                plt.xlabel("Element")
+                plt.ylabel("Estimated Frequency")
+                plt.title(f"Estimated Frequencies\nDistribution: {distributions[i]} (k={k[j]}, m={m[j]})")
+                plt.xticks(rotation=45)
+                plt.tight_layout()
+                plt.show()
+
+        headers = [
+            "k", "m", "Mean Error", "Percentage Error", 
+            "MSE", "RMSE", "Normalized MSE", "Normalized RMSE", "Pearson Corr"
+        ]
+
+        print(tabulate(general_table, headers=headers, tablefmt="grid"))
 
 
 if __name__ == '__main__':

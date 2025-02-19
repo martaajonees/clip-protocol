@@ -50,15 +50,16 @@ class privateCSClient:
     def client(self, d):
         j = random.randint(0, self.k-1)
         v = np.full(self.m, -1)
+
         selected_hash = self.H[j]
-        G_d = self.G[j](d)
-        v[selected_hash(d)] = 1 * G_d
+        v[selected_hash(d)] = 1 * self.G[j](d)
         b = self.bernoulli_vector()
+
         v_aux = v*b
         self.client_matrix.append((v_aux,j))
-        return v_aux, j, G_d
+        return v_aux, j
 
-    def update_sketch_matrix(self, v, j, G):
+    def update_sketch_matrix(self, v, j):
         c_e = (np.exp(self.epsilon/2) + 1) / ((np.exp(self.epsilon/2))-1)
         x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
@@ -68,7 +69,7 @@ class privateCSClient:
         sum_aux = 0
         for i in range(self.k):
             selected_hash = self.H[i]
-            sum_aux += self.M[i, selected_hash(d)]
+            sum_aux += self.M[i, selected_hash(d) * self.G[i](d)]
 
         f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
         return f_estimated
@@ -77,12 +78,12 @@ class privateCSClient:
         bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
         privatized_data = []
         for d in self.dataset:
-            v_i, j_i, G_d = self.client(d)
-            privatized_data.append((v_i, j_i, G_d))
+            v_i, j_i = self.client(d)
+            privatized_data.append((v_i, j_i))
             bar.next()
         bar.finish()
         
-        df_client_matrix = pd.DataFrame(privatized_data, columns=['v', 'j', 'G'])
+        df_client_matrix = pd.DataFrame(privatized_data, columns=['v', 'j'])
 
         data_dict = df_client_matrix.to_dict(orient='list')
 
@@ -101,7 +102,7 @@ class privateCSClient:
         bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
         
         for data in privatized_data:
-            self.update_sketch_matrix(data[0],data[1], data[2])
+            self.update_sketch_matrix(data[0],data[1])
             bar.next()
         bar.finish()
 
@@ -110,7 +111,7 @@ class privateCSClient:
             F_estimated[x] = self.estimate_client(x)
             bar.next()
         bar.finish()
-        return F_estimated, self.H
+        return F_estimated, self.H, self.G
 
 def run_private_cs_client(k, m, e, d):
     dataset, df, domain = load_dataset(f"{d}_filtered")
@@ -122,7 +123,7 @@ def run_private_cs_client(k, m, e, d):
     privatized_data = PCMS.execute_client()
 
     # Simulate the server side
-    f_estimated, H = PCMS.server_simulator(privatized_data)
+    f_estimated, H, G = PCMS.server_simulator(privatized_data)
 
     # Save f_estimated to a file
     df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
@@ -134,4 +135,4 @@ def run_private_cs_client(k, m, e, d):
     # Show the results
     display_results(df, f_estimated)
     generate_error_table(df, f_estimated)
-    return H
+    return H, G

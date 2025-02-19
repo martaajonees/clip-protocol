@@ -14,10 +14,10 @@ from scripts.parameter_fitting import run_parameter_fitting
 # Importing CS functions
 from private_count_sketch.private_cs_server import run_private_cs_server
 from private_count_sketch.private_cs_client import run_private_cs_client
+from private_count_sketch.cs_client import run_cs_client
 
 
 # Importing HCMS functions
-from private_hadamard_count_mean.hcms_client import run_hcms_client
 from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
 from private_hadamard_count_mean.private_hcms_server import run_private_hcms_server
 
@@ -34,13 +34,12 @@ def execute_client(database, algorithm):
     if algorithm == '1':
         run_cms_client(k, m, database)
     elif algorithm == '2':
-        pass
-       # run_private_cs_client(k, m, 11.0, database) # Sustitue for no privacy cs
+        run_cs_client(k, m, database)
     elif algorithm == '3':
         if math.log2(m).is_integer() == False:
             m = 2 ** math.ceil(math.log2(m))
             print("m must be a power of 2: m ={m}")
-        run_hcms_client(k, m, database)
+        run_cms_client(k, m, database)
 
     error_table = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data/error_tables', 'errors_table.csv'))
     print(pd.read_csv(error_table))
@@ -60,12 +59,13 @@ def execute(database, algorithm):
 
     H = result["H"]
     hashes = result["hashes"]
+    G = result["G"]
 
     print("\nExecuting server ...")
     if algorithm == '1':
         run_private_cms_server(k, m, e, database, H)
     elif algorithm == '2':
-        run_private_cs_server(k, m, e, database, H)
+        run_private_cs_server(k, m, e, database, H, G)
     elif algorithm == '3':
         run_private_hcms_server(k, m, e, database, hashes)
 
@@ -74,7 +74,7 @@ def execute(database, algorithm):
 if __name__ == "__main__":
     print("Executing preprocessing ...")
     database = input("Enter the database name: ")
-    #run_data_processor(database)
+    run_data_processor(database)
 
     algorithm = input("Which algorithm do you want to execute?:\n1. Count-Mean Sketch\n2. Count Sketch\n3. Hadamard Count-Mean Sketch\n")
     

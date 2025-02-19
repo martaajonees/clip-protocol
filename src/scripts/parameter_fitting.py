@@ -45,11 +45,11 @@ class PrivacyUtilityOptimizer:
         return (1 / self.N) * sum_error
 
     def run_command(self, e):
-        result = {"H": None, "hashes": None}
+        result = {"H": None, "G": None,"hashes": None}
         if self.algorithm == '1':
             result["H"] = run_private_cms_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '2':
-            result["H"] = run_private_cs_client(self.k, self.m, e, self.dataset_name)
+            result["H"], result["G"] = run_private_cs_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '3':
             result["hashes"] = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
 

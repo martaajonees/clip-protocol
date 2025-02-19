@@ -126,6 +126,6 @@ def run_private_cms_client(k, m, e, d):
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    display_results(df, f_estimated)
+    error_table = display_results(df, f_estimated)
     generate_error_table(df, f_estimated)
-    return H
+    return H, error_table, f_estimated

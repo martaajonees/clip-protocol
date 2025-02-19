@@ -12,7 +12,7 @@ import pickle
 from utils.utils import load_dataset, display_results
 
 class privateCSServer:
-    def __init__(self, epsilon, k, m, dataset, domain, H):
+    def __init__(self, epsilon, k, m, dataset, domain, H, G):
         self.epsilon = epsilon
         self.k = k
         self.m = m
@@ -20,11 +20,12 @@ class privateCSServer:
         self.domain = domain
         self.N = len(dataset)
         self.H = H
+        self.G = G
 
         # Creation of the sketch matrix
         self.M = np.zeros((self.k, self.m))
     
-    def update_sketch_matrix(self, v, j, G_d):
+    def update_sketch_matrix(self, v, j):
         c_e = (np.exp(self.epsilon/2)+1) / ((np.exp(self.epsilon/2))-1)
         x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
@@ -34,7 +35,7 @@ class privateCSServer:
         bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
 
         for data in privatized_data:
-            self.update_sketch_matrix(data[0],data[1], data[2])
+            self.update_sketch_matrix(data[0],data[1])
             bar.next()
         bar.finish()
 
@@ -49,7 +50,7 @@ class privateCSServer:
         sum_aux = 0
         for i in range(self.k):
             selected_hash = self.H[i]
-            sum_aux += self.M[i, selected_hash(d)]
+            sum_aux += self.M[i, selected_hash(d) * self.G[i](d)]
         
         f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
         return f_estimated
@@ -61,11 +62,11 @@ class privateCSServer:
         return estimation
 
     
-def run_private_cs_server(k, m, e, d, H):
+def run_private_cs_server(k, m, e, d, H, G):
     dataset, df, domain = load_dataset(f"{d}_filtered")
     
     #Initialize the server Count-Mean Sketch
-    server = privateCSServer(e, k, m, dataset, domain, H)
+    server = privateCSServer(e, k, m, dataset, domain, H, G)
     
     # Obtain the privatized data
     script_dir = os.path.dirname(os.path.abspath(__file__))

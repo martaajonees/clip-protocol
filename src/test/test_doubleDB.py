@@ -4,9 +4,7 @@ import os
 import sys
 import pandas as pd
 
-
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from private_count_mean.private_cms_client import run_private_cms_client
 from scripts.preprocess import run_data_processor
