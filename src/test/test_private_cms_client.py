@@ -6,34 +6,42 @@ from private_count_mean.private_cms_client import run_private_cms_client
 from tabulate import tabulate
 
 def test_algoritmos():
-    data = "exp_distrib_50k"
-    e = 2
+    #data = "exp_distrib_50k"
+    data = "dataOviedo"
+    e = 50
     k = [16, 128, 128, 1024, 32768]
     m = [16, 16, 1024, 256, 256]
 
     general_table = []
 
+    headers=[
+        "Element", "Real Frequency", "Real Percentage", 
+        "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+        "Percentage Error"
+    ]
+
     for i in range(len(k)):
-        _, error_table = run_private_cms_client(k[i], m[i], e, data)
+        _, data_table, _ = run_private_cms_client(k[i], m[i], e, data)
 
-        error_dict = { key: value for key, value in error_table }
+        data_dicts = [dict(zip(headers, row)) for row in data_table]
 
-        row = [
-            k[i],
-            m[i],
-            error_dict.get("Mean Error", ""),
-            error_dict.get("Percentage Error", ""),
-            error_dict.get("MSE", ""),
-            error_dict.get("RMSE", ""),
-            error_dict.get("Normalized MSE", ""),
-            error_dict.get("Normalized RMSE", ""),
-            error_dict.get("Pearson Correlation Coefficient", "")
-        ]
-        general_table.append(row)
+        for data_dict in data_dicts:
+            general_table.append([
+                k[i], m[i], 
+                data_dict.get("Element", ""),
+                data_dict.get("Real Frequency", ""),
+                data_dict.get("Real Percentage", ""),
+                data_dict.get("Estimated Frequency", ""),
+                data_dict.get("Estimated Percentage", ""),
+                data_dict.get("Estimation Difference", ""),
+                data_dict.get("Percentage Error", ""),
+            ])
+            
 
-    headers = [
-        "k", "m", "Mean Error", "Percentage Error", 
-        "MSE", "RMSE", "Normalized MSE", "Normalized RMSE", "Pearson Corr"
+    headers=[
+        "k", "m", "Element", "Real Frequency", "Real Percentage", 
+        "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+        "Percentage Error"
     ]
 
     print(tabulate(general_table, headers=headers, tablefmt="grid"))

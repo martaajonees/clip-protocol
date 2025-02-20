@@ -34,7 +34,9 @@ class CSClient:
         prime = 2**31 -1
         a = random.randint(1, prime-1)
         b = random.randint(0, prime-1)
-        self.G = generate_hash_function_G(self.k, p, a, b, 4)
+        c = random.randint(1, prime-1)
+        d = random.randint(0, prime-1)
+        self.G = generate_hash_function_G(self.k, p, a, b, c, d)
 
     def client(self, d):
         j = random.randint(0, self.k-1)
@@ -53,7 +55,7 @@ class CSClient:
         vector_median = []
         for i in range(self.k):
             selected_hash = self.H[i]
-            vector_median.append(self.M[i,selected_hash(d)]* self.G[i](d))
+            vector_median.append(self.M[i,selected_hash(d)] * self.G[i](d))
         median = statistics.median(vector_median)
         return median
     

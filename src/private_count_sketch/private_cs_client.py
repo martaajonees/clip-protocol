@@ -35,32 +35,35 @@ class privateCSClient:
         p = primes[random.randint(0, len(primes)-1)]
         self.H = generate_hash_functions(self.k,p, 3,self.m)
 
-        # Definition of the hash family 4 by 4
-        prime = 2**31 -1
-        a = random.randint(1, prime-1)
-        b = random.randint(0, prime-1)
-        self.G = generate_hash_function_G(self.k, p, a, b, 4)
+        #Definition of the hash family 4 by 4
+        prime = 2**61 - 1
+        # a = random.randint(1, prime-1)
+        # b = random.randint(0, prime-1)
+        # c = random.randint(1, prime-1)
+        # d = random.randint(0, prime-1)
+        self.G = generate_hash_function_G(self.k, prime)
 
     
     def bernoulli_vector(self):
-        b = np.random.binomial(1, (np.exp(self.epsilon/2)) / ((np.exp(self.epsilon/2)) + 1), self.m)
-        b = 2 * b - 1  # Convert 0 to -1
+        b = np.random.binomial(1, (np.exp(self.epsilon / 2) / (np.exp(self.epsilon / 2) + 1)), self.m)
+        b = 2 * b - 1 
         return b
 
     def client(self, d):
         j = random.randint(0, self.k-1)
-        v = np.full(self.m, -1)
+        v = np.zeros(self.m)
 
         selected_hash = self.H[j]
         v[selected_hash(d)] = 1 * self.G[j](d)
+        
         b = self.bernoulli_vector()
-
         v_aux = v*b
+
         self.client_matrix.append((v_aux,j))
         return v_aux, j
 
     def update_sketch_matrix(self, v, j):
-        c_e = (np.exp(self.epsilon/2) + 1) / ((np.exp(self.epsilon/2))-1)
+        c_e = (np.exp(self.epsilon / 2) + 1) / (np.exp(self.epsilon / 2) - 1)
         x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
             self.M[j,i] += x[i] 
@@ -69,7 +72,7 @@ class privateCSClient:
         median_vector = []
         for i in range(self.k):
             selected_hash = self.H[i]
-            median_vector.append(self.M[i, selected_hash(d) * self.G[i](d)])
+            median_vector.append(self.M[i, selected_hash(d)] * self.G[i](d))
         
         median = statistics.median(median_vector)
 

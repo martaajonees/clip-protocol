@@ -84,14 +84,21 @@ def generate_hash_functions(k, p, c, m):
         functions_params.append(coefficients)
     return hash_functions
 
-def generate_hash_function_G(k, p, a, b, c):
+def generate_hash_function_G(k, p):
     hash_functions = []
     for _ in range(k):
-        coefficients = [random.randint(1, p - 1) for _ in range(c)]
+        a = random.randint(1, p - 1)
+        b = random.randint(0, p - 1)
+        c = random.randint(1, p - 1)
+        d = random.randint(0, p - 1)
 
-        def hash_func(d, coeffs=coefficients, p=p, a=a, b=b):
-            hash_value = 2 * (sum(coeff * (hash(d) ** i) %p for i, coeff in enumerate(coeffs)) % 2) - 1
-            return hash_value
+        def hash_func(x, a=a, b=b, c=c, d=d, p=p):
+            if isinstance(x, str) and x.startswith("AOI "):
+                x = int(x.split()[1])
+            x_mod = x % p
+            h = (a + b * x_mod + c * pow(x_mod, 2, p) + d * pow(x_mod, 3, p)) % p
+            return 1 if (h % 2) == 0 else -1
+
         hash_functions.append(hash_func)
     return hash_functions
 

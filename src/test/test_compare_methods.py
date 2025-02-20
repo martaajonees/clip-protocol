@@ -19,11 +19,11 @@ def run_distribution_test():
     for j in range(len(k)):
         print(f"\n================== k: {k[j]}, m: {m[j]} ==================")
         print(" \n========= CMS ==========")
-        run_private_cms_client(k[j], m[j], e, filename)
+        _, error_table = run_private_cms_client(k[j], m[j], e, filename)
         print(" \n========= CS ===========")
-        run_private_cs_client(k[j], m[j], e, filename)
+        _, error_table = run_private_cs_client(k[j], m[j], e, filename)
         print(" \n========= HCMS ===========")
-        run_private_hcms_client(k[j], m[j], e, filename)
+        _, error_table = run_private_hcms_client(k[j], m[j], e, filename)
 
 
 if __name__ == '__main__':

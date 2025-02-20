@@ -127,7 +127,7 @@ class PrivacyUtilityOptimizer:
         return e, result
 
     def privacy_error(self):
-        from method_init import execute
+        from start import main
         p = float(input("Enter the type of error (p): "))
         error = self.function_LP(self.frequency_estimation, self.real_frequency, p)
         print(f"Initial Privacy Error (LP): {error}")
@@ -160,7 +160,7 @@ class PrivacyUtilityOptimizer:
                     
             choice = input("\n1. Change e\n2. Change k or m\n3. Continue\n Select (1, 2 or 3): ")
             if choice == "2":
-                execute(self.dataset_name, self.algorithm)
+                main(2)
                 break
             elif choice == "3":
                 break

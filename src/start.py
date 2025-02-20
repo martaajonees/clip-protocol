@@ -78,8 +78,8 @@ def execute_algorithms(database):
     # k_values = [16, 128, 128, 1024, 32768]
     # m_values = [16, 16, 1024, 256, 256]
 
-    k_values = [16]
-    m_values = [16]
+    k_values = [32768]
+    m_values = [256]
 
     results = {"CMS": [], "CS": [], "HCMS": []}
 
@@ -120,25 +120,44 @@ def execute_algorithms(database):
         print(tabulate(table, headers=headers, tablefmt="grid"))
 
 
+def main(step=1):
+    while True:
+        if step == 1:
+            # Step 1: Data preprocessing
+            database = input("Enter the database name: ")
+            run_data_processor(database)
+            step = 2
+    
+        if step == 2:
+            #Step 2: Calculate k and m
+            k, m = calculate_k_m()
+
+            # Step 3: Execute no privacy algorithms
+            execute_no_privacy(k, m, database)
+
+            res = input("Are you satisfied with the results? (yes/no): ")
+            if res == 'yes':
+                step = 3
+            else:
+                step = 2
+        elif step == 3:
+            # Step 4: Execute algorithms
+            execute_algorithms(database)
+
+            # Step 5: Choose an algorithm, k and m
+            k = int(input("Enter the value of k: "))
+            m = int(input("Enter the value of m: "))
+            algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Count Sketch\n3. Hadamard Count-Mean Sketch\n")
+            res = input("Are you satisfied with the results? (yes/no): ")
+            if res == 'yes':
+                step = 4
+                
+            else:
+                step = 2
+        elif step == 4:
+            # Step 6: Parameter fitting and execute server
+            execute(database, algorithm, k, m)
+            break
 
 if __name__ == "__main__":
-    # Step 1: Data preprocessing
-    database = input("Enter the database name: ")
-    run_data_processor(database)
-    
-    #Step 2: Calculate k and m
-    k, m = calculate_k_m()
-
-    # Step 3: Execute no privacy algorithms
-    execute_no_privacy(k, m, database)
-
-    # Step 4: Execute algorithms
-    execute_algorithms(database)
-
-    # Step 5: Choose an algorithm, k and m
-    k = int(input("Enter the value of k: "))
-    m = int(input("Enter the value of m: "))
-    algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Count Sketch\n3. Hadamard Count-Mean Sketch\n")
-
-    # Step 6: Parameter fitting and execute server
-    execute(database, algorithm, k, m)
+    main()
