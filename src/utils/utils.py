@@ -123,13 +123,7 @@ def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
 
 
 def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
-    """
-    Displays and compares real and estimated frequencies, along with error metrics.
-
-    Args:
-        real_freq (DataFrame): Real frequency data.
-        estimated_freq (dict): Estimated frequency data.
-    """
+   
     N = real_freq.shape[0]
     f = real_freq['value'].value_counts()
     real_num_freq = f.sort_index().to_dict()
@@ -143,7 +137,21 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
             estimated_count = estimated_freq[element]
             estimated_percent = (estimated_count / N) * 100
             diff = abs(real_num_freq[element] - estimated_freq[element])
-            data_table.append([element, real_count, f"{real_percent:.3f}%", f"{estimated_count:.2f}", f"{estimated_percent:.3f}%", f"{diff:.2f}"])
+            
+            if real_count > 0:
+                percent_error = abs(real_count - estimated_count) / real_count * 100
+            else:
+                percent_error = 0.0
+            
+            data_table.append([
+                element, 
+                real_count, 
+                f"{real_percent:.3f}%", 
+                f"{estimated_count:.2f}", 
+                f"{estimated_percent:.3f}%", 
+                f"{diff:.2f}", 
+                f"{percent_error:.2f}%"
+            ])
 
     errors = [abs(real_num_freq[key] - estimated_freq[key]) for key in estimated_freq]
     mean_error = np.mean(errors)
@@ -169,9 +177,9 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
         for error in error_table:
             print(f"{error[0]}: {error[1]}")
     else:
-        print("RESULTS")
-        print(tabulate(data_table, headers=["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference"], tablefmt="pretty"))
-        print('\n' + tabulate(error_table, tablefmt="pretty"))
+        #print("RESULTS")
+        #print(tabulate(data_table, headers=["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"], tablefmt="pretty"))
+        #print('\n' + tabulate(error_table, tablefmt="pretty"))
         generate_error_table(real_freq, estimated_freq)
     
-    return error_table
+    return data_table

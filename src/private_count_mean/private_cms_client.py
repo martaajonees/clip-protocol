@@ -127,5 +127,5 @@ def run_private_cms_client(k, m, e, d):
 
     # Show the results
     error_table = display_results(df, f_estimated)
-    generate_error_table(df, f_estimated)
+   
     return H, error_table, f_estimated

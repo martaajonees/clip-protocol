@@ -11,7 +11,7 @@ import sys
 import pandas as pd
 import pickle
 
-from utils.utils import load_dataset, generate_error_table, generate_hash_functions
+from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
 
 class CMSClient:
     def __init__(self, k, m, dataset, domain):
@@ -84,7 +84,9 @@ def run_cms_client(k, m, d):
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    generate_error_table(df, f_estimated)
+    data_table = display_results(df, f_estimated)
+
+    return data_table
 
 
 

@@ -18,7 +18,6 @@ class DataProcessor:
 
 
     def load_excel(self):
-        print(f"Loading excel file: {self.excel_file}")
         self.df = pd.read_excel(self.excel_file)
         print("Excel file loaded")
 

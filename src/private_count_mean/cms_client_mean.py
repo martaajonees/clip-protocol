@@ -10,11 +10,10 @@ from tabulate import tabulate
 import sys
 import pandas as pd
 import pickle
-import statistics
 
-from utils.utils import load_dataset, generate_error_table, generate_hash_functions, generate_hash_function_G, display_results
+from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
 
-class CSClient:
+class CMSClient:
     def __init__(self, k, m, dataset, domain):
         self.k = k 
         self.m = m
@@ -30,12 +29,6 @@ class CSClient:
         p = primes[random.randint(0, len(primes)-1)]
         self.H = generate_hash_functions(self.k,p, 3,self.m)
 
-        # Definition of the hash family 4 by 4
-        prime = 2**31 -1
-        a = random.randint(1, prime-1)
-        b = random.randint(0, prime-1)
-        self.G = generate_hash_function_G(self.k, p, a, b, 4)
-
     def client(self, d):
         j = random.randint(0, self.k-1)
         v = np.full(self.m, -1)
@@ -47,15 +40,14 @@ class CSClient:
         for i in range (self.k):
             selected_hash = self.H[i]
             hash_index = selected_hash(d)
-            self.M[i ,hash_index] += self.G[i](d)
+            self.M[i ,hash_index] += 1
 
-    def estimate_client(self, d):
-        vector_median = []
+    def estimate_client(self,d):
+        mean = 0
         for i in range(self.k):
             selected_hash = self.H[i]
-            vector_median.append(self.M[i,selected_hash(d)]* self.G[i](d))
-        median = statistics.median(vector_median)
-        return median
+            mean += self.M[i,selected_hash(d)]
+        return mean/self.k
     
     def server_simulator(self):
         bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
@@ -73,13 +65,13 @@ class CSClient:
         bar.finish()
         return F_estimated
 
-def run_cs_client(k, m, d):
+def run_cms_client_mean(k, m, d):
     # Load the dataset
     dataset_name = f"{d}_filtered"
     dataset, df, domain = load_dataset(dataset_name)
 
     # Initialize the CMSClient
-    PCMS = CSClient(k, m, dataset, domain)
+    PCMS = CMSClient(k, m, dataset, domain)
 
     # Simulate the server side
     f_estimated = PCMS.server_simulator()

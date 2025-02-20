@@ -135,9 +135,9 @@ def run_private_hcms_client(k, m, e, d):
     output_dir = os.path.join(script_dir, "../../data/frequencies")
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
-    error_table = display_results(df, f_estimated)
+    data_table = display_results(df, f_estimated)
 
-    return hashes, error_table
+    return hashes, data_table, f_estimated
 
 
   

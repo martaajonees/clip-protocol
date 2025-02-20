@@ -66,12 +66,14 @@ class privateCSClient:
             self.M[j,i] += x[i] 
 
     def estimate_client(self,d):
-        sum_aux = 0
+        median_vector = []
         for i in range(self.k):
             selected_hash = self.H[i]
-            sum_aux += self.M[i, selected_hash(d) * self.G[i](d)]
+            median_vector.append(self.M[i, selected_hash(d) * self.G[i](d)])
+        
+        median = statistics.median(median_vector)
 
-        f_estimated = (self.m/(self.m-1))*((sum_aux/self.k)-(self.N/self.m))
+        f_estimated = (self.m/(self.m-1))*(median -(self.N/self.m))
         return f_estimated
     
     def execute_client(self):
@@ -133,6 +135,5 @@ def run_private_cs_client(k, m, e, d):
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    display_results(df, f_estimated)
-    generate_error_table(df, f_estimated)
-    return H, G
+    data_table = display_results(df, f_estimated)
+    return H, data_table, G

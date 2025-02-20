@@ -34,7 +34,7 @@ def run_double_test():
     file_name = "dataOviedo"
 
     print(" ========= Original DB ===========")
-    run_private_cms_client(100, 543, 11, file_name)
+    run_private_cms_client(1024, 256, 50, file_name)
     display_error_table()
 
     # Transform the raw dataset 
@@ -42,7 +42,7 @@ def run_double_test():
 
 
     print(" ========= Double DB ===========")
-    run_private_cms_client(100, 543, 11, file_name)
+    run_private_cms_client(1024, 256, 50, file_name)
 
     # Display the error table
     display_error_table()

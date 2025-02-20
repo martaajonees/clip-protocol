@@ -7,17 +7,18 @@ import os
 import optuna
 import statistics
 
+from tabulate import tabulate
+import numpy as np
+
 from private_count_mean.private_cms_client import run_private_cms_client
 from private_count_sketch.private_cs_client import run_private_cs_client
 from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 
 class PrivacyUtilityOptimizer:
-    def __init__(self, dataset_name, failure_probability, overestimation_factor, algorithm):
+    def __init__(self, dataset_name, k, m, algorithm):
         self.algorithm = algorithm
         self.dataset_name = dataset_name
-        self.failure_probability = failure_probability
-        self.overestimation_factor = overestimation_factor
 
         self.frequency_estimation_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/frequencies', self.dataset_name + '_freq_estimated_cms.csv'))
         self.filtered_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/filtered', self.dataset_name + '_filtered.csv'))
@@ -30,8 +31,10 @@ class PrivacyUtilityOptimizer:
         
         self.N = self.real_frequency['Frequency'].sum()
 
-        self.k = int(1 / self.failure_probability)
-        self.m = int(2.71828 / self.overestimation_factor)
+        self.headers = headers=[ "Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"]
+
+        self.k = k
+        self.m = m
     
     def load_frequency_estimation(self):
         self.frequency_estimation = pd.read_csv(self.frequency_estimation_path)
@@ -47,14 +50,14 @@ class PrivacyUtilityOptimizer:
     def run_command(self, e):
         result = {"H": None, "G": None,"hashes": None}
         if self.algorithm == '1':
-            result["H"] = run_private_cms_client(self.k, self.m, e, self.dataset_name)
+            result["H"], data_table, _ = run_private_cms_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '2':
-            result["H"], result["G"] = run_private_cs_client(self.k, self.m, e, self.dataset_name)
+            result["H"], data_table, result["G"] = run_private_cs_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '3':
-            result["hashes"] = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
+            result["hashes"], data_table, _ = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
 
         self.load_frequency_estimation()
-        return result
+        return result, data_table
 
     def get_real_frequency(self):
         df = pd.read_csv(self.filtered_path)
@@ -112,8 +115,8 @@ class PrivacyUtilityOptimizer:
         e = self.optimize_e_with_optuna(Lp, p)
 
         # Show database with the e
-        result = run_command(e)
-        self.display_error_table()
+        result, data_table = run_command(e)
+        print(data_table)
 
         # Ask the user if he is satisfied with the results
         option = input("Are you satisfied with the results? (y/n): ")
@@ -139,11 +142,11 @@ class PrivacyUtilityOptimizer:
             saved_e = 0
 
             for e in range(int(e_min), int(e_max), int(step)):
-                result = self.run_command(e)
+                result, data_table = self.run_command(e)
                 f_estimated, f_real = self.frequencies()
                 error = self.function_LP(f_estimated, f_real, p)
                 print(f"\nError for e = {e}: {error}")
-                self.display_error_table()
+                print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
                 save = input("Do you want to save this privatized values? (y/n): ")
                 if save == "y":
                     saved_e = e
@@ -190,8 +193,8 @@ class PrivacyUtilityOptimizer:
         return e, result
 
     
-def run_parameter_fitting(d, f, E, algorithm):
-    optimizer = PrivacyUtilityOptimizer(d, f, E, algorithm)
+def run_parameter_fitting(d, k, m, algorithm):
+    optimizer = PrivacyUtilityOptimizer(d, k, m, algorithm)
     e, result = optimizer.run()
     return e, result
 

@@ -1,0 +1,144 @@
+import os
+import importlib.util
+import pandas as pd
+
+from tabulate import tabulate
+from scipy.stats import pearsonr
+import numpy as np
+
+# Importing CMS functions
+from private_count_mean.private_cms_server import run_private_cms_server
+from private_count_mean.private_cms_client import run_private_cms_client
+from private_count_mean.cms_client import run_cms_client
+from private_count_mean.cms_client_mean import run_cms_client_mean
+
+# Importing data preprocessing functions
+from scripts.preprocess import run_data_processor
+from scripts.parameter_fitting import run_parameter_fitting
+
+# Importing CS functions
+from private_count_sketch.private_cs_server import run_private_cs_server
+from private_count_sketch.private_cs_client import run_private_cs_client
+from private_count_sketch.cs_client import run_cs_client
+
+# Importing HCMS functions
+from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from private_hadamard_count_mean.private_hcms_server import run_private_hcms_server
+
+def execute(database, algorithm, k, m):
+    print("\nExecuting personalized privacy ...")
+    e, result = run_parameter_fitting(database, k, m, algorithm)
+
+    H = result["H"]
+    hashes = result["hashes"]
+    G = result["G"]
+
+    print("\nExecuting server ...")
+    if algorithm == '1':
+        run_private_cms_server(k, m, e, database, H)
+    elif algorithm == '2':
+        run_private_cs_server(k, m, e, database, H, G)
+    elif algorithm == '3':
+        run_private_hcms_server(k, m, e, database, hashes)
+
+    print("\nProcess done and results saved.")
+
+def calculate_k_m():
+    f = float(input("Enter the failure probability: "))
+    E = float(input("Enter the overestimation factor: "))
+
+    k = int(1 / f)
+    m = int(2.71828 / E )
+
+    print(f"k={k}, m={m}")
+    print(f"Space complexity: {k*m}")
+    return k, m
+
+def execute_no_privacy(k, m, database):
+    headers=[
+        "Element", "Real Frequency", "Real Percentage", 
+        "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+        "Percentage Error"
+    ]
+
+    print("\n CMiS without privacy")
+    data_table = run_cms_client(k, m, database)
+    print(tabulate(data_table, headers=headers, tablefmt="grid"))
+
+    print("\n CS without privacy")
+    data_table = run_cs_client(k, m, database)
+    print(tabulate(data_table, headers=headers, tablefmt="grid"))
+
+    print("\n CMeS without privacy")
+    data_table = run_cms_client_mean(k, m, database)
+    print(tabulate(data_table, headers=headers, tablefmt="grid"))
+    
+def execute_algorithms(database):
+    e = 150
+    # k_values = [16, 128, 128, 1024, 32768]
+    # m_values = [16, 16, 1024, 256, 256]
+
+    k_values = [16]
+    m_values = [16]
+
+    results = {"CMS": [], "CS": [], "HCMS": []}
+
+    headers=[
+        "Element", "Real Frequency", "Real Percentage", 
+        "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+        "Percentage Error"
+    ]
+
+    for k, m in zip(k_values, m_values):
+        for algorithm, client in zip(["CMS", "CS", "HCMS"], [run_private_cms_client, run_private_cs_client, run_private_hcms_client]):
+            
+            print(f"\n========= {algorithm} k: {k}, m:{m} ==========")
+            _, data_table, _ = client(k, m, e, database)
+
+            data_dicts = [dict(zip(headers, row)) for row in data_table]
+
+            for data_dict in data_dicts:
+                results[algorithm].append([
+                    k, m, 
+                    data_dict.get("Element", ""),
+                    data_dict.get("Real Frequency", ""),
+                    data_dict.get("Real Percentage", ""),
+                    data_dict.get("Estimated Frequency", ""),
+                    data_dict.get("Estimated Percentage", ""),
+                    data_dict.get("Estimation Difference", ""),
+                    data_dict.get("Percentage Error", ""),
+                ])
+    
+    headers=[
+        "k", "m", "Element", "Real Frequency", "Real Percentage", 
+        "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+        "Percentage Error"
+    ]
+
+    for algo, table in results.items():
+        print(f"\nResults for {algo}")
+        print(tabulate(table, headers=headers, tablefmt="grid"))
+
+
+
+if __name__ == "__main__":
+    # Step 1: Data preprocessing
+    database = input("Enter the database name: ")
+    run_data_processor(database)
+    
+    #Step 2: Calculate k and m
+    k, m = calculate_k_m()
+
+    # Step 3: Execute no privacy algorithms
+    execute_no_privacy(k, m, database)
+
+    # Step 4: Execute algorithms
+    execute_algorithms(database)
+
+    # Step 5: Choose an algorithm, k and m
+    k = int(input("Enter the value of k: "))
+    m = int(input("Enter the value of m: "))
+    algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Count Sketch\n3. Hadamard Count-Mean Sketch\n")
+
+    # Step 6: Parameter fitting and execute server
+    execute(database, algorithm, k, m)
