@@ -68,11 +68,11 @@ def execute_no_privacy(k, m, database):
     
 def execute_algorithms(database, k_client, m_client):
     e = 150   
-    k_values = [k_client, 16, 128, 1024, 32768]
-    m_values = [m_client, 16, 1024, 256, 256]
+    # k_values = [k_client, 16, 128, 1024, 32768]
+    # m_values = [m_client, 16, 1024, 256, 256]
 
-    # k_values = [32768]
-    # m_values = [256]
+    k_values = [32768]
+    m_values = [256]
 
     results = {"CMeS": [], "HCMS": []}
 
@@ -123,13 +123,13 @@ def main(step=1):
         if step == 1:
             # Step 1: Data preprocessing
             database = input("Enter the database name: ")
-            run_data_processor(database)
+            #run_data_processor(database)
             step = 2
     
         if step == 2:
             #Step 2: Calculate k and m
-            #k, m = calculate_k_m()
-            k, m = 16, 1024
+            k, m = calculate_k_m()
+
             # Step 3: Execute no privacy algorithms
             execute_no_privacy(k, m, database)
 
@@ -140,7 +140,8 @@ def main(step=1):
                 step = 2
         elif step == 3:
             # Step 4: Execute algorithms
-            #execute_algorithms(database, k, m)
+            print("\nExecuting private algorithms ...")
+            execute_algorithms(database, k, m)
 
             # Step 5: Choose an algorithm, k and m
             k = int(input("Enter the value of k: "))

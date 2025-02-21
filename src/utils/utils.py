@@ -103,7 +103,7 @@ def generate_hash_function_G(k, p):
     return hash_functions
 
 def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
-    output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/error_tables'))
+    #output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/error_tables'))
 
    # Calculate errors
     f = real_freq['value'].value_counts()
@@ -124,8 +124,8 @@ def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
 
     # Save the error table
     error_table = pd.DataFrame(error_data)
-    consolidated_filename = os.path.join(output_folder, "errors_table.csv")
-    error_table.to_csv(consolidated_filename, index=False)
+    # consolidated_filename = os.path.join(output_folder, "errors_table.csv")
+    # error_table.to_csv(consolidated_filename, index=False)
 
 
 
