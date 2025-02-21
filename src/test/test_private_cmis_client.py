@@ -2,12 +2,12 @@ import os
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from private_count_sketch.private_cs_client import run_private_cs_client
+from private_count_min.private_cmins_client import run_private_cmins_client
 from tabulate import tabulate
 
 def test_algoritmos():
     data = "dataOviedo"
-    e = 150
+    e = 50
     k = [16, 128, 128, 1024, 32768]
     m = [16, 16, 1024, 256, 256]
 
@@ -22,7 +22,7 @@ def test_algoritmos():
     
 
     for i in range(len(k)):
-        _, data_table, G = run_private_cs_client(k[i], m[i], e, data)
+        _, data_table, G = run_private_cmins_client(k[i], m[i], e, data)
         
         
         data_dicts = [dict(zip(headers, row)) for row in data_table]

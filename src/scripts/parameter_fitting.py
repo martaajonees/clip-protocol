@@ -48,14 +48,13 @@ class PrivacyUtilityOptimizer:
         return (1 / self.N) * sum_error
 
     def run_command(self, e):
+        data_table = []
         result = {"H": None, "G": None,"hashes": None}
         if self.algorithm == '1':
             result["H"], data_table, _ = run_private_cms_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '2':
-            result["H"], data_table, result["G"] = run_private_cs_client(self.k, self.m, e, self.dataset_name)
-        elif self.algorithm == '3':
             result["hashes"], data_table, _ = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
-
+        
         self.load_frequency_estimation()
         return result, data_table
 
@@ -144,9 +143,11 @@ class PrivacyUtilityOptimizer:
             for e in range(int(e_min), int(e_max), int(step)):
                 result, data_table = self.run_command(e)
                 f_estimated, f_real = self.frequencies()
+    
                 error = self.function_LP(f_estimated, f_real, p)
                 print(f"\nError for e = {e}: {error}")
                 print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
+
                 save = input("Do you want to save this privatized values? (y/n): ")
                 if save == "y":
                     saved_e = e

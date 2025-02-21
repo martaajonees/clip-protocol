@@ -37,10 +37,6 @@ class privateCSClient:
 
         #Definition of the hash family 4 by 4
         prime = 2**61 - 1
-        # a = random.randint(1, prime-1)
-        # b = random.randint(0, prime-1)
-        # c = random.randint(1, prime-1)
-        # d = random.randint(0, prime-1)
         self.G = generate_hash_function_G(self.k, prime)
 
     
@@ -53,11 +49,10 @@ class privateCSClient:
         j = random.randint(0, self.k-1)
         v = np.zeros(self.m)
 
-        selected_hash = self.H[j]
-        v[selected_hash(d)] = 1 * self.G[j](d)
+        v[self.H[j](d)] = 1 * self.G[j](d)
         
         b = self.bernoulli_vector()
-        v_aux = v*b
+        v_aux = v * b 
 
         self.client_matrix.append((v_aux,j))
         return v_aux, j
@@ -68,15 +63,14 @@ class privateCSClient:
         for i in range (self.m):
             self.M[j,i] += x[i] 
 
-    def estimate_client(self,d):
+    def estimate_client(self, d):
         median_vector = []
         for i in range(self.k):
-            selected_hash = self.H[i]
-            median_vector.append(self.M[i, selected_hash(d)] * self.G[i](d))
-        
+            median_vector.append(self.M[i, self.H[i](d)] * self.G[i](d))
         median = statistics.median(median_vector)
 
-        f_estimated = (self.m/(self.m-1))*(median -(self.N/self.m))
+        #f_estimated = (self.m/(self.m-1))*(median -(self.N/self.m))
+        f_estimated = (self.m/(self.m-1))*(median)
         return f_estimated
     
     def execute_client(self):

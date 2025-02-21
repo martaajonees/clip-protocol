@@ -11,6 +11,7 @@ import sys
 import pandas as pd
 import pickle
 
+
 from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
 
 class CMSClient:
@@ -65,7 +66,7 @@ class CMSClient:
         bar.finish()
         return F_estimated
 
-def run_cms_client(k, m, d):
+def run_cmins_client(k, m, d):
     # Load the dataset
     dataset_name = f"{d}_filtered"
     dataset, df, domain = load_dataset(dataset_name)

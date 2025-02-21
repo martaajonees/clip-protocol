@@ -1,25 +1,24 @@
 import os
 import importlib.util
 import pandas as pd
+import math
 
 from tabulate import tabulate
-from scipy.stats import pearsonr
 import numpy as np
 
-# Importing CMS functions
+# Importing CMeS functions
 from private_count_mean.private_cms_server import run_private_cms_server
 from private_count_mean.private_cms_client import run_private_cms_client
-from private_count_mean.cms_client import run_cms_client
 from private_count_mean.cms_client_mean import run_cms_client_mean
 
 # Importing data preprocessing functions
 from scripts.preprocess import run_data_processor
 from scripts.parameter_fitting import run_parameter_fitting
 
-# Importing CS functions
-from private_count_sketch.private_cs_server import run_private_cs_server
-from private_count_sketch.private_cs_client import run_private_cs_client
-from private_count_sketch.cs_client import run_cs_client
+# Importing CMiS functions
+from private_count_min.private_cmins_client import run_private_cmins_client
+from private_count_min.private_cmins_server import run_private_cmins_server
+from private_count_min.cms_client_min import run_cmins_client
 
 # Importing HCMS functions
 from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
@@ -37,8 +36,6 @@ def execute(database, algorithm, k, m):
     if algorithm == '1':
         run_private_cms_server(k, m, e, database, H)
     elif algorithm == '2':
-        run_private_cs_server(k, m, e, database, H, G)
-    elif algorithm == '3':
         run_private_hcms_server(k, m, e, database, hashes)
 
     print("\nProcess done and results saved.")
@@ -61,27 +58,23 @@ def execute_no_privacy(k, m, database):
         "Percentage Error"
     ]
 
-    print("\n CMiS without privacy")
-    data_table = run_cms_client(k, m, database)
-    print(tabulate(data_table, headers=headers, tablefmt="grid"))
-
-    print("\n CS without privacy")
-    data_table = run_cs_client(k, m, database)
-    print(tabulate(data_table, headers=headers, tablefmt="grid"))
+    # print("\n CMiS without privacy")
+    # data_table = run_cmins_client(k, m, database)
+    # print(tabulate(data_table, headers=headers, tablefmt="grid"))
 
     print("\n CMeS without privacy")
     data_table = run_cms_client_mean(k, m, database)
     print(tabulate(data_table, headers=headers, tablefmt="grid"))
     
-def execute_algorithms(database):
-    e = 150
-    # k_values = [16, 128, 128, 1024, 32768]
-    # m_values = [16, 16, 1024, 256, 256]
+def execute_algorithms(database, k_client, m_client):
+    e = 150   
+    k_values = [k_client, 16, 128, 1024, 32768]
+    m_values = [m_client, 16, 1024, 256, 256]
 
-    k_values = [32768]
-    m_values = [256]
+    # k_values = [32768]
+    # m_values = [256]
 
-    results = {"CMS": [], "CS": [], "HCMS": []}
+    results = {"CMeS": [], "HCMS": []}
 
     headers=[
         "Element", "Real Frequency", "Real Percentage", 
@@ -90,9 +83,14 @@ def execute_algorithms(database):
     ]
 
     for k, m in zip(k_values, m_values):
-        for algorithm, client in zip(["CMS", "CS", "HCMS"], [run_private_cms_client, run_private_cs_client, run_private_hcms_client]):
+        for algorithm, client in zip(["CMeS", "HCMS"], [run_private_cms_client, run_private_hcms_client]):
             
-            print(f"\n========= {algorithm} k: {k}, m:{m} ==========")
+            print(f"\n========= {algorithm} k: {k}, m:{m}, e:{e} ==========")
+            if algorithm == "HCMS":
+                if math.log2(m).is_integer() == False:
+                    m = 2 ** math.ceil(math.log2(m))
+                    print(f"m must be a power of 2: m ={m}")
+
             _, data_table, _ = client(k, m, e, database)
 
             data_dicts = [dict(zip(headers, row)) for row in data_table]
@@ -130,8 +128,8 @@ def main(step=1):
     
         if step == 2:
             #Step 2: Calculate k and m
-            k, m = calculate_k_m()
-
+            #k, m = calculate_k_m()
+            k, m = 16, 1024
             # Step 3: Execute no privacy algorithms
             execute_no_privacy(k, m, database)
 
@@ -142,12 +140,12 @@ def main(step=1):
                 step = 2
         elif step == 3:
             # Step 4: Execute algorithms
-            execute_algorithms(database)
+            #execute_algorithms(database, k, m)
 
             # Step 5: Choose an algorithm, k and m
             k = int(input("Enter the value of k: "))
             m = int(input("Enter the value of m: "))
-            algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Count Sketch\n3. Hadamard Count-Mean Sketch\n")
+            algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Hadamard Count-Mean Sketch\n")
             res = input("Are you satisfied with the results? (yes/no): ")
             if res == 'yes':
                 step = 4
