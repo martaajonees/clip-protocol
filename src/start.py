@@ -26,7 +26,7 @@ from private_hadamard_count_mean.private_hcms_server import run_private_hcms_ser
 
 def execute(database, algorithm, k, m):
     print("\nExecuting personalized privacy ...")
-    e, result = run_parameter_fitting(database, k, m, algorithm)
+    e, result, privatized_data = run_parameter_fitting(database, k, m, algorithm)
 
     H = result["H"]
     hashes = result["hashes"]
@@ -34,9 +34,9 @@ def execute(database, algorithm, k, m):
 
     print("\nExecuting server ...")
     if algorithm == '1':
-        run_private_cms_server(k, m, e, database, H)
+        run_private_cms_server(k, m, e, database, H, privatized_data)
     elif algorithm == '2':
-        run_private_hcms_server(k, m, e, database, hashes)
+        run_private_hcms_server(k, m, e, database, hashes, privatized_data)
 
     print("\nProcess done and results saved.")
 
@@ -91,7 +91,7 @@ def execute_algorithms(database, k_client, m_client):
                     m = 2 ** math.ceil(math.log2(m))
                     print(f"m must be a power of 2: m ={m}")
 
-            _, data_table, _ = client(k, m, e, database)
+            _, data_table, _, _ = client(k, m, e, database)
 
             data_dicts = [dict(zip(headers, row)) for row in data_table]
 

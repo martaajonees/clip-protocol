@@ -7,7 +7,7 @@ from tabulate import tabulate
 
 def test_algoritmos():
     data = "dataOviedo"
-    e = 50
+    e = 150
     k = [16, 128, 128, 1024, 32768]
     m = [16, 16, 1024, 256, 256]
 

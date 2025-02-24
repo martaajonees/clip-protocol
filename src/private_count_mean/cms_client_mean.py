@@ -84,7 +84,7 @@ def run_cms_client_mean(k, m, d):
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    data_table = display_results(df, f_estimated)
+    data_table, _= display_results(df, f_estimated)
 
     return data_table
 

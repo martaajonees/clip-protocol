@@ -175,7 +175,7 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
         ['Percentage Error', f"{(mean_error / N) * 100:.2f}%"],
         ['MSE', f"{mse:.2f}"],
         ['RMSE', f"{np.sqrt(mse):.2f}"],
-        ['Normalized MSE', f"{normalized_mse:.2f}"],
+        ['Normalized MSE', f"{normalized_mse:.4f}"],
         ['Normalized RMSE', f"{np.sqrt(normalized_mse):.2f}"],
         ['Pearson Correlation Coefficient', f"{pearson_corr:.4f}"],
     ]
@@ -187,6 +187,5 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
         #print("RESULTS")
         #print(tabulate(data_table, headers=["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"], tablefmt="pretty"))
         #print('\n' + tabulate(error_table, tablefmt="pretty"))
-        generate_error_table(real_freq, estimated_freq)
-    
-    return data_table
+        pass
+    return data_table, error_table

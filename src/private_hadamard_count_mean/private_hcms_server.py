@@ -56,22 +56,11 @@ class privateHCMSServer:
         bar.finish()
         return F_estimated
 
-def run_private_hcms_server(k, m, e, d, hashes):
+def run_private_hcms_server(k, m, e, d, hashes, privatized_data):
     dataset, df, domain = load_dataset(d)
 
     # Initialize the server
     server = privateHCMSServer(e, k, m, dataset, domain, hashes)
-
-    # Obtain the privatized data from the client
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "../../data/privatized")
-
-    fav_output_file = os.path.join(output_dir, f"{d}_private_fav.pkl")
-    default_output_file = os.path.join(output_dir, f"{d}_private.pkl")
-
-    output_file = fav_output_file if os.path.exists(fav_output_file) else default_output_file
-    with open(output_file, 'rb') as f:
-        privatized_data = pickle.load(f)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)

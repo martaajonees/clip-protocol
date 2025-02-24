@@ -82,19 +82,6 @@ class privateHCMSClient:
             bar.next()
         bar.finish()
 
-        df_client_matrix = pd.DataFrame(privatized_data, columns=['v', 'j', 'l'])
-
-        data_dict = df_client_matrix.to_dict(orient='list')
-
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        output_dir = os.path.join(script_dir, "../../data/privatized")
-
-        output_file = os.path.join(output_dir, f"{self.dataset_name}_private.pkl")
-    
-        with open(output_file, 'wb') as f:
-            pickle.dump(privatized_data, f)
-    
-        df_client_matrix.to_csv(os.path.join(output_dir, f"{self.dataset_name}_private.csv"), index=False)
         return privatized_data
 
     def server_simulator(self, privatized_data):
@@ -135,9 +122,9 @@ def run_private_hcms_client(k, m, e, d):
     output_dir = os.path.join(script_dir, "../../data/frequencies")
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
-    data_table = display_results(df, f_estimated)
+    data_table, error_table = display_results(df, f_estimated)
 
-    return hashes, data_table, f_estimated
+    return hashes, data_table, error_table, privatized_data
 
 
   

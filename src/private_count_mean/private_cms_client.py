@@ -76,19 +76,6 @@ class privateCMSClient:
             bar.next()
         bar.finish()
         
-        df_client_matrix = pd.DataFrame(privatized_data, columns=['v', 'j'])
-
-        data_dict = df_client_matrix.to_dict(orient='list')
-
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        output_dir = os.path.join(script_dir, "../../data/privatized")
-
-        output_file = os.path.join(output_dir, f"{self.dataset_name}_private.pkl")
-    
-        with open(output_file, 'wb') as f:
-            pickle.dump(privatized_data, f)
-    
-        df_client_matrix.to_csv(os.path.join(output_dir, f"{self.dataset_name}_private.csv"), index=False)
         return privatized_data
     
     def server_simulator(self,privatized_data):
@@ -119,13 +106,13 @@ def run_private_cms_client(k, m, e, d):
     f_estimated, H = PCMS.server_simulator(privatized_data)
 
     # Save f_estimated to a file
-    df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
+    # df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "../../data/frequencies")
-    df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    # output_dir = os.path.join(script_dir, "../../data/frequencies")
+    # df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    error_table = display_results(df, f_estimated)
+    data_table, error_table = display_results(df, f_estimated)
    
-    return H, error_table, f_estimated
+    return H, data_table, error_table, privatized_data

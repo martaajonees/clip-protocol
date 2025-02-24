@@ -54,7 +54,8 @@ class privateCMinSClient:
 
     def update_sketch_matrix(self,v,j):
         c_e = (np.exp(self.epsilon/2)+1) / ((np.exp(self.epsilon/2))-1)
-        x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
+        #x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
+        x = ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
             self.M[j,i] += x[i]
 
@@ -62,13 +63,13 @@ class privateCMinSClient:
         v_minimum = []
         for i in range(self.k):
             selected_hash = self.H[i]
-            if self.M[i, selected_hash(d)] != 0:
+            if self.M[i, selected_hash(d)] > 0 and self.M[i, selected_hash(d)] != self.k:
                 v_minimum.append(self.M[i, selected_hash(d)])
-
 
         minimum = min(v_minimum)
         f_estimated = (self.m / (self.m - 1)) * ( minimum - (self.N/self.m))
-        return f_estimated
+ 
+        return minimum
     
     def execute_client(self):
         bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
@@ -129,6 +130,6 @@ def run_private_cmins_client(k, m, e, d):
     df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
-    error_table = display_results(df, f_estimated)
+    error_table, _ = display_results(df, f_estimated)
    
     return H, error_table, f_estimated
