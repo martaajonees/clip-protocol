@@ -106,11 +106,11 @@ def run_private_cms_client(k, m, e, d):
     f_estimated, H = PCMS.server_simulator(privatized_data)
 
     # Save f_estimated to a file
-    # df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
+    df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
 
-    # script_dir = os.path.dirname(os.path.abspath(__file__))
-    # output_dir = os.path.join(script_dir, "../../data/frequencies")
-    # df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(script_dir, "../../data/frequencies")
+    df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
     data_table, error_table = display_results(df, f_estimated)

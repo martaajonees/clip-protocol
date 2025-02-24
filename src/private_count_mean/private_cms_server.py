@@ -80,4 +80,4 @@ def run_private_cms_server(k, m, e, d, H, privatized_data):
         if query.lower() == 'exit':
             break
         estimation = server.query_server(query)
-        print(f"The estimated frequency of {query} is {estimation}")
+        print(f"The estimated frequency of {query} is {estimation:.2f}")

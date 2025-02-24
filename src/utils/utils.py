@@ -122,11 +122,6 @@ def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
             "Percentage Error": f"{percent_error:.2f}%"
         })
 
-    # Save the error table
-    error_table = pd.DataFrame(error_data)
-    # consolidated_filename = os.path.join(output_folder, "errors_table.csv")
-    # error_table.to_csv(consolidated_filename, index=False)
-
 
 
 def display_results(real_freq: pd.DataFrame, estimated_freq: dict):

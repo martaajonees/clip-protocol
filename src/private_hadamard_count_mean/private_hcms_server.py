@@ -56,6 +56,12 @@ class privateHCMSServer:
         bar.finish()
         return F_estimated
 
+    def query_server(self, query_element):
+        if query_element not in self.domain:
+            return "Element not in the domain"
+        estimation = self.estimate_server(query_element)
+        return estimation
+
 def run_private_hcms_server(k, m, e, d, hashes, privatized_data):
     dataset, df, domain = load_dataset(d)
 
@@ -68,6 +74,14 @@ def run_private_hcms_server(k, m, e, d, hashes, privatized_data):
     # Show the results
     os.system('cls' if os.name == 'nt' else 'clear>/dev/null')
     display_results(df, f_estimated)
+
+    # Query the server
+    while True:
+        query = input("Enter an element to query the server or 'exit' to finish: ")
+        if query.lower() == 'exit':
+            break
+        estimation = server.query_server(query)
+        print(f"The estimated frequency of {query} is {estimation:.2f}")
 
 
   

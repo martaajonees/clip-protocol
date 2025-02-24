@@ -39,7 +39,7 @@ class PrivacyUtilityOptimizer:
         if self.algorithm == '1':
             result["H"], data_table, error_table, privatized_data = run_private_cms_client(self.k, self.m, e, self.dataset_name)
         elif self.algorithm == '2':
-            result["hashes"], data_table, error_table, privatized_data= run_private_hcms_client(self.k, self.m, e, self.dataset_name)
+            result["hashes"], data_table, error_table, privatized_data = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
         
         self.load_frequency_estimation()
         return result, data_table, error_table, privatized_data
@@ -53,7 +53,7 @@ class PrivacyUtilityOptimizer:
     def frequencies(self):
         return self.frequency_estimation, self.get_real_frequency()
 
-    def optimize_e_with_optuna(self, target_error, p):
+    def optimize_e_with_optuna(self, target_error, p, metric):
         def objective(trial):
             e = trial.suggest_float('e', 0.01, 20, step = 0.01)
             result, data_table, error_table, privatized_data = self.run_command(e)
@@ -65,7 +65,11 @@ class PrivacyUtilityOptimizer:
 
             print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
             # Minimize the diference: LP - target_error
-            return abs(self.function_LP(self.frequency_estimation, self.get_real_frequency(), p) - target_error)
+            if metric == "1" or metric == "2":
+                Lp_target = self.function_LP(self.frequency_estimation, self.get_real_frequency(), p)
+            elif metric == "3":
+                Lp_target = (self.function_LP(self.frequency_estimation, self.get_real_frequency(), p) / self.N) * 100
+            return abs(Lp_target - target_error)
 
         study = optuna.create_study(direction='minimize') # minimize the difference
         study.optimize(objective, n_trials=1)
@@ -83,10 +87,18 @@ class PrivacyUtilityOptimizer:
         return best_e, privatized_data, error_table, result, data_table
 
     def utility_error(self):
-        Lp = float(input("Enter the percentage error to reach (Lp): "))
-        p = float(input("Enter the type of error (p): "))
-
-        e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p) # Adjust the value of e to reach the desired error
+        metric = input("Choose the metric to optimize \n1. MSE\n2. LP\n3. Porcentual Error \nSelect (1 or 2): ")
+        if metric == "1":
+            Lp = float(input("Enter the MSE to reach: "))
+            p = 2
+        elif metric == "2":
+            Lp = float(input("Enter the Lp to reach: "))
+            p = float(input("Enter the type of error (p): "))
+        elif metric == "3":
+            Lp = float(input("Enter the Porcentual Error to reach: "))
+            p = 1
+        
+        e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p, metric) # Adjust the value of e to reach the desired error
 
         print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
 
@@ -103,8 +115,6 @@ class PrivacyUtilityOptimizer:
     def privacy_error(self):
         from start import main
         p = float(input("Enter the type of error (p): "))
-        error = self.function_LP(self.frequency_estimation, self.real_frequency, p)
-        print(f"Initial Privacy Error (LP): {error}")
 
         error_table = []
         error_table_fav = []
