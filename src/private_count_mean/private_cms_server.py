@@ -12,13 +12,14 @@ import pickle
 from utils.utils import load_dataset, display_results
 
 class privateCMSServer:
-    def __init__(self, epsilon, k, m, dataset, domain, H):
+    def __init__(self, epsilon, k, m, df, H):
+        self.df = df
         self.epsilon = epsilon
         self.k = k
         self.m = m
-        self.dataset = dataset
-        self.domain = domain
-        self.N = len(dataset)
+        self.dataset = self.df['value'].tolist()
+        self.domain = self.df['value'].unique().tolist()
+        self.N = len(self.dataset)
         self.H = H
 
         # Creation of the sketch matrix
@@ -61,11 +62,10 @@ class privateCMSServer:
         return estimation
 
     
-def run_private_cms_server(k, m, e, d, H, privatized_data):
-    dataset, df, domain = load_dataset(f"{d}_filtered")
+def run_private_cms_server(k, m, e, df, H, privatized_data):
     
     #Initialize the server Count-Mean Sketch
-    server = privateCMSServer(e, k, m, dataset, domain, H)
+    server = privateCMSServer(e, k, m, df, H)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)

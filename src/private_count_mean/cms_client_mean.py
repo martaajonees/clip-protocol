@@ -14,12 +14,13 @@ import pickle
 from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
 
 class CMSClient:
-    def __init__(self, k, m, dataset, domain):
+    def __init__(self, k, m, df):
+        self.df = df
         self.k = k 
         self.m = m
-        self.dataset = dataset
-        self.domain = domain
-        self.N = len(dataset)
+        self.dataset = self.df['value'].tolist()
+        self.domain = self.df['value'].unique().tolist()
+        self.N = len(self.dataset)
         
         # Creation of the sketch matrix
         self.M = np.zeros((self.k, self.m))
@@ -65,23 +66,13 @@ class CMSClient:
         bar.finish()
         return F_estimated
 
-def run_cms_client_mean(k, m, d):
-    # Load the dataset
-    dataset_name = f"{d}_filtered"
-    dataset, df, domain = load_dataset(dataset_name)
-
+def run_cms_client_mean(k, m, df):
     # Initialize the CMSClient
-    PCMS = CMSClient(k, m, dataset, domain)
+    PCMS = CMSClient(k, m, df)
 
     # Simulate the server side
     f_estimated = PCMS.server_simulator()
-
-    # Save f_estimated to a file
     df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
-
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "../../data/frequencies")
-    df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
     data_table, _= display_results(df, f_estimated)

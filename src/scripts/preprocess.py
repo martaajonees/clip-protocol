@@ -44,6 +44,7 @@ class DataProcessor:
         self.df = self.df[self.columns].dropna()
         self.filter_fixation()
         self.aoi_hits()
+        return self.df
 
     def save_filtered_csv(self):
         self.df.columns = ['user_id', 'value']
@@ -53,5 +54,6 @@ class DataProcessor:
 def run_data_processor(d):  
     processor = DataProcessor(d)
     processor.load_excel()
-    processor.filter_columns()
-    processor.save_filtered_csv()
+    df = processor.filter_columns()
+    #processor.save_filtered_csv()
+    return df

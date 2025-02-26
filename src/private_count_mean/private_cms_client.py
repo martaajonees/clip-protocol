@@ -15,14 +15,14 @@ import statistics
 from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
 
 class privateCMSClient:
-    def __init__(self, epsilon, k, m, dataset, domain, dataset_name):
-        self.dataset_name = dataset_name
+    def __init__(self, epsilon, k, m, df):
+        self.df = df
         self.epsilon = epsilon
         self.k = k
         self.m = m
-        self.dataset = dataset
-        self.domain = domain
-        self.N = len(dataset)
+        self.dataset = self.df['value'].tolist()
+        self.domain = self.df['value'].unique().tolist()
+        self.N = len(self.dataset)
 
         # Creation of the sketch matrix
         self.M = np.zeros((self.k, self.m))
@@ -93,11 +93,9 @@ class privateCMSClient:
         bar.finish()
         return F_estimated, self.H
 
-def run_private_cms_client(k, m, e, d):
-    dataset, df, domain = load_dataset(f"{d}_filtered")
-
+def run_private_cms_client(k, m, e, df):
     # Initialize the private Count-Mean Sketch
-    PCMS = privateCMSClient(e, k, m, dataset, domain, d)
+    PCMS = privateCMSClient(e, k, m, df)
 
     # Client side: process the private data
     privatized_data = PCMS.execute_client()
@@ -108,11 +106,11 @@ def run_private_cms_client(k, m, e, d):
     # Save f_estimated to a file
     df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "../../data/frequencies")
-    df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
+    # script_dir = os.path.dirname(os.path.abspath(__file__))
+    # output_dir = os.path.join(script_dir, "../../data/frequencies")
+    # df_estimated.to_csv(os.path.join(output_dir, f"{d}_freq_estimated_cms.csv"), index=False)
 
     # Show the results
     data_table, error_table = display_results(df, f_estimated)
    
-    return H, data_table, error_table, privatized_data
+    return H, data_table, error_table, privatized_data, df_estimated

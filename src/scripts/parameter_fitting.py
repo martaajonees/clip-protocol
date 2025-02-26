@@ -11,43 +11,32 @@ from private_hadamard_count_mean.private_hcms_client import run_private_hcms_cli
 
 
 class PrivacyUtilityOptimizer:
-    def __init__(self, dataset_name, k, m, algorithm):
+    def __init__(self, df, k, m, algorithm):
+        self.df = df
         self.algorithm = algorithm
-        self.dataset_name = dataset_name
         self.k = k
         self.m = m
 
-        self.frequency_estimation_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/frequencies', self.dataset_name + '_freq_estimated_cms.csv'))
-        self.filtered_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/filtered', self.dataset_name + '_filtered.csv'))
-
         self.real_frequency = self.get_real_frequency()
-        self.load_frequency_estimation()
-        
         self.N = self.real_frequency['Frequency'].sum()
-
-        self.headers = headers=[ "Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"]
+        self.headers =[ "Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"]
     
-    def load_frequency_estimation(self):
-        self.frequency_estimation = pd.read_csv(self.frequency_estimation_path)
 
     def function_LP(self, f_estimated, f_real, p):
         merged = f_estimated.merge(f_real, on="Element", suffixes=("_estimated", "_real"))
         return (1 / self.N) * sum(abs(row["Frequency_estimated"] - row["Frequency_real"]) ** p for _, row in merged.iterrows())
 
     def run_command(self, e):
-        result = {"H": None, "G": None,"hashes": None}
         if self.algorithm == '1':
-            result["H"], data_table, error_table, privatized_data = run_private_cms_client(self.k, self.m, e, self.dataset_name)
+            result, data_table, error_table, privatized_data, df_estimated = run_private_cms_client(self.k, self.m, e, self.df)
         elif self.algorithm == '2':
-            result["hashes"], data_table, error_table, privatized_data = run_private_hcms_client(self.k, self.m, e, self.dataset_name)
+            result, data_table, error_table, privatized_data, df_estimated = run_private_hcms_client(self.k, self.m, e, self.df)
         
-        self.load_frequency_estimation()
+        self.frequency_estimation = df_estimated
         return result, data_table, error_table, privatized_data
 
     def get_real_frequency(self):
-        df = pd.read_csv(self.filtered_path)
-        df = df[['value']]
-        count = df['value'].value_counts().reset_index()
+        count = self.df['value'].value_counts().reset_index()
         return count.rename(columns={'value': 'Element', 'count': 'Frequency'})
 
     def frequencies(self):
@@ -64,11 +53,13 @@ class PrivacyUtilityOptimizer:
             trial.set_user_attr('data_table', data_table)
 
             print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
-            # Minimize the diference: LP - target_error
+    
             if metric == "1" or metric == "2":
                 Lp_target = self.function_LP(self.frequency_estimation, self.get_real_frequency(), p)
             elif metric == "3":
                 Lp_target = (self.function_LP(self.frequency_estimation, self.get_real_frequency(), p) / self.N) * 100
+            
+            # Minimize the diference: LP - target_error
             return abs(Lp_target - target_error)
 
         study = optuna.create_study(direction='minimize') # minimize the difference
@@ -86,34 +77,23 @@ class PrivacyUtilityOptimizer:
         
         return best_e, privatized_data, error_table, result, data_table
 
-    def utility_error(self):
-        metric = input("Choose the metric to optimize \n1. MSE\n2. LP\n3. Porcentual Error \nSelect (1 or 2): ")
-        if metric == "1":
-            Lp = float(input("Enter the MSE to reach: "))
-            p = 2
-        elif metric == "2":
-            Lp = float(input("Enter the Lp to reach: "))
-            p = float(input("Enter the type of error (p): "))
-        elif metric == "3":
-            Lp = float(input("Enter the Porcentual Error to reach: "))
-            p = 1
-        
+    def utility_error(self, Lp, p, metric):
         e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p, metric) # Adjust the value of e to reach the desired error
 
         print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
 
         option = input("Are you satisfied with the results? (yes/no): ") # Ask the user if he is satisfied with the results
         if option == "no":
-            self.utility_error()
+            self.utility_error(Lp, p, metric)
         else:
             print(f"\nError metrics for k={self.k}, m={self.m}, e={e}")
             print(tabulate(error_table, tablefmt="pretty"))
 
             print("Sending database to server ...")
-        return e, result, privatized_data
+        return e, result, privatized_data, data_table
 
     def privacy_error(self):
-        from start import main
+        from individual_method import main
         p = float(input("Enter the type of error (p): "))
 
         error_table = []
@@ -171,7 +151,17 @@ class PrivacyUtilityOptimizer:
         e = 0
         choice = input("Choose Utility or Privacy (u/p): ")
         if choice == "u":
-            e, result, privatized_data = self.utility_error()
+            metric = input("Choose the metric to optimize \n1. MSE\n2. LP\n3. Porcentual Error \nSelect (1, 2 or 3): ")
+            if metric == "1":
+                Lp = float(input("Enter the MSE to reach: "))
+                p = 2
+            elif metric == "2":
+                Lp = float(input("Enter the Lp to reach: "))
+                p = float(input("Enter the type of error (p): "))
+            elif metric == "3":
+                Lp = float(input("Enter the Porcentual Error to reach: "))
+                p = 1
+            e, result, privatized_data, _ = self.utility_error(Lp, p, metric)
         elif choice == "p":
             e, result, privatized_data = self.privacy_error()
         else:
@@ -179,8 +169,8 @@ class PrivacyUtilityOptimizer:
         return e, result, privatized_data
 
     
-def run_parameter_fitting(d, k, m, algorithm):
-    optimizer = PrivacyUtilityOptimizer(d, k, m, algorithm)
+def run_parameter_fitting(df, k, m, algorithm):
+    optimizer = PrivacyUtilityOptimizer(df, k, m, algorithm)
     e, result, privatized_data = optimizer.run()
     return e, result, privatized_data
 

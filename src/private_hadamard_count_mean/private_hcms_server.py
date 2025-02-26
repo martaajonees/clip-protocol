@@ -13,14 +13,14 @@ import sys
 from utils.utils import load_dataset, display_results
 
 class privateHCMSServer:
-    def __init__(self, epsilon, k, m, dataset, domain, hashes):
+    def __init__(self, epsilon, k, m, df, hashes):
         self.epsilon = epsilon
         self.k = k
         self.m = m
-        self.dataset = dataset
-        self.domain = domain
+        self.dataset = self.df['value'].tolist()
+        self.domain = self.df['value'].unique().tolist()
         self.H = self.hadamard_matrix(self.m)
-        self.N = len(dataset)
+        self.N = len(self.dataset)
         self.hashes = hashes
 
         # Creation of the sketch matrix
@@ -62,11 +62,10 @@ class privateHCMSServer:
         estimation = self.estimate_server(query_element)
         return estimation
 
-def run_private_hcms_server(k, m, e, d, hashes, privatized_data):
-    dataset, df, domain = load_dataset(d)
+def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
 
     # Initialize the server
-    server = privateHCMSServer(e, k, m, dataset, domain, hashes)
+    server = privateHCMSServer(e, k, m, df, hashes)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)
