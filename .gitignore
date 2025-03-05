@@ -1,6 +1,4 @@
 /external
 .DS_Store
-data/privatized/dataOviedo_private_fav.pkl
 *.csv
 *.pkl
-/data
