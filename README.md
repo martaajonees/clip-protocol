@@ -21,5 +21,5 @@ Local_Privacy
 │
 ├── requirements.txt     
 ```
-[![Run on Replit](https://replit.com/@MartaJones/LocalPrivacy?v=1)](https://replit.com/@MartaJones/LocalPrivacy?v=1)
+[Run on Replit](https://replit.com/@MartaJones/LocalPrivacy?output=1)
 
