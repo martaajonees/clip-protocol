@@ -1,0 +1,1 @@
+run='cd src && python individual_method.py'
