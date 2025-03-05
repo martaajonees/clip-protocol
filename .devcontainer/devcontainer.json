@@ -1,0 +1,3 @@
+{
+  "postCreateCommand": "pip install -r requirements && cd src && python individual_method.py"
+}
