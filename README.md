@@ -21,5 +21,5 @@ Local_Privacy
 │
 ├── requirements.txt     
 ```
-[Run on Replit](https://replit.com/@MartaJones/LocalPrivacy?embed=1&output=1)
+[![Abrir en GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=martaajonees/Local_Privacy)
 
