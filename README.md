@@ -21,4 +21,4 @@ Local_Privacy
 │
 ├── requirements.txt     
 ```
-[Ejecutar en Replit](https://replit.com/@MartaJones/LocalPrivacy?embed=true&output=1)
+[![Execute en Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
