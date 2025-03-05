@@ -21,4 +21,5 @@ Local_Privacy
 │
 ├── requirements.txt     
 ```
-[![Abrir en Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/martaajonees/Local_Privacy)
+[![Abrir en GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?repo=martaajonees/Local_Privacy)
+

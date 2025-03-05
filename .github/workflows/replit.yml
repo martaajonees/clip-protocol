@@ -1,0 +1,14 @@
+name: Update Replit
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Webhook on Replit
+        run: |
+          curl -X POST https://repl.it/github/deploy -d 'repo=martaajonees/Local_Privacy'
