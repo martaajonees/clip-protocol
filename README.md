@@ -21,3 +21,4 @@ Local_Privacy
 │
 ├── requirements.txt     
 ```
+[![Abrir en Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/martaajonees/Local_Privacy)
