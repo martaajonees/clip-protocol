@@ -21,4 +21,5 @@ Local_Privacy
 │
 ├── requirements.txt     
 ```
-[![Abrir en Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/martaajonees/Local_Privacy)
+[![Run on Replit](https://replit.com/@MartaJones/LocalPrivacy?v=1)](https://replit.com/@MartaJones/LocalPrivacy?v=1)
+
