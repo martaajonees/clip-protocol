@@ -127,7 +127,7 @@ class PrivacyUtilityOptimizer:
             return abs(Lp_target - target_error)
 
         study = optuna.create_study(direction='minimize') # minimize the difference
-        study.optimize(objective, n_trials=1)
+        study.optimize(objective, n_trials=20)
 
         best_e = study.best_params['e']
         privatized_data = study.best_trial.user_attrs['privatized_data']

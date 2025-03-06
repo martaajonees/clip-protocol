@@ -73,11 +73,11 @@ class IndividualMethod:
     def execute_private_algorithms(self):
         """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
         e = 150   
-        # k_values = [k_client, 16, 128, 1024, 32768]
-        # m_values = [m_client, 16, 1024, 256, 256]
+        k_values = [k_client, 16, 128, 1024, 32768]
+        m_values = [m_client, 16, 1024, 256, 256]
 
-        k_values = [32768]
-        m_values = [256]
+        # k_values = [32768]
+        # m_values = [256]
 
         results = {"CMeS": [], "HCMS": []}
 
@@ -134,7 +134,7 @@ class IndividualMethod:
         if self.algorithm == '1':
             run_private_cms_server(self.k, self.m, e, self.df, result, privatized_data)
         elif self.algorithm == '2':
-            run_private_hcms_server(self.k, sef.m, e, self.df, result, privatized_data)
+            run_private_hcms_server(self.k, self.m, e, self.df, result, privatized_data)
 
         print("\nProcess done and results saved.")
 
