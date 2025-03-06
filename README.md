@@ -23,7 +23,7 @@ Local_Privacy
 │
 ├── data/                
 │   ├── raw/             # Unprocessed data
-│   ├── processed/       # Data after preprocessing
+│   ├── private/       # Data after privatizing
 │
 ├── scripts/             
 │   ├── preprocess.py    # Data preprocessing routines
@@ -36,15 +36,19 @@ Local_Privacy
 │   ├── rappor/                      # Implementation of RAPPOR algorithm
 │
 ├── requirements.txt     # List of Python dependencies
+│
+├── individual_method.py # Main file for the single-user dataset algorithm
+│
+├── general_method.py # Main file for the multi-user dataset algorithm
    
 ```
 ## Online Execution
-You can execute the code online using Google Colab. Please note that the provided Google Colab notebook is designed for single-user datasets. Google Colab sessions are intended for individual users and have limitations such as session timeouts after periods of inactivity and maximum session durations. 
-
-For multi-user dataset scenarios, it is recommended to run the code in a local environment or on a dedicated server to ensure proper handling of data aggregation and privacy requirements.
+You can execute the code online using Google Colab. Please note that the provided Google Colab notebook is designed for **single-user datasets**. Google Colab sessions are intended for individual users and have limitations such as session timeouts after periods of inactivity and maximum session durations. 
  
-  [![Execute en Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
+  [![Execute Individual en Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
 
+For **multi-user dataset** scenarios, you can execute the method in the link below:
+ [![Execute Individual en Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1zenZ2uTNYVNylNJ7ztIj5x_cIQVXP4HV?usp=sharing)
 ## Instalation
 
 Follow these steps to set up and execute the methods:
