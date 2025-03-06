@@ -39,8 +39,8 @@ class IndividualMethod:
     
     def preprocess_data(self):
         """Step 1: Data preprocessing by loading and filtering the dataset."""
-        database = input("Enter the database name: ")
-        self.df = run_data_processor(database)
+        #database = input("Enter the database name: ")
+        self.df = run_data_processor()
     
     def calculate_k_m(self):
         """

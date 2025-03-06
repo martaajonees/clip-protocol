@@ -16,30 +16,31 @@ class DataProcessor:
         excel_file (str): Path to the input Excel file.
         output_csv (str): Path to save the filtered CSV file.
     """
-    def __init__(self, dataset_name):
+    def __init__(self):
         """
         Initializes the DataProcessor with the dataset name and determines file paths.
         
         Args:
             dataset_name (str): Name of the dataset file (without extension).
         """
-        self.file_name = f"{dataset_name}.xlsx"
         self.columns = ['Participant', 'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name']
         self.df = None
 
         base_path_1 = os.path.join('..', '..', 'data', 'raw')
         base_path_2 = os.path.join('..', 'data', 'raw')
 
-        self.excel_file = os.path.join(base_path_1, self.file_name) if os.path.exists(base_path_1) else os.path.join(base_path_2, self.file_name)
-        self.output_csv = os.path.join(base_path_1.replace('raw', 'filtered'), self.file_name.replace('.xlsx', '_filtered.csv')) if os.path.exists(base_path_1) else os.path.join(base_path_2.replace('raw', 'filtered'), self.file_name.replace('.xlsx', '_filtered.csv'))
-
-
-    def load_excel(self):
-        """
-        Loads the Excel file into a Pandas DataFrame.
-        """
+        if os.path.exists(base_path_1):
+            latest_file = max([f for f in os.listdir(base_path_1) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path_1, x)))
+            self.excel_file = os.path.join(base_path_1, latest_file)
+            self.file_name = latest_file
+        else:
+            latest_file = max([f for f in os.listdir(base_path_2) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path_2, x)))
+            self.excel_file = os.path.join(base_path_2, latest_file)
+            self.file_name = latest_file
+        
+        print(f"Processing dataset: {self.file_name}")
         self.df = pd.read_excel(self.excel_file)
-        print("Excel file loaded")
+
 
     def aoi_hits(self):
         """
@@ -80,7 +81,7 @@ class DataProcessor:
         self.aoi_hits()
         return self.df
 
-def run_data_processor(d):
+def run_data_processor():
     """
     Runs the data processing pipeline for a given dataset.
     
@@ -90,7 +91,6 @@ def run_data_processor(d):
     Returns:
         pd.DataFrame: The filtered dataset.
     """
-    processor = DataProcessor(d)
-    processor.load_excel()
+    processor = DataProcessor()
     df = processor.filter_columns()
     return df
