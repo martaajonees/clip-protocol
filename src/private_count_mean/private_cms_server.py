@@ -1,18 +1,37 @@
 
-import os
-import importlib.util
 import numpy as np
 import pandas as pd
-import random
-import argparse
-from sympy import primerange
 from progress.bar import Bar
-import pickle
 
-from utils.utils import load_dataset, display_results
+from utils.utils import display_results
 
 class privateCMSServer:
+    """
+    This class represents the server side of the Private Count-Mean Sketch (PCMS).
+    It is responsible for updating the sketch matrix and providing frequency estimations.
+
+    Attributes:
+        df (pandas.DataFrame): The dataset containing the values.
+        epsilon (float): The privacy parameter epsilon.
+        k (int): The number of hash functions.
+        m (int): The size of the sketch.
+        dataset (list): The list of values in the dataset.
+        domain (list): The unique values in the dataset.
+        N (int): The size of the dataset.
+        H (list): The list of hash functions.
+        M (numpy.ndarray): The sketch matrix.
+    """
     def __init__(self, epsilon, k, m, df, H):
+        """
+        Initializes the privateCMSServer class with the given parameters.
+
+        Args:
+            epsilon (float): The privacy parameter epsilon.
+            k (int): The number of hash functions.
+            m (int): The size of the sketch.
+            df (pandas.DataFrame): The dataset containing the values.
+            H (list): The list of hash functions.
+        """
         self.df = df
         self.epsilon = epsilon
         self.k = k
@@ -26,12 +45,29 @@ class privateCMSServer:
         self.M = np.zeros((self.k, self.m))
     
     def update_sketch_matrix(self,v,j):
+        """
+        Updates the sketch matrix based on the given privatized data.
+
+        Args:
+            v (numpy.ndarray): The privatized vector.
+            j (int): The index of the hash function used.
+        """
         c_e = (np.exp(self.epsilon/2)+1) / ((np.exp(self.epsilon/2))-1)
         x = self.k * ((c_e/2) * v + (1/2) * np.ones_like(v))
         for i in range (self.m):
             self.M[j,i] += x[i]
 
     def execute_server(self,privatized_data):
+        """
+        Executes the server-side operations, including updating the sketch matrix
+        and estimating the frequencies.
+
+        Args:
+            privatized_data (list): The privatized data from the client.
+
+        Returns:
+            dict: A dictionary containing the estimated frequencies for each element.
+        """
         bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
 
         for data in privatized_data:
@@ -47,6 +83,15 @@ class privateCMSServer:
         return F_estimated
 
     def estimate_server(self,d):
+        """
+        Estimates the frequency of an element based on the current sketch matrix.
+
+        Args:
+            d (any): The element whose frequency is to be estimated.
+
+        Returns:
+            float: The estimated frequency of the element.
+        """
         sum_aux = 0
         for i in range(self.k):
             selected_hash = self.H[i]
@@ -56,6 +101,15 @@ class privateCMSServer:
         return f_estimated
     
     def query_server(self, query_element):
+        """
+        Queries the server for the estimated frequency of an element.
+
+        Args:
+            query_element (any): The element to query.
+
+        Returns:
+            float or str: The estimated frequency of the element, or a message if the element is not in the domain.
+        """
         if query_element not in self.domain:
             return "Element not in the domain"
         estimation = self.estimate_server(query_element)
@@ -63,7 +117,18 @@ class privateCMSServer:
 
     
 def run_private_cms_server(k, m, e, df, H, privatized_data):
-    
+    """
+    Runs the server-side operations for the Private Count-Mean Sketch, including
+    estimating frequencies and querying the server.
+
+    Args:
+        k (int): The number of hash functions.
+        m (int): The size of the sketch.
+        e (float): The privacy parameter epsilon.
+        df (pandas.DataFrame): The dataset containing the values.
+        H (list): The list of hash functions.
+        privatized_data (list): The privatized data from the client.
+    """
     #Initialize the server Count-Mean Sketch
     server = privateCMSServer(e, k, m, df, H)
     
@@ -71,7 +136,6 @@ def run_private_cms_server(k, m, e, df, H, privatized_data):
     f_estimated = server.execute_server(privatized_data)
 
     # Show the results
-    os.system('cls' if os.name == 'nt' else 'clear>/dev/null')
     display_results(df, f_estimated)
 
     # Query the server

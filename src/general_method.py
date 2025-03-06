@@ -5,6 +5,19 @@ from scripts.parameter_fitting import PrivacyUtilityOptimizer
 from tabulate import tabulate
 
 def run_general_method(df):
+        """
+        Executes the general method for optimizing privacy and utility trade-offs.
+
+        Steps:
+        1. Selects the error metric to optimize (MSE, LP, or Percentage Error).
+        2. Identifies the user with the most data in the dataset.
+        3. Calculates k and m values using the IndividualMethod class.
+        4. Executes no-privacy and private algorithms.
+        5. Optimizes privacy-utility trade-off for each user.
+
+        Args:
+                df (pd.DataFrame): The dataset containing user data with frequency values.
+        """
         # Step 1: Set value for error metric
         metric = input("Enter the metric to optimize: \n1. MSE\n2. LP\n3. Porcentual Error \nSelect (1, 2 or 3):  ")
         if metric == "1":

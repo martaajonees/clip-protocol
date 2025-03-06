@@ -1,19 +1,23 @@
 
-from sympy import primerange
-import random
 import numpy as np
-import importlib.util
-import os
-import argparse
-import time
 from progress.bar import Bar
-from tabulate import tabulate
-import sys
 
 from utils.utils import load_dataset, display_results
 
 class privateHCMSServer:
+    """
+    A private Hadamard Count-Min Sketch (HCMS) server implementation.
+    """
     def __init__(self, epsilon, k, m, df, hashes):
+        """
+        Initializes the private HCMS server.
+        
+        :param epsilon: Privacy parameter
+        :param k: Number of hash functions
+        :param m: Number of columns in the sketch matrix
+        :param df: Dataframe containing the dataset
+        :param hashes: List of hash functions
+        """
         self.epsilon = epsilon
         self.k = k
         self.m = m
@@ -27,17 +31,39 @@ class privateHCMSServer:
         self.M = np.zeros((self.k, self.m))
 
     def update_sketch_matrix(self, w, j, l):
+        """
+        Updates the sketch matrix with a new data point.
+        
+        :param w: Weight of the data point
+        :param j: Hash function index
+        :param l: Hash value
+        """
         c_e = (np.exp(self.epsilon/2)+1) / ((np.exp(self.epsilon/2))-1)
         x = self.k * c_e * w
         self.M[j,l] =  self.M[j,l] + x
 
     def traspose_M(self):
+        """
+        Applies the Hadamard transformation to the sketch matrix.
+        """
         self.M = self.M @ np.transpose(self.H)
 
     def estimate_server(self,d):
+        """
+        Estimates the frequency of an element in the dataset.
+        
+        :param d: Element to estimate
+        :return: Estimated frequency
+        """
         return (self.m / (self.m-1)) * (1/self.k * np.sum([self.M[i,self.hashes[i](d)] for i in range(self.k)]) - self.N/self.m)
 
     def execute_server(self, privatized_data):
+        """
+        Processes the privatized data and estimates frequencies.
+        
+        :param privatized_data: List of privatized data points
+        :return: Dictionary of estimated frequencies
+        """
         bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
         for data in privatized_data:
             self.update_sketch_matrix(data[0],data[1],data[2])
@@ -57,13 +83,28 @@ class privateHCMSServer:
         return F_estimated
 
     def query_server(self, query_element):
+        """
+        Queries the estimated frequency of an element.
+        
+        :param query_element: Element to query
+        :return: Estimated frequency or a message if the element is not in the domain
+        """
         if query_element not in self.domain:
             return "Element not in the domain"
         estimation = self.estimate_server(query_element)
         return estimation
 
 def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
-
+    """
+    Runs the private HCMS server pipeline.
+    
+    :param k: Number of hash functions
+    :param m: Number of columns in the sketch matrix
+    :param e: Privacy parameter
+    :param df: Dataframe containing the dataset
+    :param hashes: List of hash functions
+    :param privatized_data: List of privatized data points
+    """
     # Initialize the server
     server = privateHCMSServer(e, k, m, df, hashes)
     
@@ -71,7 +112,6 @@ def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
     f_estimated = server.execute_server(privatized_data)
 
     # Show the results
-    os.system('cls' if os.name == 'nt' else 'clear>/dev/null')
     display_results(df, f_estimated)
 
     # Query the server

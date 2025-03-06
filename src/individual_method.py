@@ -13,30 +13,41 @@ from private_count_mean.cms_client_mean import run_cms_client_mean
 from scripts.preprocess import run_data_processor
 from scripts.parameter_fitting import run_parameter_fitting
 
-# Importing CMiS functions
-from private_count_min.private_cmins_client import run_private_cmins_client
-from private_count_min.private_cmins_server import run_private_cmins_server
-from private_count_min.cms_client_min import run_cmins_client
-
 # Importing HCMS functions
 from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
 from private_hadamard_count_mean.private_hcms_server import run_private_hcms_server
 
 
 class IndividualMethod:
+    """
+    This class represents the execution of various algorithms for private frequency estimation.
+    It includes preprocessing data, computing parameters, and executing different privacy-preserving algorithms.
+    """
     def __init__(self, df=None,  k=None, m=None, algorithm=None):
+        """
+        Initializes the IndividualMethod instance.
+
+        :param df: The input dataset as a pandas DataFrame.
+        :param k: The number of hash functions for the sketching algorithm.
+        :param m: The number of bins in the sketching algorithm.
+        :param algorithm: The selected algorithm for execution.
+        """
         self.df = df
         self.k = k
         self.m = m
         self.algorithm = algorithm
     
     def preprocess_data(self):
-        "Step 1. Data preprocessing"
+        """Step 1: Data preprocessing by loading and filtering the dataset."""
         database = input("Enter the database name: ")
         self.df = run_data_processor(database)
     
     def calculate_k_m(self):
-        "Step 2. Calculate k and m"
+        """
+        Step 2: Calculate k and m values based on user input for failure probability and overestimation factor.
+        
+        :return: The computed values of k and m.
+        """
         f = float(input("Enter the failure probability: "))
         E = float(input("Enter the overestimation factor: "))
 
@@ -48,7 +59,7 @@ class IndividualMethod:
         return self.k, self.m
         
     def execute_no_privacy(self):
-        "Step 3: Execute no privacy algorithms"
+        """Step 3: Execute Count-Mean Sketch (CMeS) without privacy protection."""
         headers=[
             "Element", "Real Frequency", "Real Percentage", 
             "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
@@ -60,7 +71,7 @@ class IndividualMethod:
         print(tabulate(data_table, headers=headers, tablefmt="grid"))
 
     def execute_private_algorithms(self):
-        "Step 4:Execute private algorithms"
+        """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
         e = 150   
         # k_values = [k_client, 16, 128, 1024, 32768]
         # m_values = [m_client, 16, 1024, 256, 256]
@@ -107,14 +118,14 @@ class IndividualMethod:
             print(tabulate(table, headers=["k", "m"] + headers, tablefmt="grid"))
     
     def select_algorithm(self):
-        """Step 5. Choose an algorithm, k and m"""
+        """Step 5: Choose an algorithm and specify k and m values."""
         self.k = int(input("Enter the value of k: "))
         self.m = int(input("Enter the value of m: "))
         self.algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Hadamard Count-Mean Sketch\n")
         return self.algorithm
     
     def execute_algorithms(self):
-        "Step 6. Parameter fitting and execute server"
+        """Step 6: Perform parameter fitting and execute the selected server algorithm."""
         print("\nExecuting personalized privacy ...")
         e, result, privatized_data = run_parameter_fitting(self.df, self.k, self.m, self.algorithm)
 
@@ -128,6 +139,7 @@ class IndividualMethod:
         print("\nProcess done and results saved.")
 
 def main(step=1):
+    """Main function to run the step-by-step execution of the method."""
     experiment = IndividualMethod()
     while True:
         if step == 1:

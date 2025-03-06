@@ -11,7 +11,28 @@ from private_hadamard_count_mean.private_hcms_client import run_private_hcms_cli
 
 
 class PrivacyUtilityOptimizer:
+    """
+    Optimizes the privacy-utility tradeoff by tuning the privacy parameter `e`.
+    
+    Attributes:
+        df (pd.DataFrame): Input dataset containing values to be privatized.
+        algorithm (str): Selected privacy algorithm (1 for CMS, 2 for HCMS).
+        k (int): Parameter k for the selected algorithm.
+        m (int): Parameter m for the selected algorithm.
+        real_frequency (pd.DataFrame): True frequency distribution of elements in `df`.
+        N (int): Total count of elements in `df`.
+        headers (list): Column headers for displaying tabular results.
+    """
     def __init__(self, df, k, m, algorithm):
+        """
+        Initializes the PrivacyUtilityOptimizer class with dataset and algorithm parameters.
+
+        Args:
+            df (pd.DataFrame): Input dataset.
+            k (int): Parameter k for the selected algorithm.
+            m (int): Parameter m for the selected algorithm.
+            algorithm (str): Algorithm choice (1 for CMS, 2 for HCMS).
+        """
         self.df = df
         self.algorithm = algorithm
         self.k = k
@@ -23,10 +44,30 @@ class PrivacyUtilityOptimizer:
     
 
     def function_LP(self, f_estimated, f_real, p):
+        """
+        Computes the Lp norm error between estimated and real frequencies.
+        
+        Args:
+            f_estimated (pd.DataFrame): Estimated frequency distribution.
+            f_real (pd.DataFrame): Real frequency distribution.
+            p (float): Order of the Lp norm.
+        
+        Returns:
+            float: Computed Lp error.
+        """
         merged = f_estimated.merge(f_real, on="Element", suffixes=("_estimated", "_real"))
         return (1 / self.N) * sum(abs(row["Frequency_estimated"] - row["Frequency_real"]) ** p for _, row in merged.iterrows())
 
     def run_command(self, e):
+        """
+        Runs the selected privacy algorithm with a given privacy budget `e`.
+        
+        Args:
+            e (float): Privacy parameter.
+        
+        Returns:
+            tuple: Containing result, data table, error table, privatized data, and estimated frequencies.
+        """
         if self.algorithm == '1':
             result, data_table, error_table, privatized_data, df_estimated = run_private_cms_client(self.k, self.m, e, self.df)
         elif self.algorithm == '2':
@@ -36,13 +77,36 @@ class PrivacyUtilityOptimizer:
         return result, data_table, error_table, privatized_data
 
     def get_real_frequency(self):
+        """
+        Computes the real frequency distribution from the dataset.
+        
+        Returns:
+            pd.DataFrame: DataFrame with element frequencies.
+        """
         count = self.df['value'].value_counts().reset_index()
         return count.rename(columns={'value': 'Element', 'count': 'Frequency'})
 
     def frequencies(self):
+        """
+        Returns both the estimated and real frequency distributions.
+        
+        Returns:
+            tuple: Estimated frequency and real frequency DataFrames.
+        """
         return self.frequency_estimation, self.get_real_frequency()
 
     def optimize_e_with_optuna(self, target_error, p, metric):
+        """
+        Optimizes the privacy parameter `e` using Optuna to reach a target error.
+        
+        Args:
+            target_error (float): Desired error value.
+            p (float): Order of the Lp norm.
+            metric (str): Metric type (1 = MSE, 2 = Lp norm, 3 = Percentage Error).
+        
+        Returns:
+            tuple: Best `e`, privatized data, error table, result, and data table.
+        """
         def objective(trial):
             e = trial.suggest_float('e', 0.01, 20, step = 0.01)
             result, data_table, error_table, privatized_data = self.run_command(e)
@@ -78,6 +142,17 @@ class PrivacyUtilityOptimizer:
         return best_e, privatized_data, error_table, result, data_table
 
     def utility_error(self, Lp, p, metric):
+        """
+        Optimizes the privacy parameter `e` for utility preservation.
+        
+        Args:
+            Lp (float): Target error value.
+            p (float): Order of the Lp norm.
+            metric (str): Metric type (1 = MSE, 2 = Lp norm, 3 = Percentage Error).
+        
+        Returns:
+            tuple: Optimized `e`, result, and privatized data.
+        """
         e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p, metric) # Adjust the value of e to reach the desired error
 
         print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
@@ -93,6 +168,12 @@ class PrivacyUtilityOptimizer:
         return e, result, privatized_data, data_table
 
     def privacy_error(self):
+        """
+        Optimizes the privacy parameter `e` for privacy preservation.
+        
+        Returns:
+            tuple: Optimized `e`, result, and privatized data.
+        """
         from individual_method import main
         p = float(input("Enter the type of error (p): "))
 
@@ -148,6 +229,12 @@ class PrivacyUtilityOptimizer:
         return saved_e, H_fav, privatized_fav
 
     def run(self):
+        """
+        Main execution function. Asks the user to choose between utility and privacy optimization.
+        
+        Returns:
+            tuple: Optimized `e`, result, and privatized data.
+        """
         e = 0
         choice = input("Choose Utility or Privacy (u/p): ")
         if choice == "u":
@@ -170,6 +257,18 @@ class PrivacyUtilityOptimizer:
 
     
 def run_parameter_fitting(df, k, m, algorithm):
+    """
+    Initializes and runs the PrivacyUtilityOptimizer with the given parameters.
+    
+    Args:
+        df (pd.DataFrame): Input dataset.
+        k (int): Parameter k for the selected algorithm.
+        m (int): Parameter m for the selected algorithm.
+        algorithm (str): Algorithm choice (1 for CMS, 2 for HCMS).
+    
+    Returns:
+        tuple: Optimized `e`, result, and privatized data.
+    """
     optimizer = PrivacyUtilityOptimizer(df, k, m, algorithm)
     e, result, privatized_data = optimizer.run()
     return e, result, privatized_data

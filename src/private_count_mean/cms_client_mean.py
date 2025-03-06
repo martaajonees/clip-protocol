@@ -1,20 +1,45 @@
-from sympy import primerange
 import random
 import numpy as np
-import importlib.util
-import os
-import argparse
-import time
+from sympy import primerange
 from progress.bar import Bar
-from tabulate import tabulate
-import sys
 import pandas as pd
-import pickle
 
 from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
 
 class CMSClient:
+    """
+    A class to represent the Count-Min Sketch (CMS) Client.
+
+    Attributes:
+        df: DataFrame containing the dataset.
+        k: Number of hash functions used in the CMS.
+        m: Size of the sketch matrix.
+        dataset: List of values from the dataset.
+        domain: Unique values in the dataset.
+        N: Total number of elements in the dataset.
+        M: Count-Min Sketch matrix.
+        H: List of hash functions.
+    
+    Methods:
+        client(d):
+            Simulates the client side of the CMS, returning a vector with hash values.
+        update_sketch_matrix(d):
+            Updates the sketch matrix based on the given element.
+        estimate_client(d):
+            Estimates the frequency of an element using the CMS sketch matrix.
+        server_simulator():
+            Simulates the server side of the CMS, processes the data, and estimates frequencies.
+    """
+
     def __init__(self, k, m, df):
+        """
+        Initializes the CMSClient with the given parameters.
+
+        Args:
+            k (int): Number of hash functions.
+            m (int): Size of the sketch matrix.
+            df (DataFrame): Dataset to be processed.
+        """
         self.df = df
         self.k = k 
         self.m = m
@@ -31,6 +56,15 @@ class CMSClient:
         self.H = generate_hash_functions(self.k,p, 3,self.m)
 
     def client(self, d):
+        """
+        Simulates the client side of the Count-Min Sketch.
+
+        Args:
+            d (element): The element for which the sketch vector is generated.
+
+        Returns:
+            tuple: A tuple containing the sketch vector and the index of the chosen hash function.
+        """
         j = random.randint(0, self.k-1)
         v = np.full(self.m, -1)
         selected_hash = self.H[j]
@@ -38,12 +72,27 @@ class CMSClient:
         return v, j
    
     def update_sketch_matrix(self, d):
+        """
+        Updates the sketch matrix based on the given element.
+
+        Args:
+            d (element): The element to be used for updating the sketch matrix.
+        """
         for i in range (self.k):
             selected_hash = self.H[i]
             hash_index = selected_hash(d)
             self.M[i ,hash_index] += 1
 
     def estimate_client(self,d):
+        """
+        Estimates the frequency of an element based on the sketch matrix.
+
+        Args:
+            d (element): The element whose frequency is estimated.
+
+        Returns:
+            float: The estimated frequency of the element.
+        """
         mean = 0
         for i in range(self.k):
             selected_hash = self.H[i]
@@ -51,6 +100,13 @@ class CMSClient:
         return mean/self.k
     
     def server_simulator(self):
+        """
+        Simulates the server side of the CMS by processing the dataset 
+        and estimating the frequencies of each element.
+
+        Returns:
+            dict: A dictionary with the elements and their estimated frequencies.
+        """
         bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
 
         for d in self.dataset:
@@ -67,6 +123,17 @@ class CMSClient:
         return F_estimated
 
 def run_cms_client_mean(k, m, df):
+    """
+    Runs the Count-Min Sketch algorithm and displays the results.
+
+    Args:
+        k (int): Number of hash functions.
+        m (int): Size of the sketch matrix.
+        df (DataFrame): Dataset to be processed.
+
+    Returns:
+        DataFrame: A table containing the elements and their estimated frequencies.
+    """
     # Initialize the CMSClient
     PCMS = CMSClient(k, m, df)
 

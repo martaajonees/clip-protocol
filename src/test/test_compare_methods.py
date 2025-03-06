@@ -10,6 +10,22 @@ from private_count_sketch.private_cs_client import run_private_cs_client
 from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 def run_distribution_test():
+    """
+    This script performs a distribution test using different private count-sketch methods.
+
+    The purpose of this test is to compare the accuracy of three different private estimation techniques:
+    1. **Private Count-Min Sketch (CMS)**
+    2. **Private Count Sketch (CS)**
+    3. **Private Hadamard Count-Min Sketch (HCMS)**
+
+    These methods are used to estimate frequency distributions while preserving privacy. The test runs each method with different parameters and prints the corresponding error tables.
+    - `k`: A list of values determining different sketch sizes.
+    - `m`: A list of values controlling the memory allocation for each method.
+    - `e`: Privacy parameter (presumably epsilon, controlling differential privacy strength).
+    - `filename`: The input dataset file (`dataOviedo`).
+
+    For each combination of `k` and `m`, the script runs the three private sketching methods and prints their respective error tables.
+    """
     k = [16, 128, 128, 1024, 32768]
     m = [16, 16, 1024, 256, 256]
     e = 2

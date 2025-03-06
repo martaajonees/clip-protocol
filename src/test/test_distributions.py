@@ -14,9 +14,27 @@ from scripts.preprocess import run_data_processor
 
 
 def generate_user_id(length=10):
+    """
+    Generates a random user ID of the specified length.
+
+    Args:
+        length (int): The length of the generated user ID (default is 10).
+
+    Returns:
+        str: A randomly generated user ID.
+    """
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 def generate_dataset(distribution, n):
+    """
+    Generates a dataset with a specified distribution and saves it as a CSV file.
+
+    Args:
+        distribution (str): The type of distribution to generate ('normal', 'laplace', 'uniform', 'exp').
+        n (int): The number of data points to generate.
+
+    Creates a CSV file with the dataset and stores it in the '../../data/filtered' directory.
+    """
     if distribution == 'normal':
         valores = np.random.normal(loc=12, scale=2, size=n).astype(int)
     elif distribution == 'laplace':
@@ -26,10 +44,6 @@ def generate_dataset(distribution, n):
     elif distribution == "exp":
         valores = np.random.exponential(scale=2.0, size=n).astype(int)
 
-    # user_ids = set()
-    # while len(user_ids) < n:
-    #     user_ids.add("S01post")
-
     user_ids = ["S01post"] * n
 
     
@@ -38,11 +52,20 @@ def generate_dataset(distribution, n):
     data = {'user_id': user_ids, 'value': valores}
     df = pd.DataFrame(data)
 
-    # Save the new dataset 
-    df.to_csv(f'../../data/filtered/{distribution}_{n}_filtered.csv', index=False)
+    return df
 
 def run_distribution_test():
+    """
+    Runs a distribution test by generating datasets for different distributions and evaluating 
+    their error metrics using the Private Count Mean Sketch (PrivateCMS).
 
+    Generates datasets for different distributions and calculates error metrics for 
+    each distribution using various values for the 'k' and 'm' parameters. 
+    It visualizes the estimated frequency distribution and displays the results as a table.
+
+    Results include error metrics such as mean error, percentage error, MSE, RMSE, 
+    and Pearson Correlation Coefficient.
+    """
     N = 50000
     k = [16, 128, 128, 1024, 32768]
     m = [16, 16, 1024, 256, 256]
@@ -55,7 +78,7 @@ def run_distribution_test():
         print(f"\n================== {distributions[i]} ==================")
         
         # Generate the dataset
-        generate_dataset(distributions[i], N)
+        df = generate_dataset(distributions[i], N)
 
         filename = f"{distributions[i]}_{N}"
 
@@ -63,7 +86,7 @@ def run_distribution_test():
 
         for j in range(5):
             print(f"\nk={k[j]}, m={m[j]} ==================")
-            _, error_table, estimated_freq = run_private_cms_client(k[j], m[j], e, filename)
+            _, error_table, estimated_freq = run_private_cms_client(k[j], m[j], e, df)
 
             error_dict = { key: value for key, value in error_table }
 
