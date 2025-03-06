@@ -6,7 +6,7 @@ This repository contains an adaptation of differential privacy algorithms applie
 * [Repository Structure](#repository-structure)
 * [Online Execution](#online-execution)
 * [Instalation](#instalation)
-* [Doc](#doc)
+* [Documentation](#documentation)
 
 ## Project Description
 Learning analytics involves collecting and analyzing data about learners to improve educational outcomes. However, this process raises concerns about the privacy of individual data. To address these concerns, this project implements differential privacy algorithms, which add controlled noise to data, ensuring individual privacy while maintaining the overall utility of the dataset. This approach aligns with recent advancements in safeguarding data privacy in learning analytics. 
@@ -69,7 +69,11 @@ Follow these steps to set up and execute the methods:
        cd src
        python general_method.py
        ```
-## Doc
+## Documentation
+The complete documentation for this project is available online. You can access it at the following link:
+- [Project Documentation - Local Privacy in Learning Analytics](https://martaajonees.github.io/Local_Privacy/)
+
+This documentation includes detailed explanations of the algorithms, methods, and the overall structure of the project.
 
 ## Authors
 <!-- prettier-ignore-start -->
