@@ -17,6 +17,21 @@ In this project, we explore two local differential privacy (LDP) algorithms desi
 
 * **Multi-User Dataset Algorithm**: In situations involving data from multiple users, this algorithm aggregates the perturbed data to compute global statistics while preserving individual privacy. Methods like private sketching and frequency estimation are utilized to handle the complexities arising from multi-user data aggregation
 
+For the **Single-User Dataset Algorithm**, the next figure provides a high-level overview of the proposal workflow. At the end, an interest third part could ask the server a query over the frequency of certain
+events related to an individual. The estimation phase is simulated on the user side in
+order to adjust the ratio between privacy and utility before sending the information to
+the server. The algorithm first filters de information (Filter), then encodes the relevant
+events extracted (Data Processing) in order to be received for the PLDP-CSM method.
+
+<p align="center"> <img src="https://github.com/user-attachments/assets/2515e75a-5a84-4ea4-8bde-5422be6e5e41" alt="High-Level overview of the workflow"> </p>
+
+Then, the Cont Sketch based Personalized-LDP (PLDP-CSM) enables the adjustment of the relation between
+utility and privacy by iterating over data until the output of the simulator satisfies
+the constrains of users. This part of the algorithm produces the privatize data set,
+which will be sent to the server.
+
+<p align="center"> <img src="https://github.com/user-attachments/assets/706a966f-1c2b-4f16-83df-883b12ef8fe7" alt="Figuras Analysis"> </p>
+
 ## Repository Structure
 ```sh
 Local_Privacy
@@ -84,8 +99,10 @@ This documentation includes detailed explanations of the algorithms, methods, an
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/martaajonees"><img src="https://avatars.githubusercontent.com/u/100365874?v=4?s=100" width="100px;" alt="Marta Jones"/><br /><sub><b>Marta Jones</b></sub></a><br /><a href="https://github.com/martaajonees/dss2023-2024-FastPark/commits?author=martaajonees" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/martaajonees"><img src="https://avatars.githubusercontent.com/u/100365874?v=4?s=100" width="100px;" alt="Marta Jones"/><br /><sub><b>Marta Jones</b></sub></a><br /><a href="https://github.com/martaajonees/Local_Privacy/commits?author=martaajonees" title="Code">💻</a></td>
+       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ichi91"><img src="https://avatars.githubusercontent.com/u/41892183?v=4?s=100" width="100px;" alt="Anailys Hernandez" style="border-radius: 50%"/><br /><sub><b>Anailys Hernandez</b></sub></a><br /><a href="https://github.com/ichi91/Local_Privacy/commits?author=ichi91" title="Method Designer">💡</a></td>
     </tr>
+     
   </tbody>
 </table>
 
