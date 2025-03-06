@@ -1,4 +1,4 @@
-<h1 align="center"> Local Privacy en Learning Analitics </h1>
+<h1 align="center"> Local Privacy in Learning Analitics </h1>
 
 This repository contains an adaptation of differential privacy algorithms applied to learning analytics.
 ## Index
