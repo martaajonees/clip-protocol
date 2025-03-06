@@ -18,7 +18,7 @@ In this project, we explore two local differential privacy (LDP) algorithms desi
 * **Multi-User Dataset Algorithm**: In situations involving data from multiple users, this algorithm aggregates the perturbed data to compute global statistics while preserving individual privacy. Methods like private sketching and frequency estimation are utilized to handle the complexities arising from multi-user data aggregation
 
 ## Repository Structure
-```
+```sh
 Local_Privacy
 │
 ├── data/                
