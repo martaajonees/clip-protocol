@@ -73,8 +73,8 @@ class IndividualMethod:
     def execute_private_algorithms(self):
         """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
         e = 150   
-        k_values = [k_client, 16, 128, 1024, 32768]
-        m_values = [m_client, 16, 1024, 256, 256]
+        k_values = [self.k, 16, 128, 1024, 32768]
+        m_values = [self.m, 16, 1024, 256, 256]
 
         # k_values = [32768]
         # m_values = [256]
