@@ -1,6 +1,7 @@
 
 import numpy as np
 import pandas as pd
+import os
 from progress.bar import Bar
 
 from utils.utils import display_results
@@ -131,6 +132,11 @@ def run_private_cms_server(k, m, e, df, H, privatized_data):
     """
     #Initialize the server Count-Mean Sketch
     server = privateCMSServer(e, k, m, df, H)
+
+    # Save the privatized data
+    privatized_data_save = pd.DataFrame(privatized_data)
+    privatized_data_file = os.path.join(os.path.join('..', 'data', 'private'), 'privatized_data.csv')
+    privatized_data_save.to_csv(privatized_data_file, index=False)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)

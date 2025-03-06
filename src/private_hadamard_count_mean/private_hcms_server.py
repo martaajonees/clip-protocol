@@ -1,4 +1,4 @@
-
+import os
 import numpy as np
 from progress.bar import Bar
 
@@ -107,6 +107,11 @@ def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
     """
     # Initialize the server
     server = privateHCMSServer(e, k, m, df, hashes)
+
+    # Save the privatized data
+    privatized_data_save = pd.DataFrame(privatized_data)
+    privatized_data_file = os.path.join(os.path.join('..', 'data', 'private'), 'privatized_data.csv')
+    privatized_data_save.to_csv(privatized_data_file, index=False)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)
