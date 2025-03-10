@@ -183,9 +183,9 @@ class PrivacyUtilityOptimizer:
         privatized_fav = None
 
         while True:
-            e_min = input(f"→ Enter the {Fore.BRIGHT}minimum{Style.RESET_ALL} value of ε: ") # Ask for a range for e to optimize 
-            e_max = input(f"→ Enter the {Fore.BRIGHT}maximum{Style.RESET_ALL} value of ε: ")
-            step = input(f"→ Enter the {Fore.BRIGHT}step{Style.RESET_ALL} value: ")
+            e_min = input(f"→ Enter the {Style.BRIGHT}minimum{Style.RESET_ALL} value of ε: ") # Ask for a range for e to optimize 
+            e_max = input(f"→ Enter the {Style.BRIGHT}maximum{Style.RESET_ALL} value of ε: ")
+            step = input(f"→ Enter the {Style.BRIGHT}step{Style.RESET_ALL} value: ")
 
             saved_e = 0
 
