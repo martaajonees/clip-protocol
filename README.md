@@ -1,11 +1,11 @@
-<h1 align="center"> Local Privacy in Learning Analitics </h1>
+<h1 align="center"> Local Privacy in Learning Analytics </h1>
 
 This repository contains an adaptation of differential privacy algorithms applied to learning analytics.
 ## Index
 * [Project Description](#project-description)
 * [Repository Structure](#repository-structure)
 * [Online Execution](#online-execution)
-* [Instalation](#instalation)
+* [Installation](#installation)
 * [Documentation](#documentation)
 
 ## Project Description
@@ -17,17 +17,17 @@ In this project, we explore two local differential privacy (LDP) algorithms desi
 
 * **Multi-User Dataset Algorithm**: In situations involving data from multiple users, this algorithm aggregates the perturbed data to compute global statistics while preserving individual privacy. Methods like private sketching and frequency estimation are utilized to handle the complexities arising from multi-user data aggregation
 
-For the **Single-User Dataset Algorithm**, the next figure provides a high-level overview of the proposal workflow. At the end, an interest third part could ask the server a query over the frequency of certain
+For the **Single-User Dataset Algorithm**, the next figure provides a high-level overview of the proposal workflow. At the end, an interest third party could ask the server a query over the frequency of certain
 events related to an individual. The estimation phase is simulated on the user side in
 order to adjust the ratio between privacy and utility before sending the information to
-the server. The algorithm first filters de information (Filter), then encodes the relevant
+the server. The algorithm first filters the information (Filter), then encodes the relevant
 events extracted (Data Processing) in order to be received for the PLDP-CSM method.
 
 <p align="center"> <img src="https://github.com/user-attachments/assets/2515e75a-5a84-4ea4-8bde-5422be6e5e41" alt="High-Level overview of the workflow"> </p>
 
 Then, the Cont Sketch based Personalized-LDP (PLDP-CSM) enables the adjustment of the relation between
 utility and privacy by iterating over data until the output of the simulator satisfies
-the constrains of users. This part of the algorithm produces the privatize data set,
+the constraints of users. This part of the algorithm produces the privatize dataset,
 which will be sent to the server.
 
 <p align="center"> <img src="https://github.com/user-attachments/assets/706a966f-1c2b-4f16-83df-883b12ef8fe7" alt="Figuras Analysis"> </p>
@@ -63,7 +63,7 @@ You can execute the code online using Google Colab. Google Colab sessions are in
 - For **single-user dataset** scenarios, click the link below to execute the method: [Execute in Google Colab (Single-User)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
 
 - For **multi-user dataset** scenarios, click the link below to execute the method: [Execute in Google Colab (Multi-User)](https://colab.research.google.com/drive/1zenZ2uTNYVNylNJ7ztIj5x_cIQVXP4HV?usp=sharing)
-## Instalation
+## Installation
 
 Follow these steps to set up and execute the methods:
 1. **Clone this repository**
