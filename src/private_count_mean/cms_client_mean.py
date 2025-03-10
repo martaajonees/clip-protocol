@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from sympy import primerange
-from progress.bar import Bar
+from rich.progress import Progress
 import pandas as pd
 
 from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
@@ -107,19 +107,18 @@ class CMSClient:
         Returns:
             dict: A dictionary with the elements and their estimated frequencies.
         """
-        bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
+        with Progress() as progress:
+            bar = progress.add_task("[cyan]Processing client data...", total=len(self.dataset))
 
-        for d in self.dataset:
-            self.update_sketch_matrix(d)
-            bar.next()
-        bar.finish()
+            for d in self.dataset:
+                self.update_sketch_matrix(d)
+                progress.update(bar, advance=1)
 
-        F_estimated = {}
-        bar = Bar('Obtaining histogram of estimated frequencies', max=len(self.domain), suffix='%(percent)d%%')
-        for x in self.domain:
-            F_estimated[x] = self.estimate_client(x)
-            bar.next()
-        bar.finish()
+            F_estimated = {}
+            bar = progress.add_task("[cyan]Obtaining histogram of estimated frequencies...", total=len(self.domain))
+            for x in self.domain:
+                F_estimated[x] = self.estimate_client(x)
+                progress.update(bar, advance=1)
         return F_estimated
 
 def run_cms_client_mean(k, m, df):

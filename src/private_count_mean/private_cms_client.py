@@ -2,7 +2,7 @@ import random
 import numpy as np
 from sympy import primerange
 import pandas as pd
-from progress.bar import Bar
+from rich.progress import Progress
 
 from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
 
@@ -135,13 +135,14 @@ class privateCMSClient:
         Returns:
             list: A list of privatized sketch vectors for all elements in the dataset.
         """
-        bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
-        privatized_data = []
-        for d in self.dataset:
-            v_i, j_i = self.client(d)
-            privatized_data.append((v_i,j_i))
-            bar.next()
-        bar.finish()
+        with Progress() as progress:
+            bar = progress.add_task("Processing client data", total=len(self.dataset))
+            
+            privatized_data = []
+            for d in self.dataset:
+                v_i, j_i = self.client(d)
+                privatized_data.append((v_i,j_i))
+                progress.update(bar, advance=1)
         
         return privatized_data
     
@@ -155,18 +156,19 @@ class privateCMSClient:
         Returns:
             tuple: A tuple containing the estimated frequencies and the hash functions used.
         """
-        bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
-        
-        for data in privatized_data:
-            self.update_sketch_matrix(data[0],data[1])
-            bar.next()
-        bar.finish()
+        with Progress() as progress:
+            bar = progress.add_task('Update sketch matrix', total=len(privatized_data))
+            
+            for data in privatized_data:
+                self.update_sketch_matrix(data[0],data[1])
+                progress.update(bar, advance=1)
 
-        F_estimated = {}
-        for x in self.domain:
-            F_estimated[x] = self.estimate_client(x)
-            bar.next()
-        bar.finish()
+            bar = progress.add_task('Estimate frequencies', total=len(self.domain))
+            F_estimated = {}
+            for x in self.domain:
+                F_estimated[x] = self.estimate_client(x)
+                progress.update(bar, advance=1)
+
         return F_estimated, self.H
 
 def run_private_cms_client(k, m, e, df):

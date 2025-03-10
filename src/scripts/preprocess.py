@@ -1,7 +1,8 @@
 
 import pandas as pd
 import argparse
-from tqdm import tqdm
+from rich.progress import Progress
+from colorama import Fore, Style
 import os
 
 class DataProcessor:
@@ -38,7 +39,7 @@ class DataProcessor:
             self.excel_file = os.path.join(base_path_2, latest_file)
             self.file_name = latest_file
         
-        print(f"Processing dataset: {self.file_name}")
+        print(f"Processing {Style.BRIGHT}{self.file_name}{Style.RESET_ALL}")
         self.df = pd.read_excel(self.excel_file)
 
 
@@ -48,16 +49,17 @@ class DataProcessor:
         Extracts relevant user IDs and the first AOI hit for each participant.
         """
         rows = []
-        for _, row in tqdm( self.df.iterrows(), total=len(self.df), desc="Processing AOI Hits"):
-            hit = False
-            user_id = row['Participant']
-            for col in self.df.columns[1:]:
-                if row[col] != "-":
-                    rows.append({'user_id': user_id, 'value': row[col]})
-                    hit = True
-                    break
-            # if not hit:
-            #     rows.append({'user_id': user_id, 'value': 'No hit'})
+        with Progress() as progress:
+            task = progress.add_task("[cyan]🔍 Processing AOI Hits...", total=len(self.df))
+            for _, row in self.df.iterrows():
+                hit = False
+                user_id = row['Participant']
+                for col in self.df.columns[1:]:
+                    if row[col] != "-":
+                        rows.append({'user_id': user_id, 'value': row[col]})
+                        hit = True
+                        break
+                progress.update(task, advance=1)
         self.df = pd.DataFrame(rows)
 
     def filter_fixation(self):

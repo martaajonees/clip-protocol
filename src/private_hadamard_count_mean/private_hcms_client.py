@@ -1,7 +1,7 @@
 from sympy import primerange
 import random
 import numpy as np
-from progress.bar import Bar
+from rich.progress import Progress
 import pandas as pd
 
 from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
@@ -136,13 +136,13 @@ class privateHCMSClient:
         Returns:
             list: A list of privatized data.
         """
-        bar = Bar('Processing client data', max=len(self.dataset), suffix='%(percent)d%%')
-        privatized_data = []
-        for d in self.dataset:
-            w_i, j_i, l_i = self.client(d)
-            privatized_data.append((w_i,j_i,l_i))
-            bar.next()
-        bar.finish()
+        with Progress() as progress:
+            task = progress.add_task('[cyan]Processing client data', total=len(self.dataset))
+            privatized_data = []
+            for d in self.dataset:
+                w_i, j_i, l_i = self.client(d)
+                privatized_data.append((w_i,j_i,l_i))
+                progress.update(task, advance=1)
 
         return privatized_data
 
@@ -156,22 +156,21 @@ class privateHCMSClient:
         Returns:
             tuple: A tuple containing the estimated frequencies and the hash functions used.
         """
-        bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
-        for data in privatized_data:
-            self.update_sketch_matrix(data[0],data[1],data[2])
-            bar.next()
-        bar.finish()
+        with Progress() as progress:
+            task = progress.add_task('[cyan]Update sketch matrix', total=len(privatized_data))
+            for data in privatized_data:
+                self.update_sketch_matrix(data[0],data[1],data[2])
+                progress.update(task, advance=1)
 
-        # Transpose the matrix
-        self.traspose_M()
+            # Transpose the matrix
+            self.traspose_M()
 
-        # Estimate the frequencies
-        F_estimated = {}
-        bar = Bar('Obtaining histogram of estimated frequencies', max=len(self.domain), suffix='%(percent)d%%')
-        for x in self.domain:
-            F_estimated[x] = self.estimate_client(x)
-            bar.next()
-        bar.finish()
+            # Estimate the frequencies
+            F_estimated = {}
+            task = progress.add_task('[cyan]Obtaining histogram of estimated frequencies', total=len(self.domain))
+            for x in self.domain:
+                F_estimated[x] = self.estimate_client(x)
+                progress.update(task, advance=1)
         return F_estimated, self.hashes
     
 def run_private_hcms_client(k, m, e, df):

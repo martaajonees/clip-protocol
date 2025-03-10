@@ -3,6 +3,8 @@ import math
 import pandas as pd
 import numpy as np
 from tabulate import tabulate
+from colorama import Fore, Style
+from rich.progress import Progress
 
 # Importing CMeS functions
 from private_count_mean.private_cms_server import run_private_cms_server
@@ -39,7 +41,6 @@ class IndividualMethod:
     
     def preprocess_data(self):
         """Step 1: Data preprocessing by loading and filtering the dataset."""
-        #database = input("Enter the database name: ")
         self.df = run_data_processor()
     
     def calculate_k_m(self):
@@ -48,14 +49,15 @@ class IndividualMethod:
         
         :return: The computed values of k and m.
         """
-        f = float(input("Enter the failure probability: "))
-        E = float(input("Enter the overestimation factor: "))
+        print("\n📂 Calculating k and m ... ")
+        f = float(input("→ Enter the failure probability ζ: "))
+        E = float(input("→ Enter the overestimation factor η: "))
 
         self.k = int(1 / f)
         self.m = int(2.71828 / E )
 
-        print(f"Calculated k={self.k}, m={self.m}")
-        print(f"Space complexity: {self.k*self.m}")
+        print(f"{Fore.GREEN}Calculated k = {self.k} and m = {self.m}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}Space complexity: {self.k*self.m}{Style.RESET_ALL}")
         return self.k, self.m
         
     def execute_no_privacy(self):
@@ -65,19 +67,17 @@ class IndividualMethod:
             "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
             "Percentage Error"
         ]
-
-        print("\n CMeS without privacy")
+        
+        print("\n📊 Calculing CMeS without privacy")
         data_table = run_cms_client_mean(self.k, self.m, self.df)
-        print(tabulate(data_table, headers=headers, tablefmt="grid"))
+        print(tabulate(data_table, headers=headers, tablefmt="fancy_grid"))
 
     def execute_private_algorithms(self):
         """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
+        print("\n🔍 Searching parameters k and m ...")
         e = 150   
         k_values = [self.k, 16, 128, 1024, 32768]
         m_values = [self.m, 16, 1024, 256, 256]
-
-        # k_values = [32768]
-        # m_values = [256]
 
         results = {"CMeS": [], "HCMS": []}
 
@@ -86,15 +86,15 @@ class IndividualMethod:
             "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
             "Percentage Error"
         ]
-
+         
         for k, m in zip(k_values, m_values):
             for algorithm, client in zip(["CMeS", "HCMS"], [run_private_cms_client, run_private_hcms_client]):
                 
-                print(f"\n========= {algorithm} k: {k}, m:{m}, e:{e} ==========")
+                print(f"\nRunning {Fore.GREEN}{algorithm}{Style.RESET_ALL} with k: {k}, m: {m} and ε: {e}")
                 if algorithm == "HCMS":
                     if math.log2(m).is_integer() == False:
                         m = 2 ** math.ceil(math.log2(m))
-                        print(f"m must be a power of 2: m ={m}")
+                        print(f"{Fore.RED}Adjusting m to a power of 2 → m = {m}{Style.RESET_ALL}")
 
                 _, data_table, _, _,_ = client(k, m, e, self.df)
 
@@ -114,23 +114,24 @@ class IndividualMethod:
         
 
         for algo, table in results.items():
-            print(f"\nResults for {algo}")
-            print(tabulate(table, headers=["k", "m"] + headers, tablefmt="grid"))
+            print(f"\n 🔍Results for {Fore.CYAN}{algo}{Style.RESET_ALL}")
+            print(tabulate(table, headers=["k", "m"] + headers, tablefmt="fancy_grid"))
     
     def select_algorithm(self):
         """Step 5: Choose an algorithm and specify k and m values."""
-        self.k = int(input("Enter the value of k: "))
-        self.m = int(input("Enter the value of m: "))
-        self.algorithm = input("Enter the algorithm to execute:\n1. Count-Mean Sketch\n2. Hadamard Count-Mean Sketch\n")
+        print(f"\n🔍 Selecting an parameters and algorithm ...")
+        self.k = int(input("→ Enter the value of k: "))
+        self.m = int(input("→ Enter the value of m: "))
+        self.algorithm = input("→ Enter the algorithm to execute:\n  1. Count-Mean Sketch\n  2. Hadamard Count-Mean Sketch\nSelect: ")
         return self.algorithm
     
     def execute_algorithms(self):
         """Step 6: Perform parameter fitting and execute the selected server algorithm."""
-        print("\nExecuting personalized privacy ...")
+        print("\n🔄 Executing personalized privacy ...")
         e, result, privatized_data = run_parameter_fitting(self.df, self.k, self.m, self.algorithm)
 
 
-        print("\nExecuting server ...")
+        print("\n⚙️ Running server ...")
         if self.algorithm == '1':
             run_private_cms_server(self.k, self.m, e, self.df, result, privatized_data)
         elif self.algorithm == '2':

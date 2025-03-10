@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import os
-from progress.bar import Bar
+from rich.progress import Progress
 
 from utils.utils import display_results
 
@@ -69,18 +69,19 @@ class privateCMSServer:
         Returns:
             dict: A dictionary containing the estimated frequencies for each element.
         """
-        bar = Bar('Update sketch matrix', max=len(privatized_data), suffix='%(percent)d%%')
+        with Progress() as progress:
+            task = progress.add_task('[cyan]Update sketch matrix', total=len(privatized_data))
 
-        for data in privatized_data:
-            self.update_sketch_matrix(data[0],data[1])
-            bar.next()
-        bar.finish()
+            for data in privatized_data:
+                self.update_sketch_matrix(data[0],data[1])
+                progress.update(task, advance=1)
 
-        F_estimated = {}
-        for x in self.domain:
-            F_estimated[x] = self.estimate_server(x)
-            bar.next()
-        bar.finish()
+            F_estimated = {}
+            task = progress.add_task('[cyan]Obtaining histogram of estimated frequencies', total=len(self.domain))
+            for x in self.domain:
+                F_estimated[x] = self.estimate_server(x)
+                progress.update(task, advance=1)
+                
         return F_estimated
 
     def estimate_server(self,d):
