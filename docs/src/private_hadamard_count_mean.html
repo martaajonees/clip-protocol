@@ -47,10 +47,57 @@
                     <h1 class="modulename">
 <a href="./../src.html">src</a><wbr>.private_hadamard_count_mean    </h1>
 
-                
-                
-                
-                
+                        <div class="docstring"><p>private_hadamard_count_mean</p>
+
+<p>This subpackage contains implementations of algorithms for calculating private count means
+using the Hadamard Count-Mean-Sketch (HCMS) approach. The Hadamard transform is used to
+efficiently encode and perturb data, ensuring differential privacy while maintaining data
+utility. This subpackage includes both client-side and server-side implementations for
+privacy-preserving data aggregation.</p>
+
+<p>Modules:</p>
+
+<ul>
+<li>private_hcms_client.py: Contains the client-side logic for perturbing data using the Hadamard transform.</li>
+<li>private_hcms_server.py: Implements the server-side logic for aggregating and analyzing perturbed data.</li>
+</ul>
+
+<p>Main Functions:</p>
+
+<ul>
+<li>execute_client: Simulates the client side of the privatized Count-Min Sketch for all elements in the dataset.</li>
+<li>server_simulator: Simulates the server side of the privatized Count-Min Sketch, processes the privatized data, and estimates frequencies.</li>
+<li>update_sketch_matrix: Updates the sketch matrix based on the privatized data received from the client.</li>
+<li>estimate_client: Estimates the frequency of an element based on the private CMS sketch matrix.</li>
+</ul>
+</div>
+
+                        <input id="mod-private_hadamard_count_mean-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+
+                        <label class="view-source-button" for="mod-private_hadamard_count_mean-view-source"><span>View Source</span></label>
+
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">private_hadamard_count_mean</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">This subpackage contains implementations of algorithms for calculating private count means</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">using the Hadamard Count-Mean-Sketch (HCMS) approach. The Hadamard transform is used to</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">efficiently encode and perturb data, ensuring differential privacy while maintaining data</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">utility. This subpackage includes both client-side and server-side implementations for</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">privacy-preserving data aggregation.</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">Modules:</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">- private_hcms_client.py: Contains the client-side logic for perturbing data using the Hadamard transform.</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">- private_hcms_server.py: Implements the server-side logic for aggregating and analyzing perturbed data.</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">Main Functions:</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">- execute_client: Simulates the client side of the privatized Count-Min Sketch for all elements in the dataset.</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">- server_simulator: Simulates the server side of the privatized Count-Min Sketch, processes the privatized data, and estimates frequencies.</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">- update_sketch_matrix: Updates the sketch matrix based on the privatized data received from the client.</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">- estimate_client: Estimates the frequency of an element based on the private CMS sketch matrix.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span></pre></div>
+
+
             </section>
     </main>
 <script>
