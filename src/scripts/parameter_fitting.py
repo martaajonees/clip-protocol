@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import optuna
 
+from colorama import Fore, Style
 from tabulate import tabulate
 import numpy as np
 
@@ -105,7 +106,7 @@ class PrivacyUtilityOptimizer:
             metric (str): Metric type (1 = MSE, 2 = Lp norm, 3 = Percentage Error).
         
         Returns:
-            tuple: Best `e`, privatized data, error table, result, and data table.
+            tuple: Best `ε`, privatized data, error table, result, and data table.
         """
         def objective(trial):
             e = trial.suggest_float('e', 0.01, 20, step = 0.01)
@@ -136,7 +137,7 @@ class PrivacyUtilityOptimizer:
         data_table = study.best_trial.user_attrs['data_table']
 
         print("\n================ e Optimization finished ====================")
-        print(f"Best value of e: {best_e}")
+        print(f"Best value of ε: {best_e}")
         print(f"Closest error (LP - target_error): {study.best_value}")
         
         return best_e, privatized_data, error_table, result, data_table
@@ -151,20 +152,19 @@ class PrivacyUtilityOptimizer:
             metric (str): Metric type (1 = MSE, 2 = Lp norm, 3 = Percentage Error).
         
         Returns:
-            tuple: Optimized `e`, result, and privatized data.
+            tuple: Optimized `ε`, result, and privatized data.
         """
         e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p, metric) # Adjust the value of e to reach the desired error
 
-        print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
+        print(tabulate(data_table, headers=self.headers, tablefmt="fancy_grid")) # Show database with the e
 
         option = input("Are you satisfied with the results? (yes/no): ") # Ask the user if he is satisfied with the results
         if option == "no":
             self.utility_error(Lp, p, metric)
         else:
-            print(f"\nError metrics for k={self.k}, m={self.m}, e={e}")
-            print(tabulate(error_table, tablefmt="pretty"))
+            print(f"\nError metrics for parameters k={self.k}, m={self.m} and ε={e}")
+            print(tabulate(error_table, tablefmt="fancy_grid"))
 
-            print("Sending database to server ...")
         return e, result, privatized_data, data_table
 
     def privacy_error(self):
@@ -175,16 +175,17 @@ class PrivacyUtilityOptimizer:
             tuple: Optimized `e`, result, and privatized data.
         """
         from individual_method import main
-        p = float(input("Enter the type of error (p): "))
+        
+        p = float(input("\n→ Enter the type of error ρ: "))
 
         error_table = []
         error_table_fav = []
         privatized_fav = None
 
         while True:
-            e_min = input("Enter the minimum value of e: ") # Ask for a range for e to optimize 
-            e_max = input("Enter the maximum value of e: ")
-            step = input("Enter the step value: ")
+            e_min = input(f"→ Enter the {Fore.BRIGHT}minimum{Style.RESET_ALL} value of ε: ") # Ask for a range for e to optimize 
+            e_max = input(f"→ Enter the {Fore.BRIGHT}maximum{Style.RESET_ALL} value of ε: ")
+            step = input(f"→ Enter the {Fore.BRIGHT}step{Style.RESET_ALL} value: ")
 
             saved_e = 0
 
@@ -193,7 +194,7 @@ class PrivacyUtilityOptimizer:
                 f_estimated, f_real = self.frequencies()
                 error = self.function_LP(f_estimated, f_real, p)
 
-                print(f"\nError for e = {e}: {error}")
+                print(f"\nError for ε = {e}: {error}")
                 print(tabulate(data_table, headers=self.headers, tablefmt="grid"))
 
                 save = input("Do you want to save this privatized values? (yes/no): ")
@@ -202,8 +203,8 @@ class PrivacyUtilityOptimizer:
                     H_fav = result
                     error_table_fav = error_table
                     privatized_fav = privatized_data
-                    
-            choice = input("\n1. Change e\n2. Change k or m\n3. Continue\n Select (1, 2 or 3): ")
+            print(f"\nOptimization finished:{Fore.RED} What do you want to do?{Style.RESET_ALL}")
+            choice = input("\n1. Change e\n2. Change k or m\n3. Continue\nSelect: ")
             if choice == "2":
                 main(2)
                 break
@@ -211,12 +212,12 @@ class PrivacyUtilityOptimizer:
                 break
         
         if saved_e == 0:
-            e = input("Enter the value of e to use: ")
+            e = input("Enter the value of ε to use: ")
             
             H_fav, data_table, error_table_fav, privatized_fav = self.run_command(e)
-            print(tabulate(data_table, headers=self.headers, tablefmt="grid")) # Show database with the e
+            print(tabulate(data_table, headers=self.headers, tablefmt="fancy_grid")) # Show database with the e
         else:
-            print(f"Using the saved value of e: {saved_e}")
+            print(f"Using the saved value of ε: {saved_e}")
 
         option = input("Are you satisfied with the results? (yes/no): ")
         if option == "no":
@@ -236,9 +237,10 @@ class PrivacyUtilityOptimizer:
             tuple: Optimized `e`, result, and privatized data.
         """
         e = 0
-        choice = input("Choose Utility or Privacy (u/p): ")
-        if choice == "u":
-            metric = input("Choose the metric to optimize \n1. MSE\n2. LP\n3. Porcentual Error \nSelect (1, 2 or 3): ")
+        choice = input("Enter the optimization:\n1. Utility\n2. Privacy\nSelect: ")
+        if choice == "1":
+            print(f"\n{Fore.GREEN}🔎 Optimizing ε for utility ...{Style.RESET_ALL}")
+            metric = input("Enter the metric to optimize \n1. MSE\n2. LP\n3. Porcentual Error \nSelect: ")
             if metric == "1":
                 Lp = float(input("Enter the MSE to reach: "))
                 p = 2
@@ -249,7 +251,8 @@ class PrivacyUtilityOptimizer:
                 Lp = float(input("Enter the Porcentual Error to reach: "))
                 p = 1
             e, result, privatized_data, _ = self.utility_error(Lp, p, metric)
-        elif choice == "p":
+        elif choice == "2":
+            print(f"\n{Fore.GREEN}🔎 Optimizing ε for privacy ...{Style.RESET_ALL}")
             e, result, privatized_data = self.privacy_error()
         else:
             print("Invalid choice. Please try again.")
