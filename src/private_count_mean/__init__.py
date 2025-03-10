@@ -1,6 +1,4 @@
 """
-private_count_mean
-
 This subpackage contains implementations of algorithms for calculating private count means
 using the Count-Mean-Sketch (CMS) approach. The Count-Mean-Sketch is a probabilistic data
 structure that allows for efficient frequency estimation while providing differential privacy

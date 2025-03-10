@@ -1,5 +1,4 @@
 """
-
 This subpackage contains implementations of algorithms for calculating private count minimums
 using the Count-Min-Sketch (CMS) approach. The Count-Min-Sketch is a probabilistic data
 structure that allows for efficient frequency estimation while providing differential privacy

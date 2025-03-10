@@ -1,5 +1,4 @@
 """
-
 This subpackage contains implementations of algorithms for private count sketching using the
 Count-Sketch approach. The Count-Sketch is a probabilistic data structure that allows for
 efficient frequency estimation while providing differential privacy guarantees. This subpackage

@@ -34,11 +34,6 @@ class CMSClient:
     def __init__(self, k, m, df):
         """
         Initializes the CMSClient with the given parameters.
-
-        Args:
-            k (int): Number of hash functions.
-            m (int): Size of the sketch matrix.
-            df (DataFrame): Dataset to be processed.
         """
         self.df = df
         self.k = k 

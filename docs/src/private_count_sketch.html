@@ -76,23 +76,22 @@ includes both client-side and server-side implementations for privacy-preserving
                         <label class="view-source-button" for="mod-private_count_sketch-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">This subpackage contains implementations of algorithms for private count sketching using the</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">Count-Sketch approach. The Count-Sketch is a probabilistic data structure that allows for</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">efficient frequency estimation while providing differential privacy guarantees. This subpackage</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="sd">includes both client-side and server-side implementations for privacy-preserving data aggregation.</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">Modules:</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">- cs_client.py: Implements the client-side logic for generating private count sketches.</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">- private_cs_client.py: Contains the client-side logic for perturbing data before sending it to the server.</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">- private_cs_server.py: Implements the server-side logic for aggregating and analyzing perturbed data.</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">Main Functions:</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">- execute_client: Simulates the client side of the privatized Count-Min Sketch for all elements in the dataset.</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">- server_simulator: Simulates the server side of the privatized Count-Min Sketch, processes the privatized data, and estimates frequencies.</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">- update_sketch_matrix: Updates the sketch matrix based on the privatized data received from the client.</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">- estimate_client: Estimates the frequency of an element based on the private CMS sketch matrix.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">This subpackage contains implementations of algorithms for private count sketching using the</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">Count-Sketch approach. The Count-Sketch is a probabilistic data structure that allows for</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="sd">efficient frequency estimation while providing differential privacy guarantees. This subpackage</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="sd">includes both client-side and server-side implementations for privacy-preserving data aggregation.</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">Modules:</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">- cs_client.py: Implements the client-side logic for generating private count sketches.</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="sd">- private_cs_client.py: Contains the client-side logic for perturbing data before sending it to the server.</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="sd">- private_cs_server.py: Implements the server-side logic for aggregating and analyzing perturbed data.</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">Main Functions:</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">- execute_client: Simulates the client side of the privatized Count-Min Sketch for all elements in the dataset.</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">- server_simulator: Simulates the server side of the privatized Count-Min Sketch, processes the privatized data, and estimates frequencies.</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">- update_sketch_matrix: Updates the sketch matrix based on the privatized data received from the client.</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">- estimate_client: Estimates the frequency of an element based on the private CMS sketch matrix.</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">&quot;&quot;&quot;</span>
 </span></pre></div>
 
 

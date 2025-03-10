@@ -1,6 +1,4 @@
 """
-private_hadamard_count_mean
-
 This subpackage contains implementations of algorithms for calculating private count means
 using the Hadamard Count-Mean-Sketch (HCMS) approach. The Hadamard transform is used to
 efficiently encode and perturb data, ensuring differential privacy while maintaining data
