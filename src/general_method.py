@@ -1,10 +1,15 @@
-import pandas as pd
+
 from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
 from individual_method import IndividualMethod
 from scripts.parameter_fitting import PrivacyUtilityOptimizer
-from tabulate import tabulate
 
-def run_general_method(df):
+import pandas as pd
+from tabulate import tabulate
+from colorama import Fore, Style
+import os
+import ast
+
+def run_general_method():
         """
         Executes the general method for optimizing privacy and utility trade-offs.
 
@@ -18,20 +23,36 @@ def run_general_method(df):
         Args:
                 df (pd.DataFrame): The dataset containing user data with frequency values.
         """
+
+        # Load the dataset
+        base_path = os.path.join('..', 'data', 'raw')
+        latest_file = max([f for f in os.listdir(base_path) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path, x)))
+        excel_file = os.path.join(base_path, latest_file)
+        df = pd.read_excel(excel_file)
+
+        # Preprocess the dataset
+        # individual = IndividualMethod()
+        # individual.preprocess_data()
+        
+        print(f"Processing {Style.BRIGHT}{latest_file}{Style.RESET_ALL}")
+
         # Step 1: Set value for error metric
-        metric = input("Enter the metric to optimize: \n1. MSE\n2. LP\n3. Porcentual Error \nSelect (1, 2 or 3):  ")
+        metric = input("Enter the metric to optimize: \n1. MSE\n2. LP\n3. Porcentual Error \nSelect:  ")
         if metric == "1":
-                Lp = float(input("Enter the MSE to reach: "))
+                Lp = float(input("⭢ Enter the MSE to reach: "))
                 p = 2
         elif metric == "2":
-                Lp = float(input("Enter the Lp to reach: "))
-                p = float(input("Enter the type of error (p): "))
+                Lp = float(input("⭢ Enter the Lp to reach: "))
+                p = float(input("⭢ Enter the type of error ρ: "))
         elif metric == "3":
-                Lp = float(input("Enter the Porcentual Error to reach: "))
+                Lp = float(input(f"⭢ Enter the {Fore.CYAN}Porcentual Error{Style.RESET_ALL} to reach: "))
                 p = 1
 
         # Step 2: Set the user with more data
+        df['values'] = df['values'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
         df = df.explode("values", ignore_index=True).rename(columns={"values": "value"})
+        print(df['value'].unique())
+        print(df['value'].dtype)
         user_counts = df["user"].value_counts() # Count the number of times each user appears in the dataset
         max_user = user_counts.idxmax() # Get the user with more data
         df_user = df[df["user"] == max_user] # Get the data of the user with more data
@@ -62,3 +83,6 @@ def run_general_method(df):
         for index, result in results_df.iterrows():
                 print(f"\nUser: {df['user'].unique()[index]}, e:{result['e']}, k:{k}, m:{m}")  # Imprimir el usuario
                 print(tabulate(result["Porcentual Error Table"], headers='keys', tablefmt='fancy_grid'))
+
+if __name__ == "__main__":
+    run_general_method()

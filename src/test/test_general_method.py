@@ -5,6 +5,7 @@ import os
 import numpy as np
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from general_method import run_general_method
+from colorama import Fore, Style
 
 def generate_synthetic_dataset(num_users=5, num_values=10):
     """
@@ -27,11 +28,11 @@ def generate_synthetic_dataset(num_users=5, num_values=10):
     }
     df = pd.DataFrame(data)
 
-    # save the dataset to a CSV file en  ../../data/raw/synthetic_dataset.csv
+    # save the dataset to a CSV file en  ../../data/raw/synthetic_dataset.xlsx
     output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/raw"))
-    output_path = os.path.join(output_dir, "synthetic_dataset.csv")
+    output_path = os.path.join(output_dir, "synthetic_dataset.xlsx")
 
-    df.to_csv(output_path, index=False)
+    df.to_excel(output_path, index=False)
 
     return df
 
@@ -42,7 +43,7 @@ def test_general_method():
     Generates a synthetic dataset and passes it to the `run_general_method` function for processing.
     """
     df = generate_synthetic_dataset()
-    run_general_method(df)
+    run_general_method()
 
 if __name__ == "__main__":
     test_general_method()
