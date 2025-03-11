@@ -60,9 +60,9 @@ Local_Privacy
 ## Online Execution
 You can execute the code online using Google Colab. Google Colab sessions are intended for individual users and have limitations such as session timeouts after periods of inactivity and maximum session durations. 
 
-- For **single-user dataset** scenarios, click the link below to execute the method: [Execute in Google Colab (Single-User)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
+- For **single-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab (Single-User)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
 
-- For **multi-user dataset** scenarios, click the link below to execute the method: [Execute in Google Colab (Multi-User)](https://colab.research.google.com/drive/1zenZ2uTNYVNylNJ7ztIj5x_cIQVXP4HV?usp=sharing)
+- For **multi-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab (Multi-User)](https://colab.research.google.com/drive/1zenZ2uTNYVNylNJ7ztIj5x_cIQVXP4HV?usp=sharing)
 ## Installation
 
 Follow these steps to set up and execute the methods:
