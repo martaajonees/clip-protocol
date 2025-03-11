@@ -60,5 +60,5 @@ def run_general_method(df):
         results_df = pd.DataFrame(results)
 
         for index, result in results_df.iterrows():
-                print(f"\nUser: {df['user'].unique()[index]}, e:{result["e"]}, k:{k}, m:{m}")  # Imprimir el usuario
-                print(tabulate(result["Porcentual Error Table"], headers='keys', tablefmt='pretty'))
+                print(f"\nUser: {df['user'].unique()[index]}, e:{result['e']}, k:{k}, m:{m}")  # Imprimir el usuario
+                print(tabulate(result["Porcentual Error Table"], headers='keys', tablefmt='fancy_grid'))

@@ -25,7 +25,15 @@ def generate_synthetic_dataset(num_users=5, num_values=10):
         "user": [f"u{i+1}" for i in range(num_users)],
         "values": [np.random.choice([f"AOI {str(i+1).zfill(3)}" for i in range(3)], num_values).tolist() for _ in range(num_users)]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+
+    # save the dataset to a CSV file en  ../../data/raw/synthetic_dataset.csv
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/raw"))
+    output_path = os.path.join(output_dir, "synthetic_dataset.csv")
+
+    df.to_csv(output_path, index=False)
+
+    return df
 
 def test_general_method():
     """
