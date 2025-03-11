@@ -37,7 +37,8 @@ def run_general_method():
         print(f"Processing {Style.BRIGHT}{latest_file}{Style.RESET_ALL}")
 
         # Step 1: Set value for error metric
-        metric = input("Enter the metric to optimize: \n1. MSE\n2. LP\n3. Porcentual Error \nSelect:  ")
+        print(f"📊 Selection of the Optimization Metric")
+        metric = input(f"\nEnter the metric to optimize: \n1. {Style.CYAN}MSE{Style.RESET_ALL}\n2. {Style.CYAN}LP{Style.RESET_ALL}\n3. {Style.CYAN}Porcentual Error{Style.RESET_ALL} \nSelect:  ")
         if metric == "1":
                 Lp = float(input("⭢ Enter the MSE to reach: "))
                 p = 2
@@ -51,12 +52,10 @@ def run_general_method():
         # Step 2: Set the user with more data
         df['values'] = df['values'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) else x)
         df = df.explode("values", ignore_index=True).rename(columns={"values": "value"})
-        print(df['value'].unique())
-        print(df['value'].dtype)
+        
         user_counts = df["user"].value_counts() # Count the number of times each user appears in the dataset
         max_user = user_counts.idxmax() # Get the user with more data
         df_user = df[df["user"] == max_user] # Get the data of the user with more data
-        print(df_user.head())
 
         # Step 3: Set k and m
         individual = IndividualMethod(df_user)
