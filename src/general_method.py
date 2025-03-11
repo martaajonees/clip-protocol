@@ -38,7 +38,7 @@ def run_general_method():
 
         # Step 1: Set value for error metric
         print(f"📊 Selection of the Optimization Metric")
-        metric = input(f"\nEnter the metric to optimize: \n1. {Style.CYAN}MSE{Style.RESET_ALL}\n2. {Style.CYAN}LP{Style.RESET_ALL}\n3. {Style.CYAN}Porcentual Error{Style.RESET_ALL} \nSelect:  ")
+        metric = input(f"\nEnter the metric to optimize: \n1. {Fore.CYAN}MSE{Style.RESET_ALL}\n2. {Fore.CYAN}LP{Style.RESET_ALL}\n3. {Fore.CYAN}Porcentual Error{Style.RESET_ALL} \nSelect:  ")
         if metric == "1":
                 Lp = float(input("⭢ Enter the MSE to reach: "))
                 p = 2
