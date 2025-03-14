@@ -1,6 +1,7 @@
 
 from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
 from individual_method import IndividualMethod
+from scripts.preprocess import run_data_processor
 from scripts.parameter_fitting import PrivacyUtilityOptimizer
 
 import pandas as pd
@@ -25,14 +26,13 @@ def run_general_method():
         """
 
         # Load the dataset
-        base_path = os.path.join('..', 'data', 'raw')
-        latest_file = max([f for f in os.listdir(base_path) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path, x)))
-        excel_file = os.path.join(base_path, latest_file)
-        df = pd.read_excel(excel_file)
+        # base_path = os.path.join('..', 'data', 'raw')
+        # latest_file = max([f for f in os.listdir(base_path) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path, x)))
+        # excel_file = os.path.join(base_path, latest_file)
+        # df = pd.read_excel(excel_file)
 
         # Preprocess the dataset
-        # individual = IndividualMethod()
-        # individual.preprocess_data()
+        df = run_data_processor()
         
         print(f"Processing {Style.BRIGHT}{latest_file}{Style.RESET_ALL}")
 
@@ -56,13 +56,21 @@ def run_general_method():
         user_counts = df["user"].value_counts() # Count the number of times each user appears in the dataset
         max_user = user_counts.idxmax() # Get the user with more data
         df_user = df[df["user"] == max_user] # Get the data of the user with more data
-
+        
         # Step 3: Set k and m
-        individual = IndividualMethod(df_user)
-        k, m = individual.calculate_k_m()
-        individual.execute_no_privacy()
-        individual.execute_private_algorithms()
-        algorithm = individual.select_algorithm()
+        e = 150
+        while(True):
+                individual = IndividualMethod(df_user)
+                k, m = individual.calculate_k_m()
+                individual.execute_no_privacy()
+                individual.execute_private_algorithms(e)
+                algorithm = individual.select_algorithm()
+
+                print(f"\n Do you want to test with another value of ϵ? (yes/no): ")
+                if input() == "no":
+                        break
+                else:
+                        e = input("⭢ Enter the value of ϵ: ")
 
         # Step 4: Execute utility error
         headers = ["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"]
@@ -80,7 +88,7 @@ def run_general_method():
         results_df = pd.DataFrame(results)
 
         for index, result in results_df.iterrows():
-                print(f"\nUser: {df['user'].unique()[index]}, e:{result['e']}, k:{k}, m:{m}")  # Imprimir el usuario
+                print(f"\nUser: {df['user'].unique()[index]}, ϵ:{result['e']}, k:{k}, m:{m}")  # Imprimir el usuario
                 print(tabulate(result["Porcentual Error Table"], headers='keys', tablefmt='fancy_grid'))
 
 if __name__ == "__main__":

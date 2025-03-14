@@ -50,8 +50,8 @@ class IndividualMethod:
         :return: The computed values of k and m.
         """
         print("\n📂 Calculating k and m ... ")
-        f = float(input("→ Enter the failure probability ζ: "))
-        E = float(input("→ Enter the overestimation factor η: "))
+        f = float(input("→ Enter the failure probability δ: "))
+        E = float(input("→ Enter the overestimation factor ε: "))
 
         self.k = int(1 / f)
         self.m = int(2.71828 / E )
@@ -72,10 +72,9 @@ class IndividualMethod:
         data_table = run_cms_client_mean(self.k, self.m, self.df)
         print(tabulate(data_table, headers=headers, tablefmt="fancy_grid"))
 
-    def execute_private_algorithms(self):
+    def execute_private_algorithms(self, e=150):
         """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
-        print("\n🔍 Searching parameters k and m ...")
-        e = 150   
+        print("\n🔍 Searching parameters k and m ...")  
         k_values = [self.k, 16, 128, 1024, 32768]
         m_values = [self.m, 16, 1024, 256, 256]
 
@@ -90,7 +89,7 @@ class IndividualMethod:
         for k, m in zip(k_values, m_values):
             for algorithm, client in zip(["CMeS", "HCMS"], [run_private_cms_client, run_private_hcms_client]):
                 
-                print(f"\nRunning {Fore.GREEN}{algorithm}{Style.RESET_ALL} with k: {k}, m: {m} and ε: {e}")
+                print(f"\nRunning {Fore.GREEN}{algorithm}{Style.RESET_ALL} with k: {k}, m: {m} and ϵ: {e}")
                 if algorithm == "HCMS":
                     if math.log2(m).is_integer() == False:
                         m = 2 ** math.ceil(math.log2(m))
@@ -163,6 +162,10 @@ def main(step=1):
         elif step == 3:
             # Step 4: Execute private algorithms
             experiment.execute_private_algorithms()
+
+            if input("\nDo you want to change ϵ value? (yes/no): ") == 'yes':
+                e1 = float(input("→ Enter the new value of ϵ: "))
+                experiment.execute_private_algorithms(e1)
 
             # Step 5: Choose an algorithm, k and m
             experiment.select_algorithm()
