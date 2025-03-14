@@ -96,7 +96,7 @@ class PrivacyUtilityOptimizer:
         """
         return self.frequency_estimation, self.get_real_frequency()
 
-    def optimize_e_with_optuna(self, target_error, p, metric):
+    def optimize_e_with_optuna(self, target_error, p, metric, n_trials):
         """
         Optimizes the privacy parameter `e` using Optuna to reach a target error.
         
@@ -128,7 +128,7 @@ class PrivacyUtilityOptimizer:
             return abs(Lp_target - target_error)
 
         study = optuna.create_study(direction='minimize') # minimize the difference
-        study.optimize(objective, n_trials=20)
+        study.optimize(objective, n_trials=n_trials)
 
         best_e = study.best_params['e']
         privatized_data = study.best_trial.user_attrs['privatized_data']
@@ -142,7 +142,7 @@ class PrivacyUtilityOptimizer:
         
         return best_e, privatized_data, error_table, result, data_table
 
-    def utility_error(self, Lp, p, metric):
+    def utility_error(self, Lp, p, metric, n_trials=20):
         """
         Optimizes the privacy parameter `e` for utility preservation.
         
@@ -154,7 +154,7 @@ class PrivacyUtilityOptimizer:
         Returns:
             tuple: Optimized `ε`, result, and privatized data.
         """
-        e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p, metric) # Adjust the value of e to reach the desired error
+        e, privatized_data, error_table, result, data_table = self.optimize_e_with_optuna(Lp, p, metric, n_trials) # Adjust the value of e to reach the desired error
 
         print(tabulate(data_table, headers=self.headers, tablefmt="fancy_grid")) # Show database with the e
 
@@ -250,7 +250,8 @@ class PrivacyUtilityOptimizer:
             elif metric == "3":
                 Lp = float(input("Enter the Porcentual Error to reach: "))
                 p = 1
-            e, result, privatized_data, _ = self.utility_error(Lp, p, metric)
+            n_trials = int(input("Enter the number of trials: "))
+            e, result, privatized_data, _ = self.utility_error(Lp, p, metric, n_trials)
         elif choice == "2":
             print(f"\n{Fore.GREEN}🔎 Optimizing ε for privacy ...{Style.RESET_ALL}")
             e, result, privatized_data = self.privacy_error()
