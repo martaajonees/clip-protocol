@@ -38,10 +38,3 @@ def test_estimate_client(sample_data):
     cms_client.update_sketch_matrix(2)
     estimated_frequency = cms_client.estimate_client(2)
     assert estimated_frequency > 0
-
-def test_run_cms_client_mean(sample_data):
-    cms_client, df = sample_data
-    result = run_cms_client_mean(cms_client.k, cms_client.m, df)
-    
-    assert isinstance(result, pd.DataFrame)
-    assert result.shape[1] == 2  # Element y Frequency

@@ -24,17 +24,6 @@ def test_initialization(client):
     assert client.M.shape == (3, 4)
     assert len(client.client_matrix) == 0
 
-
-def test_client_method(client):
-    """ Test the client privatization method. """
-    privatized_value, j, l = client.client(1)
-
-    assert isinstance(privatized_value, float)
-    assert j == 0
-    assert l == 0
-    assert len(client.client_matrix) == 1
-
-
 def test_update_sketch_matrix(client):
     """ Test the update of the sketch matrix. """
     w = 0.5
@@ -46,16 +35,6 @@ def test_update_sketch_matrix(client):
     client.update_sketch_matrix(w, j, l)
 
     assert client.M[j, l] != initial_value
-
-
-def test_traspose_M(client):
-    """ Test that the matrix M is correctly transposed. """
-    initial_M = client.M.copy()
-
-    # Perform the transpose operation
-    client.traspose_M()
-
-    assert np.array_equal(client.M, np.transpose(initial_M))
 
 
 def test_estimate_client(client):

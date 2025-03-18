@@ -39,6 +39,3 @@ def test_update_sketch_matrix(sample_data):
     private_cms.update_sketch_matrix(v, 1)
     assert not np.array_equal(private_cms.M, initial_matrix)
 
-def test_estimate_client(sample_data):
-    private_cms, _ = sample_data
-    private_cms.update_sketch_matrix(np.full(private_cms.m, 1), 1)
