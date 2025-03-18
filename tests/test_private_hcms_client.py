@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
-from src.localPrivacy_martaajonees.hadamard_count_mean.private_hcms_client import privateHCMSClient
+from src.privadjust.hadamard_count_mean.private_hcms_client import privateHCMSClient
 
 @pytest.fixture
 def client():

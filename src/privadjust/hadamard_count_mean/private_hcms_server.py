@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from rich.progress import Progress
 
-from src.localPrivacy_martaajonees.utils.utils import display_results
+from src.privadjust.utils.utils import display_results
 
 class privateHCMSServer:
     """
