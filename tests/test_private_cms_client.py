@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from src.count_mean.private_cms_client import privateCMSClient, run_private_cms_client
+from src.localPrivacy_martaajonees.count_mean.private_cms_client import privateCMSClient, run_private_cms_client
 
 @pytest.fixture
 def sample_data():

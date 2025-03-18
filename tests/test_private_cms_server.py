@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from src.count_mean.private_cms_server import privateCMSServer
+from src.localPrivacy_martaajonees.count_mean.private_cms_server import privateCMSServer
 
 @pytest.fixture
 def sample_server():
