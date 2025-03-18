@@ -1,5 +1,5 @@
 
-from individual_method import IndividualMethod
+from main.individual_method import IndividualMethod
 from scripts.preprocess import run_data_processor
 from scripts.parameter_fitting import PrivacyUtilityOptimizer
 
