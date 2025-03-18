@@ -1,8 +1,7 @@
 
 import pandas as pd
-import argparse
 from rich.progress import Progress
-from colorama import Fore, Style
+from colorama import Style
 import os
 
 class DataProcessor:
@@ -52,12 +51,10 @@ class DataProcessor:
         with Progress() as progress:
             task = progress.add_task("[cyan]🔍 Processing AOI Hits...", total=len(self.df))
             for _, row in self.df.iterrows():
-                hit = False
                 user_id = row['Participant']
                 for col in self.df.columns[1:]:
                     if row[col] != "-":
                         rows.append({'user_id': user_id, 'value': row[col]})
-                        hit = True
                         break
                 progress.update(task, advance=1)
         self.df = pd.DataFrame(rows)

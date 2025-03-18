@@ -1,5 +1,4 @@
 
-from utils.utils import load_dataset, generate_hash_functions, display_results, generate_error_table
 from individual_method import IndividualMethod
 from scripts.preprocess import run_data_processor
 from scripts.parameter_fitting import PrivacyUtilityOptimizer
@@ -7,7 +6,6 @@ from scripts.parameter_fitting import PrivacyUtilityOptimizer
 import pandas as pd
 from tabulate import tabulate
 from colorama import Fore, Style
-import os
 import ast
 
 def run_general_method():

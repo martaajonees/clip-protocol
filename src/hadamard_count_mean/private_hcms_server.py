@@ -2,7 +2,7 @@ import os
 import numpy as np
 from rich.progress import Progress
 
-from utils.utils import load_dataset, display_results
+from utils.utils import display_results
 
 class privateHCMSServer:
     """

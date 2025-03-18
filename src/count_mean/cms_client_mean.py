@@ -2,9 +2,8 @@ import random
 import numpy as np
 from sympy import primerange
 from rich.progress import Progress
-import pandas as pd
 
-from utils.utils import load_dataset, generate_error_table, generate_hash_functions, display_results
+from utils.utils import generate_hash_functions, display_results
 
 class CMSClient:
     """
@@ -133,7 +132,6 @@ def run_cms_client_mean(k, m, df):
 
     # Simulate the server side
     f_estimated = PCMS.server_simulator()
-    df_estimated = pd.DataFrame(list(f_estimated.items()), columns=['Element', 'Frequency'])
 
     # Show the results
     data_table, _= display_results(df, f_estimated)

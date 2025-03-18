@@ -2,13 +2,6 @@ import numpy as np
 import pandas as pd
 import random
 import os
-import string
-import matplotlib.pyplot as plt
-from tabulate import tabulate
-from scipy.stats import pearsonr
-
-TEST_MODE = False  # (ENABLE for testing)
-
 
 def create_dataset(N: int, dist_type: str) -> tuple[list, pd.DataFrame, list]:
     """
@@ -103,8 +96,6 @@ def generate_hash_function_G(k, p):
     return hash_functions
 
 def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
-    #output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/error_tables'))
-
    # Calculate errors
     f = real_freq['value'].value_counts()
     real_num_freq = f.sort_index().to_dict()
@@ -162,7 +153,6 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
     min_freq = min(real_num_freq.values())
     mse = np.sum([(real_num_freq[key] - estimated_freq[key]) ** 2 for key in estimated_freq]) / len(estimated_freq)
     normalized_mse = mse / (max_freq - min_freq)
-    pearson_corr, _ = pearsonr(list(real_num_freq.values()), list(estimated_freq.values()))
 
     error_table = [
         ['Total Errors', f"{total_errors:.2f}"],
@@ -171,16 +161,7 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
         ['MSE', f"{mse:.2f}"],
         ['RMSE', f"{np.sqrt(mse):.2f}"],
         ['Normalized MSE', f"{normalized_mse:.4f}"],
-        ['Normalized RMSE', f"{np.sqrt(normalized_mse):.2f}"],
-        ['Pearson Correlation Coefficient', f"{pearson_corr:.4f}"],
+        ['Normalized RMSE', f"{np.sqrt(normalized_mse):.2f}"]
     ]
 
-    if TEST_MODE:
-        for error in error_table:
-            print(f"{error[0]}: {error[1]}")
-    else:
-        #print("RESULTS")
-        #print(tabulate(data_table, headers=["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"], tablefmt="pretty"))
-        #print('\n' + tabulate(error_table, tablefmt="pretty"))
-        pass
     return data_table, error_table

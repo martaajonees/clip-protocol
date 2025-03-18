@@ -1,23 +1,19 @@
-import os
 import math
-import pandas as pd
-import numpy as np
 from tabulate import tabulate
 from colorama import Fore, Style
-from rich.progress import Progress
 
 # Importing CMeS functions
-from private_count_mean.private_cms_server import run_private_cms_server
-from private_count_mean.private_cms_client import run_private_cms_client
-from private_count_mean.cms_client_mean import run_cms_client_mean
+from count_mean.private_cms_server import run_private_cms_server
+from count_mean.private_cms_client import run_private_cms_client
+from count_mean.cms_client_mean import run_cms_client_mean
 
 # Importing data preprocessing functions
 from scripts.preprocess import run_data_processor
 from scripts.parameter_fitting import run_parameter_fitting
 
 # Importing HCMS functions
-from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
-from private_hadamard_count_mean.private_hcms_server import run_private_hcms_server
+from hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from hadamard_count_mean.private_hcms_server import run_private_hcms_server
 
 
 class IndividualMethod:
@@ -78,7 +74,7 @@ class IndividualMethod:
         k_values = [self.k, 16, 128, 1024, 32768]
         m_values = [self.m, 16, 1024, 256, 256]
 
-        results = {"CMeS": [], "HCMS": []}
+        results = {"PCMeS": [], "PHCMS": []}
 
         headers=[
             "Element", "Real Frequency", "Real Percentage", 
@@ -87,10 +83,10 @@ class IndividualMethod:
         ]
          
         for k, m in zip(k_values, m_values):
-            for algorithm, client in zip(["CMeS", "HCMS"], [run_private_cms_client, run_private_hcms_client]):
+            for algorithm, client in zip(["PCMeS", "PHCMS"], [run_private_cms_client, run_private_hcms_client]):
                 
                 print(f"\nRunning {Fore.GREEN}{algorithm}{Style.RESET_ALL} with k: {k}, m: {m} and ϵ: {e}")
-                if algorithm == "HCMS":
+                if algorithm == "PHCMS":
                     if math.log2(m).is_integer() == False:
                         m = 2 ** math.ceil(math.log2(m))
                         print(f"{Fore.RED}Adjusting m to a power of 2 → m = {m}{Style.RESET_ALL}")
