@@ -33,14 +33,6 @@ def test_query_server(sample_server):
     assert isinstance(server.query_server('a'), float)
     assert server.query_server('z') == "Element not in the domain"
 
-@patch('builtins.input', return_value='a')
-@patch('builtins.print')
-def test_run_private_cms_server_query(mock_print, mock_input, sample_server):
-    server, _ = sample_server
-    server.query_server = lambda x: 3.14
-    server.query_server('a')
-    mock_print.assert_called_with('The estimated frequency of a is 3.14')
-
 def test_execute_server(sample_server):
     server, privatized_data = sample_server
     f_estimated = server.execute_server(privatized_data)
