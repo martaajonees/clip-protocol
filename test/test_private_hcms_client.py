@@ -7,7 +7,7 @@ from src.utils.utils import generate_error_table
 from src.hadamard_count_mean.private_hcms_client import privateHCMSClient
 
 class TestPrivateHCMSClient(unittest.TestCase):
-
+    @patch('pandas.read_excel')
     def setUp(self):
         """ 
         Setup for the tests. It initializes the basic parameters needed for the client.

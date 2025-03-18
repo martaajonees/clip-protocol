@@ -32,7 +32,7 @@ def run_general_method():
         # Preprocess the dataset
         df = run_data_processor()
         
-        print(f"Processing {Style.BRIGHT}{latest_file}{Style.RESET_ALL}")
+        #print(f"Processing {Style.BRIGHT}{latest_file}{Style.RESET_ALL}")
 
         # Step 1: Set value for error metric
         print(f"📊 Selection of the Optimization Metric")

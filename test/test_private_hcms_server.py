@@ -10,7 +10,7 @@ class TestPrivateHCMSServer(unittest.TestCase):
     """
     Test cases for the private HCMS server implementation.
     """
-
+    @patch('pandas.read_excel')
     def setUp(self):
         """
         Set up the initial data and parameters for the tests.

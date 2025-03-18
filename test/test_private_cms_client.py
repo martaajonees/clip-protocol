@@ -7,6 +7,7 @@ from src.count_mean.private_cms_client import privateCMSClient, run_private_cms_
 
 class TestPrivateCMSClient(unittest.TestCase):
 
+    @patch('pandas.read_excel')
     def setUp(self):
         # Create a sample dataset
         self.df = pd.DataFrame({
@@ -19,6 +20,7 @@ class TestPrivateCMSClient(unittest.TestCase):
         # Initialize the privateCMSClient object
         self.private_cms_client = privateCMSClient(self.epsilon, self.k, self.m, self.df)
 
+    
     def test_initialization(self):
         # Verify the initialization of the privateCMSClient object
         self.assertEqual(self.private_cms_client.k, self.k)
@@ -76,6 +78,7 @@ class TestPrivateCMSClient(unittest.TestCase):
         self.assertGreater(len(estimated_frequencies), 0)
         self.assertTrue(all(isinstance(v, float) for v in estimated_frequencies.values()))
 
+    @patch('pandas.read_excel')
     def test_run_private_cms_client(self):
         # Verify the output of the run_private_cms_client function
         H, data_table, error_table, privatized_data, df_estimated = run_private_cms_client(self.k, self.m, self.epsilon, self.df)
