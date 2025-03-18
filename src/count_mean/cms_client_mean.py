@@ -3,7 +3,7 @@ import numpy as np
 from sympy import primerange
 from rich.progress import Progress
 
-from utils.utils import generate_hash_functions, display_results
+from src.utils.utils import generate_hash_functions, display_results
 
 class CMSClient:
     """

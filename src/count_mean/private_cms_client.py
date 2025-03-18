@@ -4,7 +4,7 @@ from sympy import primerange
 import pandas as pd
 from rich.progress import Progress
 
-from utils.utils import generate_hash_functions, display_results
+from src.utils.utils import generate_hash_functions, display_results
 
 class privateCMSClient:
     """
