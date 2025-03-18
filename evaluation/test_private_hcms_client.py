@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from src.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 from tabulate import tabulate
 
 def test_algoritmos():

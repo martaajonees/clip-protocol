@@ -5,9 +5,8 @@ from tabulate import tabulate
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from private_count_mean.private_cms_client import run_private_cms_client
-from private_count_sketch.private_cs_client import run_private_cs_client
-from private_hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from src.count_mean.private_cms_client import run_private_cms_client
+from src.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 def run_distribution_test():
     """
@@ -36,8 +35,6 @@ def run_distribution_test():
         print(f"\n================== k: {k[j]}, m: {m[j]} ==================")
         print(" \n========= CMS ==========")
         _, error_table = run_private_cms_client(k[j], m[j], e, filename)
-        print(" \n========= CS ===========")
-        _, error_table = run_private_cs_client(k[j], m[j], e, filename)
         print(" \n========= HCMS ===========")
         _, error_table = run_private_hcms_client(k[j], m[j], e, filename)
 

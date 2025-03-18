@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from private_count_mean.private_cms_client import run_private_cms_client
+from src.count_mean.private_cms_client import run_private_cms_client
 from tabulate import tabulate
 
 def test_algoritmos():

@@ -4,7 +4,7 @@ import sys
 import os
 import numpy as np
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from general_method import run_general_method
+from src.main.general_method import run_general_method
 from colorama import Fore, Style
 
 def generate_synthetic_dataset(num_users=5, num_values=10):
