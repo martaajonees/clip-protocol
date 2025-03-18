@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"   
 
 [project]
-name = "localPrivacy_martaajonees"
+name = "privadjust"
 version = "1.0.2"
 authors = [
   { name="Marta Jones González", email="martajon10@gmail.com" },
