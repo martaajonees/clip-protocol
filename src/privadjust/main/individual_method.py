@@ -1,6 +1,9 @@
 import math
 from tabulate import tabulate
 from colorama import Fore, Style
+import pandas as pd
+import argparse
+import os
 
 # Importing CMeS functions
 from count_mean.private_cms_server import run_private_cms_server
@@ -21,7 +24,7 @@ class IndividualMethod:
     This class represents the execution of various algorithms for private frequency estimation.
     It includes preprocessing data, computing parameters, and executing different privacy-preserving algorithms.
     """
-    def __init__(self, df=None,  k=None, m=None, algorithm=None):
+    def __init__(self, df,  k=None, m=None, algorithm=None):
         """
         Initializes the IndividualMethod instance.
 
@@ -37,7 +40,7 @@ class IndividualMethod:
     
     def preprocess_data(self):
         """Step 1: Data preprocessing by loading and filtering the dataset."""
-        self.df = run_data_processor()
+        self.df = run_data_processor(self.df)
     
     def calculate_k_m(self):
         """
@@ -134,9 +137,9 @@ class IndividualMethod:
 
         print("\nProcess done and results saved.")
 
-def main(step=1):
+def run_individual_method(df, step=1):
     """Main function to run the step-by-step execution of the method."""
-    experiment = IndividualMethod()
+    experiment = IndividualMethod(df)
     while True:
         if step == 1:
             # Step 1: Data preprocessing
@@ -177,4 +180,15 @@ def main(step=1):
     
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
+    parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
+    args = parser.parse_args()
+
+    if not os.path.exists(args.file_path):
+        raise FileNotFoundError(f"File not found at {args.file_path}")
+        return
+    
+    file_name = os.path.basename(args.file_path)
+    print(f"Processing {Style.BRIGHT}{file_name}{Style.RESET_ALL}")
+    df = pd.read_excel(args.file_path)
+    run_individual_method(df)

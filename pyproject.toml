@@ -21,3 +21,6 @@ license-files = ["LICEN[CS]E*"]
 [project.urls]
 Homepage = "https://github.com/martaajonees/Local_Privacy"
 Issues = "https://github.com/martaajonees/Local_Privacy/issues"
+
+[project.scripts]
+individualadjust = "privadjust.cli:main"

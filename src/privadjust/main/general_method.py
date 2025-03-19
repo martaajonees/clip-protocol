@@ -8,7 +8,7 @@ from tabulate import tabulate
 from colorama import Fore, Style
 import ast
 
-def run_general_method():
+def run_general_method(df):
         """
         Executes the general method for optimizing privacy and utility trade-offs.
 

@@ -16,7 +16,7 @@ class DataProcessor:
         excel_file (str): Path to the input Excel file.
         output_csv (str): Path to save the filtered CSV file.
     """
-    def __init__(self):
+    def __init__(self, df=None):
         """
         Initializes the DataProcessor with the dataset name and determines file paths.
         
@@ -24,22 +24,23 @@ class DataProcessor:
             dataset_name (str): Name of the dataset file (without extension).
         """
         self.columns = ['Participant', 'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name']
-        self.df = None
+        self.df = df
 
-        base_path_1 = os.path.join('..', '..', 'data', 'raw')
-        base_path_2 = os.path.join('..', 'data', 'raw')
+        # base_path_1 = os.path.join('..', '..', 'data', 'raw')
+        # base_path_2 = os.path.join('..', 'data', 'raw')
 
-        if os.path.exists(base_path_1):
-            latest_file = max([f for f in os.listdir(base_path_1) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path_1, x)))
-            self.excel_file = os.path.join(base_path_1, latest_file)
-            self.file_name = latest_file
-        else:
-            latest_file = max([f for f in os.listdir(base_path_2) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path_2, x)))
-            self.excel_file = os.path.join(base_path_2, latest_file)
-            self.file_name = latest_file
+        # if os.path.exists(base_path_1):
+        #     latest_file = max([f for f in os.listdir(base_path_1) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path_1, x)))
+        #     self.excel_file = os.path.join(base_path_1, latest_file)
+        #     self.file_name = latest_file
+        # else:
+        #     latest_file = max([f for f in os.listdir(base_path_2) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path_2, x)))
+        #     self.excel_file = os.path.join(base_path_2, latest_file)
+        #     self.file_name = latest_file
+        #self.file_name = os.path.basename(file_path)
         
-        print(f"Processing {Style.BRIGHT}{self.file_name}{Style.RESET_ALL}")
-        self.df = pd.read_excel(self.excel_file)
+        #print(f"Processing {Style.BRIGHT}{self.file_name}{Style.RESET_ALL}")
+        #self.df = pd.read_excel(self.excel_file)
 
 
     def aoi_hits(self):
@@ -80,7 +81,7 @@ class DataProcessor:
         self.aoi_hits()
         return self.df
 
-def run_data_processor():
+def run_data_processor(df):
     """
     Runs the data processing pipeline for a given dataset.
     
@@ -90,6 +91,6 @@ def run_data_processor():
     Returns:
         pd.DataFrame: The filtered dataset.
     """
-    processor = DataProcessor()
+    processor = DataProcessor(df)
     df = processor.filter_columns()
     return df

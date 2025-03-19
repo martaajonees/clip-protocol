@@ -64,12 +64,11 @@ You can execute the code online using Google Colab. Google Colab sessions are in
 
 - For **multi-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab (Multi-User)](https://colab.research.google.com/drive/1zenZ2uTNYVNylNJ7ztIj5x_cIQVXP4HV?usp=sharing)
 ## Installation
-
+[Ver en Pypi](https://pypi.org/project/privadjust/1.0.2/)
 Follow these steps to set up and execute the methods:
-1. **Clone this repository**
+1. **Install with pip**
    ```sh
-   git clone https://github.com/martaajonees/Local_Privacy.git
-   cd Local_Privacy
+   pip install privadjust
    ```
 2. **Upload your dataset**. Place your dataset inside the data/raw directory.
 3. **Install dependencies**
