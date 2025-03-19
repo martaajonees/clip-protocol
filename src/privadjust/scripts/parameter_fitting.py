@@ -3,8 +3,8 @@ import optuna
 from colorama import Fore, Style
 from tabulate import tabulate
 
-from count_mean.private_cms_client import run_private_cms_client
-from hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from privadjust.count_mean.private_cms_client import run_private_cms_client
+from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 class PrivacyUtilityOptimizer:
     """

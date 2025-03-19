@@ -6,17 +6,17 @@ import argparse
 import os
 
 # Importing CMeS functions
-from count_mean.private_cms_server import run_private_cms_server
-from count_mean.private_cms_client import run_private_cms_client
-from count_mean.cms_client_mean import run_cms_client_mean
+from privadjust.count_mean.private_cms_server import run_private_cms_server
+from privadjust.count_mean.private_cms_client import run_private_cms_client
+from privadjust.count_mean.cms_client_mean import run_cms_client_mean
 
 # Importing data preprocessing functions
-from scripts.preprocess import run_data_processor
-from scripts.parameter_fitting import run_parameter_fitting
+from privadjust.scripts.preprocess import run_data_processor
+from privadjust.scripts.parameter_fitting import run_parameter_fitting
 
 # Importing HCMS functions
-from hadamard_count_mean.private_hcms_client import run_private_hcms_client
-from hadamard_count_mean.private_hcms_server import run_private_hcms_server
+from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from privadjust.hadamard_count_mean.private_hcms_server import run_private_hcms_server
 
 
 class IndividualMethod:

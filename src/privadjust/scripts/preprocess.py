@@ -16,7 +16,7 @@ class DataProcessor:
         excel_file (str): Path to the input Excel file.
         output_csv (str): Path to save the filtered CSV file.
     """
-    def __init__(self, df=None):
+    def __init__(self, df):
         """
         Initializes the DataProcessor with the dataset name and determines file paths.
         
