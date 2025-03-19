@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "privadjust"
-version = "1.0.2"
+version = "1.0.3"
 authors = [
   { name="Marta Jones González", email="martajon10@gmail.com" },
 ]
@@ -24,3 +24,9 @@ Issues = "https://github.com/martaajonees/Local_Privacy/issues"
 
 [project.scripts]
 individualadjust = "privadjust.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
