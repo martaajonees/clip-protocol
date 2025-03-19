@@ -110,8 +110,8 @@ def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
 
     # Save the privatized data
     privatized_data_save = pd.DataFrame(privatized_data)
-    privatized_data_file = os.path.join(os.path.join('..', 'data', 'private'), 'privatized_data.csv')
-    privatized_data_save.to_csv(privatized_data_file, index=False)
+    # privatized_data_file = os.path.join(os.path.join('..', 'data', 'private'), 'privatized_data.csv')
+    # privatized_data_save.to_csv(privatized_data_file, index=False)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)
@@ -126,6 +126,8 @@ def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
             break
         estimation = server.query_server(query)
         print(f"The estimated frequency of {query} is {estimation:.2f}")
+    
+    return privatized_data_save
 
 
   

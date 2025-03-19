@@ -22,17 +22,7 @@ def run_general_method(df):
         Args:
                 df (pd.DataFrame): The dataset containing user data with frequency values.
         """
-
-        # Load the dataset
-        # base_path = os.path.join('..', 'data', 'raw')
-        # latest_file = max([f for f in os.listdir(base_path) if f.endswith('.xlsx')], key=lambda x: os.path.getmtime(os.path.join(base_path, x)))
-        # excel_file = os.path.join(base_path, latest_file)
-        # df = pd.read_excel(excel_file)
-
-        # Preprocess the dataset
-        df = run_data_processor()
-        
-        #print(f"Processing {Style.BRIGHT}{latest_file}{Style.RESET_ALL}")
+        df = run_data_processor(df)
 
         # Step 1: Set value for error metric
         print(f"📊 Selection of the Optimization Metric")

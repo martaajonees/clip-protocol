@@ -130,16 +130,17 @@ class IndividualMethod:
 
 
         print("\n⚙️ Running server ...")
+        priv_df = None
         if self.algorithm == '1':
-            run_private_cms_server(self.k, self.m, e, self.df, result, privatized_data)
+            priv_df = run_private_cms_server(self.k, self.m, e, self.df, result, privatized_data)
         elif self.algorithm == '2':
-            run_private_hcms_server(self.k, self.m, e, self.df, result, privatized_data)
-
-        print("\nProcess done and results saved.")
+            priv_df = run_private_hcms_server(self.k, self.m, e, self.df, result, privatized_data)
+        return priv_df
 
 def run_individual_method(df, step=1):
     """Main function to run the step-by-step execution of the method."""
     experiment = IndividualMethod(df)
+    priv_df = None
     while True:
         if step == 1:
             # Step 1: Data preprocessing
@@ -175,8 +176,9 @@ def run_individual_method(df, step=1):
 
         elif step == 4:
             # Step 6: Parameter fitting and execute server
-            experiment.execute_algorithms()
+            priv_df = experiment.execute_algorithms()
             break
+    return priv_df
     
 
 if __name__ == "__main__":
