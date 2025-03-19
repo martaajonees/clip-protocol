@@ -169,7 +169,7 @@ class PrivacyUtilityOptimizer:
         Returns:
             tuple: Optimized `e`, result, and privatized data.
         """
-        from individual_method import main
+        from privadjust.main.individual_method import run_individual_method
         
         p = float(input("\n→ Enter the type of error ρ: "))
 
@@ -201,7 +201,7 @@ class PrivacyUtilityOptimizer:
             print(f"\nOptimization finished:{Fore.RED} What do you want to do?{Style.RESET_ALL}")
             choice = input("\n1. Change e\n2. Change k or m\n3. Continue\nSelect: ")
             if choice == "2":
-                main(2)
+                run_individual_method(self.df, 2)
                 break
             elif choice == "3":
                 break

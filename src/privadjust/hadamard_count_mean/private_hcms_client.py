@@ -137,7 +137,7 @@ class privateHCMSClient:
             list: A list of privatized data.
         """
         with Progress() as progress:
-            task = progress.add_task('[cyan]Processing client data', total=len(self.dataset))
+            task = progress.add_task('Processing client data', total=len(self.dataset))
             privatized_data = []
             for d in self.dataset:
                 w_i, j_i, l_i = self.client(d)

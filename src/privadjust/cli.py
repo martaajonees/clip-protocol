@@ -9,7 +9,7 @@ from privadjust.main.general_method import run_general_method
 def main():
     parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
     parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
-    parser.add_argument("output_file", type=str, help="The path to the output file where you want the final database be saved.")
+    parser.add_argument("output_path", type=str, help="The path to the output where you want the final database to be saved.")
     args = parser.parse_args()
 
     if not os.path.exists(args.file_path):
@@ -20,8 +20,9 @@ def main():
     df = pd.read_excel(args.file_path)
 
     priv_df = run_individual_method(df)
-    priv_df.to_excel(args.output_file, index=False)
-    print(f"{Style.BRIGHT}Private dataset saved at {args.output_file}{Style.RESET_ALL}")
+    output = os.path.join(args.output_path, 'private_database.csv')
+    priv_df.to_csv(output, index=False)
+    print(f"{Style.BRIGHT}Private dataset saved at {args.output_path}{Style.RESET_ALL}")
 
 def main_general():
     parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
