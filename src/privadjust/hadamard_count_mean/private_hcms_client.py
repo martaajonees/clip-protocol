@@ -4,7 +4,7 @@ import numpy as np
 from rich.progress import Progress
 import pandas as pd
 
-from src.privadjust.utils.utils import generate_hash_functions, display_results
+from privadjust.utils.utils import generate_hash_functions, display_results
 
 
 class privateHCMSClient:

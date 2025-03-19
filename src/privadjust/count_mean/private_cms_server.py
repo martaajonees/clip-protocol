@@ -4,7 +4,7 @@ import pandas as pd
 import os
 from rich.progress import Progress
 
-from src.privadjust.utils.utils import display_results
+from privadjust.utils.utils import display_results
 
 class privateCMSServer:
     """
