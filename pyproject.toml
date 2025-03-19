@@ -27,18 +27,20 @@ individualadjust = "privadjust.cli:main"
 generaladjust = "privadjust.cli:main_general"
 
 [project.dependencies]
-matplotlib = "*"
-numpy = "*"
-pandas = "*"
-progress = "*"
-tabulate = "*"
-sympy = "*"
-scipy = "*"
-tqdm = "*"
-optuna = "*"
-openpyxl = "*"
-rich = "*"
-colorama = "*"
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "progress",
+    "tabulate",
+    "sympy",
+    "scipy",
+    "tqdm",
+    "optuna",
+    "openpyxl",
+    "rich",
+    "colorama"
+]
 
 [tool.setuptools]
 include-package-data = true
