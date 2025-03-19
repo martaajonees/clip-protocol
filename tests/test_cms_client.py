@@ -1,6 +1,9 @@
 import pytest
 import pandas as pd
 import numpy as np
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from src.privadjust.count_mean.cms_client_mean import CMSClient, run_cms_client_mean
 
 @pytest.fixture
