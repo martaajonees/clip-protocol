@@ -17,16 +17,6 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
-
-[project.urls]
-Homepage = "https://github.com/martaajonees/Local_Privacy"
-Issues = "https://github.com/martaajonees/Local_Privacy/issues"
-
-[project.scripts]
-individualadjust = "privadjust.cli:main"
-generaladjust = "privadjust.cli:main_general"
-
-[project.dependencies]
 dependencies = [
     "matplotlib",
     "numpy",
@@ -41,6 +31,17 @@ dependencies = [
     "rich",
     "colorama"
 ]
+
+[project.urls]
+Homepage = "https://github.com/martaajonees/Local_Privacy"
+Issues = "https://github.com/martaajonees/Local_Privacy/issues"
+
+[project.scripts]
+individualadjust = "privadjust.cli:main"
+generaladjust = "privadjust.cli:main_general"
+
+
+
 
 [tool.setuptools]
 include-package-data = true
