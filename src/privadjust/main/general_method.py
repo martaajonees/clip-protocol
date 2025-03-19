@@ -1,7 +1,7 @@
 
-from main.individual_method import IndividualMethod
-from scripts.preprocess import run_data_processor
-from scripts.parameter_fitting import PrivacyUtilityOptimizer
+from privadjust.main.individual_method import IndividualMethod
+from privadjust.scripts.preprocess import run_data_processor
+from privadjust.scripts.parameter_fitting import PrivacyUtilityOptimizer
 
 import pandas as pd
 from tabulate import tabulate
