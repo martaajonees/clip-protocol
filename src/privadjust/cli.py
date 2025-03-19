@@ -9,7 +9,7 @@ from privadjust.main.general_method import run_general_method
 def main():
     parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
     parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
-    paser.add_argument("output_file", type=str, help="The path to the output file where you want the final database be saved.")
+    parser.add_argument("output_file", type=str, help="The path to the output file where you want the final database be saved.")
     args = parser.parse_args()
 
     if not os.path.exists(args.file_path):
