@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "privadjust"
-version = "1.0.10"
+version = "1.0.11"
 authors = [
   { name="Marta Jones González", email="martajon10@gmail.com" },
 ]
@@ -26,8 +26,21 @@ Issues = "https://github.com/martaajonees/Local_Privacy/issues"
 individualadjust = "privadjust.cli:main"
 generaladjust = "privadjust.cli:main_general"
 
+[project.dependencies]
+matplotlib = "*"
+numpy = "*"
+pandas = "*"
+progress = "*"
+tabulate = "*"
+sympy = "*"
+scipy = "*"
+tqdm = "*"
+optuna = "*"
+openpyxl = "*"
+rich = "*"
+colorama = "*"
+
 [tool.setuptools]
 include-package-data = true
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+
