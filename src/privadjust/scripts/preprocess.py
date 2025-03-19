@@ -16,7 +16,7 @@ class DataProcessor:
         excel_file (str): Path to the input Excel file.
         output_csv (str): Path to save the filtered CSV file.
     """
-    def __init__(self, df):
+    def __init__(self, df, type="individual"):
         """
         Initializes the DataProcessor with the dataset name and determines file paths.
         
@@ -25,8 +25,9 @@ class DataProcessor:
         """
         self.columns = ['Participant', 'Fixation Position X [px]', 'Fixation Position Y [px]', 'AOI Name']
         self.df = df
+        self.type = type
 
-    def aoi_hits(self, type="general"):
+    def aoi_hits(self):
         """
         Processes the dataset to determine whether an AOI (Area of Interest) hit has been made.
         Extracts relevant user IDs and the first AOI hit for each participant.
@@ -38,7 +39,7 @@ class DataProcessor:
                 user_id = row['Participant']
                 for col in self.df.columns[1:]:
                     if row[col] != "-":
-                        if type == "general":
+                        if self.type == "general":
                             rows.append({'user_id': user_id, 'values': row[col]})
                         else:
                             rows.append({'user_id': user_id, 'value': row[col]})
@@ -91,6 +92,6 @@ def run_data_processor_general(df):
     Returns:
         pd.DataFrame: The filtered dataset.
     """
-    processor = DataProcessor(df)
+    processor = DataProcessor(df, "general")
     df = processor.filter_columns()
     return df

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "privadjust"
-version = "1.0.8"
+version = "1.0.9"
 authors = [
   { name="Marta Jones González", email="martajon10@gmail.com" },
 ]

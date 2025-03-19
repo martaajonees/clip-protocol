@@ -1,6 +1,6 @@
 
 from privadjust.main.individual_method import IndividualMethod
-from privadjust.scripts.preprocess import run_data_processor
+from privadjust.scripts.preprocess import run_data_processor_general
 from privadjust.scripts.parameter_fitting import PrivacyUtilityOptimizer
 
 import pandas as pd
@@ -22,7 +22,7 @@ def run_general_method(df):
         Args:
                 df (pd.DataFrame): The dataset containing user data with frequency values.
         """
-        df = run_data_processor(df)
+        df = run_data_processor_general(df)
 
         # Step 1: Set value for error metric
         print(f"📊 Selection of the Optimization Metric")
