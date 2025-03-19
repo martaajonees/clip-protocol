@@ -186,7 +186,6 @@ if __name__ == "__main__":
 
     if not os.path.exists(args.file_path):
         raise FileNotFoundError(f"File not found at {args.file_path}")
-        return
     
     file_name = os.path.basename(args.file_path)
     print(f"Processing {Style.BRIGHT}{file_name}{Style.RESET_ALL}")

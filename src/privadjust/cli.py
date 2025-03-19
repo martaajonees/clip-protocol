@@ -1,8 +1,9 @@
 import argparse
 import os
+import pandas as pd
 from colorama import Style
 
-from privadjust.main.individual_method import main  
+from privadjust.main.individual_method import run_individual_method  
 
 def main():
     parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
