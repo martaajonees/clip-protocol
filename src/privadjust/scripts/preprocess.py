@@ -94,4 +94,5 @@ def run_data_processor_general(df):
     """
     processor = DataProcessor(df, "general")
     df = processor.filter_columns()
+    df = df.groupby('user')['values'].apply(list).reset # Group the data by user
     return df

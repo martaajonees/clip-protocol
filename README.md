@@ -5,7 +5,7 @@ This repository contains an adaptation of differential privacy algorithms applie
 * [Project Description](#project-description)
 * [Repository Structure](#repository-structure)
 * [Online Execution](#online-execution)
-* [Installation](#installation)
+* [Usage](#usage)
 * [Documentation](#documentation)
 
 ## Project Description
@@ -33,29 +33,21 @@ which will be sent to the server.
 <p align="center"> <img src="https://github.com/user-attachments/assets/706a966f-1c2b-4f16-83df-883b12ef8fe7" alt="Figuras Analysis"> </p>
 
 ## Repository Structure
+The repository is organized as follows:
 ```sh
 Local_Privacy
-│
-├── data/                
-│   ├── raw/             # Unprocessed data
-│   ├── private/       # Data after privatizing
-│
-├── scripts/             
-│   ├── preprocess.py    # Data preprocessing routines
-│   ├── algorithms.py    # Implementation of differential privacy algorithms
-│   ├── parameter_fitting.py    # Parameter tuning for algorithms
-│
-├── src/                 # Privacy code
-│   ├── private_count_mean/          # Code for private count mean algorithms
-│   ├── private_hadamard_count_mean/ # Code for private Hadamard count mean algorithms
-│   ├── rappor/                      # Implementation of RAPPOR algorithm
-│
-├── requirements.txt     # List of Python dependencies
-│
-├── individual_method.py # Main file for the single-user dataset algorithm
-│
-├── general_method.py # Main file for the multi-user dataset algorithm
-   
+┣ 📂 src
+┣ ┣ 📂 privadjust
+┃ ┃ ┣ 📂 count mean
+┃ ┃ ┣ 📂 hadamard mean
+┃ ┃ ┣ 📂 main
+┃ ┃ ┃ ┣ individual_method.py # Single-user dataset algorithm
+┃ ┃ ┃ ┗ general_method.py # Multi-user dataset algorithm
+┃ ┃ ┣ 📂 scripts
+┃ ┃ ┃ ┣ preprocess.py    # Data preprocessing routines
+┃ ┃ ┃ ┗ parameter_fitting.py    # Parameter tuning for algorithms
+┃ ┗ ┗ 📂 utils
+┗ 📂 tests
 ```
 ## Online Execution
 You can execute the code online using Google Colab. Google Colab sessions are intended for individual users and have limitations such as session timeouts after periods of inactivity and maximum session durations. 
@@ -63,29 +55,35 @@ You can execute the code online using Google Colab. Google Colab sessions are in
 - For **single-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab (Single-User)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
 
 - For **multi-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab (Multi-User)](https://colab.research.google.com/drive/1zenZ2uTNYVNylNJ7ztIj5x_cIQVXP4HV?usp=sharing)
-## Installation
-[Ver en Pypi](https://pypi.org/project/privadjust/1.0.2/)
-Follow these steps to set up and execute the methods:
-1. **Install with pip**
-   ```sh
-   pip install privadjust
-   ```
-2. **Upload your dataset**. Place your dataset inside the data/raw directory.
-3. **Install dependencies**
-   ```sh
-   pip install -r requirements.txt
-   ```
-5. **Run the methods**. Navigate to the src directory and execute the desired method:
-   * For **single-user dataset** analysis:
-     ```sh
-     cd src
-     python individual_method.py
-     ```
-    * For **multi-user dataset** analysis:
-       ```sh
-       cd src
-       python general_method.py
-       ```
+
+## Usage 
+These methods are included in PyPI as you can view [here](https://pypi.org/project/privadjust/1.0.2/), and can be installed on your device with:
+```sh
+pip install privadjust
+```
+Once installed, you can execute the following commands to run the privacy adjustment methods.
+### For **single-user dataset** analysis:
+To adjust the privacy of a single-user dataset, use the following command:
+
+```sh
+individualmethod /path/to/dataset.xlsx /path/to/output
+```
+- `dataset`: path to the input dataset (`.xlsx`) you want to privatize.
+- `output`: path to where the privatized dataset will be saved.
+
+Example:
+```sh
+individualmethod <dataset> <output>
+```
+### For **multi-user dataset** analysis:
+To adjust the privacy of a multi-user dataset, use the following command:
+```sh
+generalmethod <database>
+```
+- `dataset`: Path to the input dataset you want to privatize.
+### Important Notes
+- Ensure that the paths provided are correct, and that the necessary permissions are granted for writing to the output location.
+- In the single-user dataset analysis, the output will be a new file `.csv` containing the privatized data.
 ## Documentation
 The complete documentation for this project is available online. You can access it at the following link:
 - [Project Documentation - Local Privacy in Learning Analytics](https://martaajonees.github.io/Local_Privacy/)
