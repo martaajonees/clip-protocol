@@ -45,7 +45,7 @@ def main_general():
 
     for user, privatized_data in priv.items():
         output_file = os.path.join(args.output_path, f'{user}.csv')
-        privatized_data.to_csv(output, index=False)
+        privatized_data.to_csv(args.output_path, index=False)
         
     print(f"{Style.BRIGHT}Private datasets saved at {args.output_path}{Style.RESET_ALL}")
 
