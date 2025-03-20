@@ -121,13 +121,12 @@ class IndividualMethod:
         self.k = int(input("→ Enter the value of k: "))
         self.m = int(input("→ Enter the value of m: "))
         self.algorithm = input("→ Enter the algorithm to execute:\n  1. Count-Mean Sketch\n  2. Hadamard Count-Mean Sketch\nSelect: ")
-        return self.algorithm
+        return self.algorithm, self.k, self.m
     
     def execute_algorithms(self):
         """Step 6: Perform parameter fitting and execute the selected server algorithm."""
         print("\n🔄 Executing personalized privacy ...")
         e, result, privatized_data = run_parameter_fitting(self.df, self.k, self.m, self.algorithm)
-
 
         print("\n⚙️ Running server ...")
         priv_df = None
@@ -136,6 +135,7 @@ class IndividualMethod:
         elif self.algorithm == '2':
             priv_df = run_private_hcms_server(self.k, self.m, e, self.df, result, privatized_data)
         return priv_df
+
 
 def run_individual_method(df, step=1):
     """Main function to run the step-by-step execution of the method."""

@@ -64,21 +64,21 @@ pip install privadjust
 Once installed, you can execute the following commands to run the privacy adjustment methods.
 ### For **single-user dataset** analysis:
 To adjust the privacy of a single-user dataset, use the following command:
-
 ```sh
-individualmethod /path/to/dataset.xlsx /path/to/output
+individualadjust <dataset> <output>
 ```
+
 - `dataset`: path to the input dataset (`.xlsx`) you want to privatize.
 - `output`: path to where the privatized dataset will be saved.
 
 Example:
 ```sh
-individualmethod <dataset> <output>
+individualadjust /path/to/dataset.xlsx /path/to/output
 ```
 ### For **multi-user dataset** analysis:
 To adjust the privacy of a multi-user dataset, use the following command:
 ```sh
-generalmethod <database>
+generaladjust <dataset>
 ```
 - `dataset`: Path to the input dataset you want to privatize.
 ### Important Notes

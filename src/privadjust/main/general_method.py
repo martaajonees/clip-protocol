@@ -2,6 +2,7 @@
 from privadjust.main.individual_method import IndividualMethod
 from privadjust.scripts.preprocess import run_data_processor_general
 from privadjust.scripts.parameter_fitting import PrivacyUtilityOptimizer
+from privadjust.count_mean.private_cms_server import run_private_cms_server_multiuser
 
 import pandas as pd
 from tabulate import tabulate
@@ -52,7 +53,7 @@ def run_general_method(df):
                 k, m = individual.calculate_k_m()
                 individual.execute_no_privacy()
                 individual.execute_private_algorithms(e)
-                algorithm = individual.select_algorithm()
+                algorithm, k, m = individual.select_algorithm()
 
                 print(f"\n Do you want to test with another value of ϵ? (yes/no): ")
                 if input() == "no":
@@ -63,21 +64,33 @@ def run_general_method(df):
         # Step 4: Execute utility error
         headers = ["Element", "Real Frequency", "Real Percentage", "Estimated Frequency", "Estimated Percentage", "Estimation Difference", "Percentage Error"]
         results = []
+        privatized = {}
         for user in df["user"].unique():
                 print(f"Processing user {user}")
                 df_user_specific = df[df["user"] == user]
 
                 optimizer = PrivacyUtilityOptimizer(df_user_specific, k, m, algorithm)
-                e, _, _, data_table = optimizer.utility_error(Lp, p, metric)
+                e, result, privatized_data, data_table = optimizer.utility_error(Lp, p, metric)
                 
+                privatized[user] = {
+                        "privatized_data": privatized_data,
+                        "result": result,
+                        "e": e
+                }
+
                 data_table = pd.DataFrame(data_table, columns=headers)
-                results.append({"e": e, "Porcentual Error Table": data_table})
+                results.append({"ϵ": e, "Porcentual Error Table": data_table})
         
         results_df = pd.DataFrame(results)
 
         for index, result in results_df.iterrows():
-                print(f"\nUser: {df['user'].unique()[index]}, ϵ:{result['e']}, k:{k}, m:{m}")  # Imprimir el usuario
+                print(f"\nUser: {df['user'].unique()[index]}, ϵ:{result['e']}, k:{k}, m:{m}")  # Print the user, ϵ, k, and m values
                 print(tabulate(result["Porcentual Error Table"], headers='keys', tablefmt='fancy_grid'))
+        
+        print("\n⚙️ Running server ...")
+        priv_df = run_private_cms_server_multiuser(k, m, privatized)
+        
+        return privatized
 
 if __name__ == "__main__":
     run_general_method()

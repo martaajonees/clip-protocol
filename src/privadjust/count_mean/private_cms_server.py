@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import os
+from colorama import Fore, Style
 from rich.progress import Progress
 
 from privadjust.utils.utils import display_results
@@ -116,7 +117,6 @@ class privateCMSServer:
             return "Element not in the domain"
         estimation = self.estimate_server(query_element)
         return estimation
-
     
 def run_private_cms_server(k, m, e, df, H, privatized_data):
     """
@@ -136,21 +136,65 @@ def run_private_cms_server(k, m, e, df, H, privatized_data):
 
     # Save the privatized data
     privatized_data_save = pd.DataFrame(privatized_data)
-    # privatized_data_file = os.path.join(os.path.join('..', 'data', 'private'), 'privatized_data.csv')
-    # privatized_data_save.to_csv(privatized_data_file, index=False)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)
 
-    # Show the results
-    display_results(df, f_estimated)
-
     # Query the server
     while True:
-        query = input("Enter an element to query the server or 'exit' to finish: ")
+        query = input("Enter a event to query the server or 'exit' to finish: ")
         if query.lower() == 'exit':
             break
         estimation = server.query_server(query)
         print(f"The estimated frequency of {query} is {estimation:.2f}")
     
     return privatized_data_save
+
+def run_private_cms_server_multiuser(k, m, private):
+    """
+    Runs the server-side operations for the Private Count-Mean Sketch,
+    storing a separate server instance for each user.
+
+    Args:
+        k (int): The number of hash functions.
+        m (int): The size of the sketch.
+        e (float): The privacy parameter epsilon.
+        df (pandas.DataFrame): The dataset containing the values.
+        H (list): The list of hash functions.
+        privatized (dict): A dictionary where keys are users and values contain privatized data.
+
+    Returns:
+        dict: A dictionary of servers where each user has its own server instance.
+    """
+
+    user_servers = {}
+
+    with Progress() as progress:
+        task = progress.add_task("[cyan]Initializing servers...", total=len(private))
+
+        for user, data in private.items():
+            progress.update(task, advance=1, description=f"[cyan]Processing user {user}...")
+
+            e = data["e"]
+            df = data["privatized_data"]
+            H = data["result"]
+
+            #Initialize the server Count-Mean Sketch
+            server = privateCMSServer(e, k, m, df, H)
+            f_estimated = server.execute_server(privatized_data)
+            
+            user_servers[user] = server
+    
+    print(F"✅ {Fore.GREEN}All user servers initialized.{Style.RESET_ALL}")
+    
+    while True:
+        user_query = input("Enter a user to query or 'exit' to finish: ")
+        if user_query.lower() == 'exit':
+            break
+        if user_query not in user_servers:
+            raise ValueError(f"❌ {Fore.RED}User '{user_query}' not found.{Style.RESET_ALL}")
+        
+        event_query = input(f"Enter an event for user {user_query}: ")
+        estimation = user_servers[user_query].query_server(event_query)
+        print(f"The estimated frequency of '{event_query}' for user '{user_query}' is {estimation:.2f}")
+
