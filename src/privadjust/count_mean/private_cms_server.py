@@ -176,11 +176,14 @@ def run_private_cms_server_multiuser(k, m, private):
             progress.update(task, advance=1, description=f"[cyan]Processing user {user}...")
 
             e = data["e"]
-            df = data["privatized_data"]
+            privatized_data = data["privatized_data"]
             H = data["result"]
+
+            df = pd.DataFrame(privatized_data)
 
             #Initialize the server Count-Mean Sketch
             server = privateCMSServer(e, k, m, df, H)
+            
             f_estimated = server.execute_server(privatized_data)
             
             user_servers[user] = server

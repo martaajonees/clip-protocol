@@ -4,19 +4,24 @@ from colorama import Fore, Style
 import pandas as pd
 import argparse
 import os
+import sys
 
 # Importing CMeS functions
-from privadjust.count_mean.private_cms_server import run_private_cms_server
+#from privadjust.count_mean.private_cms_server import run_private_cms_server
 from privadjust.count_mean.private_cms_client import run_private_cms_client
 from privadjust.count_mean.cms_client_mean import run_cms_client_mean
 
 # Importing data preprocessing functions
 from privadjust.scripts.preprocess import run_data_processor
 from privadjust.scripts.parameter_fitting import run_parameter_fitting
+sys.path.append('/Users/martajones/Privacidad_Local/src/privadjust/scripts')
+from server import run_private_sketch_server
+
 
 # Importing HCMS functions
 from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
-from privadjust.hadamard_count_mean.private_hcms_server import run_private_hcms_server
+#from privadjust.hadamard_count_mean.private_hcms_server import run_private_hcms_server
+
 
 
 class IndividualMethod:
@@ -74,8 +79,10 @@ class IndividualMethod:
     def execute_private_algorithms(self, e=150):
         """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
         print("\n🔍 Searching parameters k and m ...")  
-        k_values = [self.k, 16, 128, 1024, 32768]
-        m_values = [self.m, 16, 1024, 256, 256]
+        # k_values = [self.k, 16, 128, 1024, 32768]
+        # m_values = [self.m, 16, 1024, 256, 256]
+        k_values = [self.k ]
+        m_values = [self.m]
 
         results = {"PCMeS": [], "PHCMS": []}
 
@@ -129,11 +136,7 @@ class IndividualMethod:
         e, result, privatized_data = run_parameter_fitting(self.df, self.k, self.m, self.algorithm)
 
         print("\n⚙️ Running server ...")
-        priv_df = None
-        if self.algorithm == '1':
-            priv_df = run_private_cms_server(self.k, self.m, e, self.df, result, privatized_data)
-        elif self.algorithm == '2':
-            priv_df = run_private_hcms_server(self.k, self.m, e, self.df, result, privatized_data)
+        priv_df = run_private_sketch_server(self.algorithm, self.k, self.m, e, self.df, result, privatized_data)
         return priv_df
 
 

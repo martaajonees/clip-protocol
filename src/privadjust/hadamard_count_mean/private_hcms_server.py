@@ -30,6 +30,24 @@ class privateHCMSServer:
 
         # Creation of the sketch matrix
         self.M = np.zeros((self.k, self.m))
+    
+    def hadamard_matrix(self,n):
+        """
+        Generates the Hadamard matrix recursively.
+
+        Args:
+            n (int): The size of the matrix.
+
+        Returns:
+            numpy.ndarray: The generated Hadamard matrix.
+        """
+        if n == 1:
+            return np.array([[1]])
+        else:
+            # Recursive function to generate the Hadamard matrix
+            h_half = self.hadamard_matrix(n // 2)
+            h = np.block([[h_half, h_half], [h_half, -h_half]])
+        return h
 
     def update_sketch_matrix(self, w, j, l):
         """
@@ -110,8 +128,6 @@ def run_private_hcms_server(k, m, e, df, hashes, privatized_data):
 
     # Save the privatized data
     privatized_data_save = pd.DataFrame(privatized_data)
-    # privatized_data_file = os.path.join(os.path.join('..', 'data', 'private'), 'privatized_data.csv')
-    # privatized_data_save.to_csv(privatized_data_file, index=False)
     
     # Execute the server
     f_estimated = server.execute_server(privatized_data)
