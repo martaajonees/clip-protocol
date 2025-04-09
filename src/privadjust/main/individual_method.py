@@ -7,7 +7,6 @@ import os
 import sys
 
 # Importing CMeS functions
-#from privadjust.count_mean.private_cms_server import run_private_cms_server
 from privadjust.count_mean.private_cms_client import run_private_cms_client
 from privadjust.count_mean.cms_client_mean import run_cms_client_mean
 
@@ -17,12 +16,8 @@ from privadjust.scripts.parameter_fitting import run_parameter_fitting
 sys.path.append('/Users/martajones/Privacidad_Local/src/privadjust/scripts')
 from server import run_private_sketch_server
 
-
 # Importing HCMS functions
 from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
-#from privadjust.hadamard_count_mean.private_hcms_server import run_private_hcms_server
-
-
 
 class IndividualMethod:
     """
@@ -81,7 +76,7 @@ class IndividualMethod:
         print("\n🔍 Searching parameters k and m ...")  
         # k_values = [self.k, 16, 128, 1024, 32768]
         # m_values = [self.m, 16, 1024, 256, 256]
-        k_values = [self.k ]
+        k_values = [self.k]
         m_values = [self.m]
 
         results = {"PCMeS": [], "PHCMS": []}
@@ -156,12 +151,11 @@ def run_individual_method(df, step=1):
 
             # Step 3: Execute no privacy algorithms
             experiment.execute_no_privacy()
-
             if input("Are you satisfied with the results? (yes/no): ") == 'yes':
                 step = 3
             else:
                 step = 2
-                
+
         elif step == 3:
             # Step 4: Execute private algorithms
             experiment.execute_private_algorithms()

@@ -75,7 +75,8 @@ def run_general_method(df):
                 privatized[user] = {
                         "privatized_data": privatized_data,
                         "result": result,
-                        "e": e
+                        "e": e,
+                        "method": algorithm
                 }
 
                 data_table = pd.DataFrame(data_table, columns=headers)

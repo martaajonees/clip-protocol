@@ -90,10 +90,7 @@ class Server:
     
     def estimate_server(self, d):
         """Estimates the frequency of an element in the dataset."""
-        if self.method == "PCMeS":
-            return (self.m / (self.m - 1)) * (1 / self.k * np.sum([self.M[i, self.hashes[i](d)] for i in range(self.k)]) - self.N / self.m)
-        elif self.method == "PHCMS":
-            return (self.m / (self.m - 1)) * (1 / self.k * np.sum([self.M[i, self.hashes[i](d)] for i in range(self.k)]) - self.N / self.m)
+        return (self.m / (self.m - 1)) * (1 / self.k * np.sum([self.M[i, self.hashes[i](d)] for i in range(self.k)]) - self.N / self.m)
     
     def query_server(self, query_element):
         """Queries the estimated frequency of an element."""
@@ -126,3 +123,56 @@ def run_private_sketch_server(method, k, m, e, df, hashes, privatized_data):
         print(f"The estimated frequency of {query} is {estimation:.2f}")
     
     return privatized_data_save
+
+def run_private_cms_server_multiuser(k, m, private):
+    """
+    Runs the server-side operations, storing a separate server instance for each user.
+
+    Args:
+        k (int): The number of hash functions.
+        m (int): The size of the sketch.
+        e (float): The privacy parameter epsilon.
+        df (pandas.DataFrame): The dataset containing the values.
+        H (list): The list of hash functions.
+        privatized (dict): A dictionary where keys are users and values contain privatized data.
+
+    Returns:
+        dict: A dictionary of servers where each user has its own server instance.
+    """
+
+    user_servers = {}
+
+    with Progress() as progress:
+        task = progress.add_task("[cyan]Initializing servers...", total=len(private))
+
+        for user, data in private.items():
+            progress.update(task, advance=1, description=f"[cyan]Processing user {user}...")
+
+            e = data["e"]
+            privatized_data = data["privatized_data"]
+            hashes = data["result"]
+            method = data["method"]
+
+            df = pd.DataFrame(privatized_data)
+
+            #Initialize the server 
+            server = Server(e, k, m, df, hashes, method)
+            
+            f_estimated = server.execute_server(privatized_data)
+            
+            user_servers[user] = server
+    
+    print(F"✅ {Fore.GREEN}All user servers initialized.{Style.RESET_ALL}")
+    
+    while True:
+        user_query = input("Enter a user to query or 'exit' to finish: ")
+        if user_query.lower() == 'exit':
+            break
+        if user_query not in user_servers:
+            raise ValueError(f"❌ {Fore.RED}User '{user_query}' not found.{Style.RESET_ALL}")
+        
+        event_query = input(f"Enter an event for user {user_query}: ")
+        estimation = user_servers[user_query].query_server(event_query)
+        print(f"The estimated frequency of '{event_query}' for user '{user_query}' is {estimation:.2f}")
+
+

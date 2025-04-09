@@ -52,7 +52,7 @@ class PrivacyUtilityOptimizer:
             float: Computed Lp error.
         """
         merged = f_estimated.merge(f_real, on="Element", suffixes=("_estimated", "_real"))
-        return (1 / self.N) * sum(abs(row["Frequency_estimated"] - row["Frequency_real"]) ** p for _, row in merged.iterrows())
+        return sum(abs(row["Frequency_estimated"] - row["Frequency_real"]) ** p for _, row in merged.iterrows()) ** (1/p)
 
     def run_command(self, e):
         """
@@ -104,7 +104,7 @@ class PrivacyUtilityOptimizer:
             tuple: Best `ϵ`, privatized data, error table, result, and data table.
         """
         def objective(trial):
-            e = trial.suggest_float('e', 0.01, 20, step = 0.01)
+            e = trial.suggest_float('e', 0.01, 20, step = 0.01) # cambiar esto para que se pase la e de referencia
             result, data_table, error_table, privatized_data = self.run_command(e)
 
             trial.set_user_attr('result', result)
