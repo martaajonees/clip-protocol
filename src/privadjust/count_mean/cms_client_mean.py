@@ -134,7 +134,7 @@ def run_cms_client_mean(k, m, df):
     f_estimated = PCMS.server_simulator()
 
     # Show the results
-    data_table, _= display_results(df, f_estimated)
+    data_table = display_results(df, f_estimated)
 
     return data_table
 

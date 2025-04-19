@@ -20,7 +20,7 @@ from server import run_private_sketch_server
 
 # Importing HCMS functions
 from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
-#from privadjust.hadamard_count_mean.private_hcms_server import run_private_hcms_server
+
 
 
 
@@ -47,88 +47,88 @@ class IndividualMethod:
         """Step 1: Data preprocessing by loading and filtering the dataset."""
         self.df = run_data_processor(self.df)
     
-    def calculate_k_m(self):
-        """
-        Step 2: Calculate k and m values based on user input for failure probability and overestimation factor.
+    # def calculate_k_m(self):
+    #     """
+    #     Step 2: Calculate k and m values based on user input for failure probability and overestimation factor.
         
-        :return: The computed values of k and m.
-        """
-        print("\n📂 Calculating k and m ... ")
-        f = float(input("→ Enter the failure probability δ: "))
-        E = float(input("→ Enter the overestimation factor ε: "))
+    #     :return: The computed values of k and m.
+    #     """
+    #     print("\n📂 Calculating k and m ... ")
+    #     f = float(input("→ Enter the failure probability δ: "))
+    #     E = float(input("→ Enter the overestimation factor ε: "))
 
-        self.k = int(1 / f)
-        self.m = int(2.71828 / E )
+    #     self.k = int(1 / f)
+    #     self.m = int(2.71828 / E )
 
-        print(f"{Fore.GREEN}Calculated k = {self.k} and m = {self.m}{Style.RESET_ALL}")
-        print(f"{Fore.GREEN}Space complexity: {self.k*self.m}{Style.RESET_ALL}")
-        return self.k, self.m
+    #     print(f"{Fore.GREEN}Calculated k = {self.k} and m = {self.m}{Style.RESET_ALL}")
+    #     print(f"{Fore.GREEN}Space complexity: {self.k*self.m}{Style.RESET_ALL}")
+    #     return self.k, self.m
         
-    def execute_no_privacy(self):
-        """Step 3: Execute Count-Mean Sketch (CMeS) without privacy protection."""
-        headers=[
-            "Element", "Real Frequency", "Real Percentage", 
-            "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
-            "Percentage Error"
-        ]
+    # def execute_no_privacy(self):
+    #     """Step 3: Execute Count-Mean Sketch (CMeS) without privacy protection."""
+    #     headers=[
+    #         "Element", "Real Frequency", "Real Percentage", 
+    #         "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+    #         "Percentage Error"
+    #     ]
         
-        print("\n📊 Calculing CMeS without privacy")
-        data_table = run_cms_client_mean(self.k, self.m, self.df)
-        print(tabulate(data_table, headers=headers, tablefmt="fancy_grid"))
+    #     print("\n📊 Calculing CMeS without privacy")
+    #     data_table = run_cms_client_mean(self.k, self.m, self.df)
+    #     print(tabulate(data_table, headers=headers, tablefmt="fancy_grid"))
 
-    def execute_private_algorithms(self, e=150):
-        """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
-        print("\n🔍 Searching parameters k and m ...")  
-        # k_values = [self.k, 16, 128, 1024, 32768]
-        # m_values = [self.m, 16, 1024, 256, 256]
-        k_values = [self.k ]
-        m_values = [self.m]
+    # def execute_private_algorithms(self, e=150):
+    #     """Step 4: Execute privacy-preserving algorithms (CMeS and HCMS)."""
+    #     print("\n🔍 Searching parameters k and m ...")  
+    #     # k_values = [self.k, 16, 128, 1024, 32768]
+    #     # m_values = [self.m, 16, 1024, 256, 256]
+    #     k_values = [self.k ]
+    #     m_values = [self.m]
 
-        results = {"PCMeS": [], "PHCMS": []}
+    #     results = {"PCMeS": [], "PHCMS": []}
 
-        headers=[
-            "Element", "Real Frequency", "Real Percentage", 
-            "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
-            "Percentage Error"
-        ]
+    #     headers=[
+    #         "Element", "Real Frequency", "Real Percentage", 
+    #         "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
+    #         "Percentage Error"
+    #     ]
          
-        for k, m in zip(k_values, m_values):
-            for algorithm, client in zip(["PCMeS", "PHCMS"], [run_private_cms_client, run_private_hcms_client]):
+    #     for k, m in zip(k_values, m_values):
+    #         for algorithm, client in zip(["PCMeS", "PHCMS"], [run_private_cms_client, run_private_hcms_client]):
                 
-                print(f"\nRunning {Fore.GREEN}{algorithm}{Style.RESET_ALL} with k: {k}, m: {m} and ϵ: {e}")
-                if algorithm == "PHCMS":
-                    if math.log2(m).is_integer() == False:
-                        m = 2 ** math.ceil(math.log2(m))
-                        print(f"{Fore.RED}Adjusting m to a power of 2 → m = {m}{Style.RESET_ALL}")
+    #             print(f"\nRunning {Fore.GREEN}{algorithm}{Style.RESET_ALL} with k: {k}, m: {m} and ϵ: {e}")
+    #             if algorithm == "PHCMS":
+    #                 if math.log2(m).is_integer() == False:
+    #                     m = 2 ** math.ceil(math.log2(m))
+    #                     print(f"{Fore.RED}Adjusting m to a power of 2 → m = {m}{Style.RESET_ALL}")
 
-                _, data_table, _, _,_ = client(k, m, e, self.df)
+    #             _, data_table, _, _,_ = client(k, m, e, self.df)
 
-                data_dicts = [dict(zip(headers, row)) for row in data_table]
+    #             data_dicts = [dict(zip(headers, row)) for row in data_table]
 
-                for data_dict in data_dicts:
-                    results[algorithm].append([
-                        k, m, 
-                        data_dict.get("Element", ""),
-                        data_dict.get("Real Frequency", ""),
-                        data_dict.get("Real Percentage", ""),
-                        data_dict.get("Estimated Frequency", ""),
-                        data_dict.get("Estimated Percentage", ""),
-                        data_dict.get("Estimation Difference", ""),
-                        data_dict.get("Percentage Error", ""),
-                    ])
+    #             for data_dict in data_dicts:
+    #                 results[algorithm].append([
+    #                     k, m, 
+    #                     data_dict.get("Element", ""),
+    #                     data_dict.get("Real Frequency", ""),
+    #                     data_dict.get("Real Percentage", ""),
+    #                     data_dict.get("Estimated Frequency", ""),
+    #                     data_dict.get("Estimated Percentage", ""),
+    #                     data_dict.get("Estimation Difference", ""),
+    #                     data_dict.get("Percentage Error", ""),
+    #                 ])
         
 
-        for algo, table in results.items():
-            print(f"\n 🔍Results for {Fore.CYAN}{algo}{Style.RESET_ALL}")
-            print(tabulate(table, headers=["k", "m"] + headers, tablefmt="fancy_grid"))
+    #     for algo, table in results.items():
+    #         print(f"\n 🔍Results for {Fore.CYAN}{algo}{Style.RESET_ALL}")
+    #         print(tabulate(table, headers=["k", "m"] + headers, tablefmt="fancy_grid"))
     
-    def select_algorithm(self):
-        """Step 5: Choose an algorithm and specify k and m values."""
-        print(f"\n🔍 Selecting an parameters and algorithm ...")
-        self.k = int(input("→ Enter the value of k: "))
-        self.m = int(input("→ Enter the value of m: "))
-        self.algorithm = input("→ Enter the algorithm to execute:\n  1. Count-Mean Sketch\n  2. Hadamard Count-Mean Sketch\nSelect: ")
-        return self.algorithm, self.k, self.m
+    # def select_algorithm(self):
+    #     """Step 5: Choose an algorithm and specify k and m values."""
+    #     print(f"\n🔍 Selecting an parameters and algorithm ...")
+    #     self.k = int(input("→ Enter the value of k: "))
+    #     self.m = int(input("→ Enter the value of m: "))
+    #     self.algorithm = input("→ Enter the algorithm to execute:\n  1. Count-Mean Sketch\n  2. Hadamard Count-Mean Sketch\nSelect: ")
+    #     return self.algorithm, self.k, self.m
     
     def execute_algorithms(self):
         """Step 6: Perform parameter fitting and execute the selected server algorithm."""
@@ -140,59 +140,59 @@ class IndividualMethod:
         return priv_df
 
 
-def run_individual_method(df, step=1):
-    """Main function to run the step-by-step execution of the method."""
-    experiment = IndividualMethod(df)
-    priv_df = None
-    while True:
-        if step == 1:
-            # Step 1: Data preprocessing
-            experiment.preprocess_data()
-            step = 2
+# def run_individual_method(df, step=1):
+#     """Main function to run the step-by-step execution of the method."""
+#     experiment = IndividualMethod(df)
+#     priv_df = None
+#     while True:
+#         if step == 1:
+#             # Step 1: Data preprocessing
+#             experiment.preprocess_data()
+#             step = 2
     
-        if step == 2:
-            #Step 2: Calculate k and m
-            experiment.calculate_k_m()
+#         if step == 2:
+#             #Step 2: Calculate k and m
+#             experiment.calculate_k_m()
 
-            # Step 3: Execute no privacy algorithms
-            experiment.execute_no_privacy()
+#             # Step 3: Execute no privacy algorithms
+#             experiment.execute_no_privacy()
 
-            if input("Are you satisfied with the results? (yes/no): ") == 'yes':
-                step = 3
-            else:
-                step = 2
+#             if input("Are you satisfied with the results? (yes/no): ") == 'yes':
+#                 step = 3
+#             else:
+#                 step = 2
                 
-        elif step == 3:
-            # Step 4: Execute private algorithms
-            experiment.execute_private_algorithms()
+#         elif step == 3:
+#             # Step 4: Execute private algorithms
+#             experiment.execute_private_algorithms()
 
-            if input("\nDo you want to change ϵ value? (yes/no): ") == 'yes':
-                e1 = float(input("→ Enter the new value of ϵ: "))
-                experiment.execute_private_algorithms(e1)
+#             if input("\nDo you want to change ϵ value? (yes/no): ") == 'yes':
+#                 e1 = float(input("→ Enter the new value of ϵ: "))
+#                 experiment.execute_private_algorithms(e1)
 
-            # Step 5: Choose an algorithm, k and m
-            experiment.select_algorithm()
-            if input("Are you satisfied with the results? (yes/no): ") == 'yes':
-                step = 4
-            else:
-                step = 2
+#             # Step 5: Choose an algorithm, k and m
+#             experiment.select_algorithm()
+#             if input("Are you satisfied with the results? (yes/no): ") == 'yes':
+#                 step = 4
+#             else:
+#                 step = 2
 
-        elif step == 4:
-            # Step 6: Parameter fitting and execute server
-            priv_df = experiment.execute_algorithms()
-            break
-    return priv_df
+#         elif step == 4:
+#             # Step 6: Parameter fitting and execute server
+#             priv_df = experiment.execute_algorithms()
+#             break
+#     return priv_df
     
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
-    parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
-    args = parser.parse_args()
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
+#     parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
+#     args = parser.parse_args()
 
-    if not os.path.exists(args.file_path):
-        raise FileNotFoundError(f"File not found at {args.file_path}")
+#     if not os.path.exists(args.file_path):
+#         raise FileNotFoundError(f"File not found at {args.file_path}")
     
-    file_name = os.path.basename(args.file_path)
-    print(f"Processing {Style.BRIGHT}{file_name}{Style.RESET_ALL}")
-    df = pd.read_excel(args.file_path)
-    run_individual_method(df)
+#     file_name = os.path.basename(args.file_path)
+#     print(f"Processing {Style.BRIGHT}{file_name}{Style.RESET_ALL}")
+#     df = pd.read_excel(args.file_path)
+#     run_individual_method(df)

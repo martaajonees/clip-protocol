@@ -10,3 +10,4 @@ optuna
 openpyxl
 rich
 colorama
+numba

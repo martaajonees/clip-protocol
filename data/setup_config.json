@@ -1,0 +1,1 @@
+{"k": 315, "m": 13188, "e": 150, "events_names": ["Participant", "AOI Name"], "privacy_method": "PCMeS", "error_metric": "MSE", "error_value": 0.05, "tolerance": 0.01, "p": null}

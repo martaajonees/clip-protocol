@@ -1,60 +1,66 @@
 import numpy as np
 import pandas as pd
 import random
+import json
 import os
 
-def create_dataset(N: int, dist_type: str) -> tuple[list, pd.DataFrame, list]:
-    """
-    Creates a dataset for frequency estimation.
+DATA_PATH = os.path.join(os.path.dirname(__file__), "../../../data")
+CONFIG_FILE = os.path.join(DATA_PATH, "setup_config.json")
+CONFIG_MASK = os.path.join(DATA_PATH, "mask_config.json")
 
-    Args:
-        N (int): Number of elements in the dataset.
-        dist_type (string): Distribution type [exp (exponential), norm (normal), small (values within a reduced domain)].
+def save_setup_json(setup_instance):
+    config = {
+        "k": setup_instance.k,
+        "m": setup_instance.m,
+        "e": setup_instance.e_ref,
+        "events_names": setup_instance.events_names,
+        "privacy_method": setup_instance.privacy_method,
+        "error_metric": setup_instance.error_metric,
+        "error_value": setup_instance.error_value,
+        "tolerance": setup_instance.tolerance,
+        "p": setup_instance.p if hasattr(setup_instance, 'p') else None,
+    }
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f)
+        print("✅ Setup configuration saved")
 
-    Returns:
-        values (list): Generated dataset in list format.
-        df (DataFrame): Generated dataset in Pandas DataFrame format.
-        unique_values (list): Unique values (domain) in the dataset.
+def load_setup_json():
+    with open(CONFIG_FILE, "r") as f:
+        config = json.load(f)
 
-    Examples:
-        >>> create_dataset(10**6, 'exp')
-        >>> create_dataset(1000, 'small')
-    """
-    if dist_type == 'exp':
-        values = np.random.exponential(scale=2.0, size=N).astype(int)
-    elif dist_type == 'norm':
-        values = np.random.normal(loc=12, scale=2, size=N).astype(int)
-    elif dist_type == 'small':
-        elements = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-        frequencies = [0.29, 0.19, 0.15, 0.12, 0.1, 0.08, 0.05, 0.02]
-        dataset = np.random.choice(elements, size=N, p=frequencies)
-        values = dataset.tolist()
-        np.random.shuffle(values)
+    return config["k"], config["m"], config["e"],config["events_names"], config["privacy_method"], config["error_metric"], config["error_value"], config["tolerance"], config["p"]
+
+def save_mask_json(mask_instance, e, coeffs, privatized_dataset):
+    config = {
+        "k": mask_instance.k,
+        "m": mask_instance.m,
+        "e": e,
+        "hash": coeffs,
+        "privacy_method": str(mask_instance.privacy_method),
+    }
+
+    print("\n=== Tipos en config ===")
+    for key, value in config.items():
+        print(f"{key}: {value} (tipo: {type(value)})")
+
+    dataset_path = os.path.join(DATA_PATH, f"privatized_dataset.csv")
+
+    df = pd.DataFrame(privatized_dataset)
+    df.to_csv(dataset_path, index=False)
+
+    with open(CONFIG_MASK, "w") as f:
+        json.dump(config, f)
+        print("✅ Mask configuration saved")
+
+def load_mask_json():
+    with open(CONFIG_MASK, "r") as f:
+        config = json.load(f)
     
-    df = pd.DataFrame({'value': values})
-    unique_values = df['value'].unique().tolist()
-    unique_values.sort()
-    return values, df, unique_values
+    hash_params = config["hash"]
+    hash_functions = rebuild_hash_functions(hash_params)
 
-def load_dataset(csv_filename):
-    """
-    Loads a dataset from a CSV file and returns the values, the DataFrame, and unique 'value' entries.
-
-    Args:
-        csv_filename (str): Name of the CSV file located in the 'datasets' folder.
-
-    Returns:
-        values (list): Dataset in list format.
-        df (DataFrame): Dataset in Pandas DataFrame format.
-        unique_values (list): Unique values (domain) of the dataset.
-    """
-    dataset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data/filtered', csv_filename + '.csv'))
-    df = pd.read_csv(dataset_path)
-    df = df[['value']]
-    values = df['value'].tolist()
-    unique_values = df['value'].unique().tolist()
-    return values, df, unique_values
-
+    return config["k"], config["m"], config["e"], hash_functions, config["privacy_method"]
+        
 def generate_hash_functions(k, p, c, m):
     """
     Generates a set of k c-independent hash functions (D -> m).
@@ -69,67 +75,58 @@ def generate_hash_functions(k, p, c, m):
         hash_functions (list): Set of k hash functions.
     """
     hash_functions = []
-    functions_params = []
+    coeffs = []
+    functions_params = {}
     for _ in range(k):
         coefficients = [random.randint(1, p - 1) for _ in range(c)]
         hash_func = lambda x, coeffs=coefficients, p=p: (sum((coeffs[i] * (hash(x) ** i)) % p for i in range(c)) % p) % m
         hash_functions.append(hash_func)
-        functions_params.append(coefficients)
-    return hash_functions
+        coeffs.append(coefficients)
+    
+    functions_params = {
+        "coefficients": coeffs,
+        "p": p,
+        "m": m
+    }
+    return hash_functions, functions_params
 
-def generate_hash_function_G(k, p):
+def rebuild_hash_functions(functions_params):
+    """
+    Rebuilds the hash functions from the coefficients.
+
+    Args:
+        hash_coeff (list): Coefficients of the hash functions.
+        p (int): Large prime number for hash function construction.
+        m (int): Maximum domain value to which the hash functions map.
+
+    Returns:
+        list: Rebuilt hash functions.
+    """
     hash_functions = []
-    for _ in range(k):
-        a = random.randint(1, p - 1)
-        b = random.randint(0, p - 1)
-        c = random.randint(1, p - 1)
-        d = random.randint(0, p - 1)
-
-        def hash_func(x, a=a, b=b, c=c, d=d, p=p):
-            if isinstance(x, str) and x.startswith("AOI "):
-                x = int(x.split()[1])
-            x_mod = x % p
-            h = (a + b * x_mod + c * pow(x_mod, 2, p) + d * pow(x_mod, 3, p)) % p
-            return 1 if (h % 2) == 0 else -1
-
+    hash_coeffs = functions_params["coefficients"]
+    p = functions_params["p"]
+    m = functions_params["m"]
+    for coeffs in hash_coeffs:
+        hash_func = lambda x, coeffs=coeffs, p=p: (sum((coeffs[i] * (hash(x) ** i)) % p for i in range(len(coeffs))) % p) % m
         hash_functions.append(hash_func)
     return hash_functions
 
-def generate_error_table(real_freq: pd.DataFrame, estimated_freq: dict):
-   # Calculate errors
-    f = real_freq['value'].value_counts()
-    real_num_freq = f.sort_index().to_dict()
-
-    error_data = []
-    for element in real_num_freq:
-        real_count = real_num_freq[element]
-        estimated_count = estimated_freq.get(element, 0)
-        if real_count > 0:
-            percent_error = abs(real_count - estimated_count) / real_count * 100
-        else:
-            percent_error = 0.0
-        error_data.append({
-            "Item": element,
-            "Percentage Error": f"{percent_error:.2f}%"
-        })
-
-
-
 def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
-   
-    N = real_freq.shape[0]
-    f = real_freq['value'].value_counts()
-    real_num_freq = f.sort_index().to_dict()
-    real_percent_freq = ((f * 100 / N).sort_index()).to_dict()
+    real_num_freq = dict(zip(real_freq['Element'], real_freq['Frequency']))
+
+    N = sum(real_num_freq.values())
+
+    real_percent_freq = {k: (v * 100 / N) for k, v in real_num_freq.items()}
+    estimated_freq_dict = dict(zip(estimated_freq['Element'], estimated_freq['Frequency']))
 
     data_table = []
-    for element in real_num_freq:
-        if element in estimated_freq:
+    for element in estimated_freq_dict:
+        if element in estimated_freq_dict:
             real_count = real_num_freq[element]
             real_percent = real_percent_freq[element]
-            estimated_count = estimated_freq[element]
+            estimated_count = estimated_freq_dict[element]
             estimated_percent = (estimated_count / N) * 100
-            diff = abs(real_num_freq[element] - estimated_freq[element])
+            diff = abs(real_count - estimated_count)
             
             if real_count > 0:
                 percent_error = abs(real_count - estimated_count) / real_count * 100
@@ -145,23 +142,9 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
                 f"{diff:.2f}", 
                 f"{percent_error:.2f}%"
             ])
+    return data_table
 
-    errors = [abs(real_num_freq[key] - estimated_freq[key]) for key in estimated_freq]
-    mean_error = np.mean(errors)
-    total_errors = np.sum(errors)
-    max_freq = max(real_num_freq.values())
-    min_freq = min(real_num_freq.values())
-    mse = np.sum([(real_num_freq[key] - estimated_freq[key]) ** 2 for key in estimated_freq]) / len(estimated_freq)
-    normalized_mse = mse / (max_freq - min_freq)
-
-    error_table = [
-        ['Total Errors', f"{total_errors:.2f}"],
-        ['Mean Error', f"{mean_error:.2f}"],
-        ['Percentage Error', f"{(mean_error / N) * 100:.2f}%"],
-        ['MSE', f"{mse:.2f}"],
-        ['RMSE', f"{np.sqrt(mse):.2f}"],
-        ['Normalized MSE', f"{normalized_mse:.4f}"],
-        ['Normalized RMSE', f"{np.sqrt(normalized_mse):.2f}"]
-    ]
-
-    return data_table, error_table
+def get_real_frequency(df):
+    count = df['value'].value_counts().reset_index()
+    count.columns = ['Element', 'Frequency']
+    return count
