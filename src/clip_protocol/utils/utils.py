@@ -38,11 +38,6 @@ def save_mask_json(mask_instance, e, coeffs, privatized_dataset):
         "hash": coeffs,
         "privacy_method": str(mask_instance.privacy_method),
     }
-
-    print("\n=== Tipos en config ===")
-    for key, value in config.items():
-        print(f"{key}: {value} (tipo: {type(value)})")
-
     dataset_path = os.path.join(DATA_PATH, f"privatized_dataset.csv")
 
     df = pd.DataFrame(privatized_dataset)

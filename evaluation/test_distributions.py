@@ -8,8 +8,8 @@ from tabulate import tabulate
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.privadjust.count_mean.private_cms_client import run_private_cms_client
-from src.privadjust.scripts.preprocess import run_data_processor
+from src.clip_protocol.count_mean.private_cms_client import run_private_cms_client
+from src.clip_protocol.scripts.preprocess import run_data_processor
 
 
 def generate_user_id(length=10):

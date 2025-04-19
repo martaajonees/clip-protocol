@@ -7,8 +7,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.privadjust.count_mean.private_cms_client import run_private_cms_client
-from src.privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from src.clip_protocol.count_mean.private_cms_client import run_private_cms_client
+from src.clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 from test_distributions import generate_dataset
 
 def save_table_to_pdf(df_results, filename="results.pdf"):

@@ -7,9 +7,9 @@ from tabulate import tabulate
 import argparse
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from privadjust.utils.utils import load_setup_json, get_real_frequency, save_mask_json, display_results
-from privadjust.count_mean.private_cms_client import run_private_cms_client
-from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from clip_protocol.utils.utils import load_setup_json, get_real_frequency, save_mask_json, display_results
+from clip_protocol.count_mean.private_cms_client import run_private_cms_client
+from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 class Mask:
     def __init__(self, privacy_level, df):

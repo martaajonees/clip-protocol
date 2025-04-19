@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from rich.progress import Progress
 
-from privadjust.utils.utils import display_results
+from clip_protocol.utils.utils import display_results
 
 class privateHCMSServer:
     """

@@ -3,8 +3,8 @@ import os
 import pandas as pd
 from colorama import Style
 
-from privadjust.main.individual_method import run_individual_method  
-from privadjust.main.general_method import run_general_method
+from clip_protocol.main.individual_method import run_individual_method  
+from clip_protocol.main.general_method import run_general_method
 
 def main():
     parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")

@@ -8,18 +8,18 @@ import sys
 
 # Importing CMeS functions
 #from privadjust.count_mean.private_cms_server import run_private_cms_server
-from privadjust.count_mean.private_cms_client import run_private_cms_client
-from privadjust.count_mean.cms_client_mean import run_cms_client_mean
+from clip_protocol.count_mean.private_cms_client import run_private_cms_client
+from clip_protocol.count_mean.cms_client_mean import run_cms_client_mean
 
 # Importing data preprocessing functions
-from privadjust.scripts.preprocess import run_data_processor
-from privadjust.scripts.parameter_fitting import run_parameter_fitting
+from clip_protocol.scripts.preprocess import run_data_processor
+from clip_protocol.scripts.parameter_fitting import run_parameter_fitting
 sys.path.append('/Users/martajones/Privacidad_Local/src/privadjust/scripts')
 from server import run_private_sketch_server
 
 
 # Importing HCMS functions
-from privadjust.hadamard_count_mean.private_hcms_client import run_private_hcms_client
+from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 
 

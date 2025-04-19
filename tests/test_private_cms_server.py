@@ -4,7 +4,7 @@ import numpy as np
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from src.privadjust.count_mean.private_cms_server import privateCMSServer
+from src.clip_protocol.count_mean.private_cms_server import privateCMSServer
 
 @pytest.fixture
 def sample_server():

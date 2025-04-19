@@ -4,7 +4,7 @@ import os
 from colorama import Fore, Style
 from rich.progress import Progress
 
-from privadjust.utils.utils import generate_hash_functions, display_results
+from clip_protocol.utils.utils import generate_hash_functions, display_results
 
 class Server:
     """

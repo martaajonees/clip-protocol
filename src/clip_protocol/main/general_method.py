@@ -1,8 +1,8 @@
 
-from privadjust.main.individual_method import IndividualMethod
-from privadjust.scripts.preprocess import run_data_processor_general
-from privadjust.scripts.parameter_fitting import PrivacyUtilityOptimizer
-from privadjust.count_mean.private_cms_server import run_private_cms_server_multiuser
+from clip_protocol.main.individual_method import IndividualMethod
+from clip_protocol.scripts.preprocess import run_data_processor_general
+from clip_protocol.scripts.parameter_fitting import PrivacyUtilityOptimizer
+from clip_protocol.count_mean.private_cms_server import run_private_cms_server_multiuser
 
 import pandas as pd
 from tabulate import tabulate

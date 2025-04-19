@@ -6,7 +6,7 @@ from rich.progress import Progress
 from numba import njit
 from concurrent.futures import ThreadPoolExecutor
 
-from privadjust.utils.utils import generate_hash_functions
+from clip_protocol.utils.utils import generate_hash_functions
 
 @njit
 def bernoulli_vector(epsilon, m):

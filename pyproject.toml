@@ -41,9 +41,6 @@ Issues = "https://github.com/martaajonees/Local_Privacy/issues"
 individualadjust = "privadjust.cli:main"
 generaladjust = "privadjust.cli:main_general"
 
-
-
-
 [tool.setuptools]
 include-package-data = true
 
