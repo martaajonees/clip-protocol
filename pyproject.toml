@@ -29,8 +29,8 @@ dependencies = [
     "optuna",
     "openpyxl",
     "rich",
-    "colorama,
-    numba"
+    "colorama",
+    "numba"
 ]
 
 [project.urls]
