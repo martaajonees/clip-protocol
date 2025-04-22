@@ -15,6 +15,7 @@ from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hc
 class Setup:
     def __init__(self, df):
         self.df = df
+        
         self.events_names, self.privacy_method, self.error_metric, self.error_value, self.tolerance = self.ask_values()
         self.e_ref = 0
         self.found_best_values = False
@@ -65,19 +66,12 @@ class Setup:
         if not matching_columns:
             print("⚠️ None of the specified event names match the DataFrame columns.")
         
-        self.df = self.df[matching_columns]
+        self.df = self.df[matching_columns].copy()
         self.df.columns = ["user", "value"]
-
-        print(self.df.head())
-        before = len(self.df)
 
         self.df['value'] = self.df['value'].astype(str).apply(lambda x: x.strip())
         self.df = self.df[self.df['value'] != '-']
         self.df = self.df[self.df['value'].str.contains(r'\w', na=False)]
-
-        after = len(self.df)
-        print(f"🧹 Removed {before - after} rows with null or zero values.")
-        print(f"🧮 Number of rows in the dataset: {self.N}")
         
     
     def run_command(self, e, k, m):
@@ -93,7 +87,7 @@ class Setup:
             _, _, df_estimated = run_private_hcms_client(k, m, e, self.df)
     
         error_table = compute_error_table(self.real_freq, df_estimated)
-        return error_table
+        return error_table, df_estimated
     
     def optimize_k_m(self, er=150):
         """
@@ -106,7 +100,6 @@ class Setup:
         def objective(trial):
             # Choose the event with less frequency
             self.real_freq = get_real_frequency(self.df)
-            print(self.real_freq)
             min_freq_value = self.real_freq['Frequency'].min()
             
             # Calculate the value of the range of m
@@ -115,23 +108,46 @@ class Setup:
 
             k = trial.suggest_int("k", 1, 1000)
             m = trial.suggest_int("m", 2, m_range) # m cant be 1 because in the estimation m/m-1 -> 1/0
-            print(f"Trying k={k}, m={m}, e={self.e_ref}")
-
-            error_table = self.run_command(self.e_ref, k, m)
+            
+            error_table, _ = self.run_command(self.e_ref, k, m)
             error = float([v for k, v in error_table if k == self.error_metric][0])
-            print(f"Error: {error}")
 
             if error <= (self.error_value * min_freq_value):
-                print(f"{error} <= {self.error_value}")
                 self.found_best_values = True
                 trial.study.stop()
-            print(error - (self.error_value * min_freq_value))
+            
             return error - (self.error_value * min_freq_value)
         
         study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=100)
 
         return study.best_params["k"], study.best_params["m"], er
+    
+    def minimize_epsilon(self, k, m):
+        def objective(trial):
+            self.real_freq = get_real_frequency(self.df)
+            min_freq_value = self.real_freq['Frequency'].min()
+
+            e = trial.suggest_int("e", 1, self.e_ref)
+
+            error_table, df_estimated = self.run_command(self.e_ref, k, m)
+
+            table = display_results(get_real_frequency(self.df), df_estimated)
+            percentage_errors = [float(row[-1].strip('%')) for row in table]
+            max_error = max(percentage_errors)
+
+            #error = float([v for k, v in error_table if k == self.error_metric][0])
+            print(f"Max error: {max_error}")
+            print(f"Error value: {self.error_value * 100}")
+            if max_error <= (self.error_value * 100):
+                trial.study.stop()
+            
+            return e
+        
+        study = optuna.create_study(direction="minimize")
+        study.optimize(objective, n_trials=100)
+
+        return study.best_params["e"]
     
     def no_privacy(self):
         headers=[
@@ -143,25 +159,6 @@ class Setup:
         real = get_real_frequency(self.df)
         table = display_results(real, estimated)
         print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
-
-def generate_dataset(n_rows=2000, n_users=1, n_events=1, unique_values_per_event=10):
-    np.random.seed(42)
-    data = {}
-
-    data["user"] = np.random.choice(
-        [f"user_{i+1}" for i in range(n_users)],
-        size=n_rows
-    )
-
-    for i in range(n_events):
-        column_name = f"value"
-        data[column_name] = np.random.choice(
-            [f"value_{j}" for j in range(1, unique_values_per_event + 1)],
-            size=n_rows,
-            p=np.random.dirichlet(np.ones(unique_values_per_event))
-        )
-    
-    return pd.DataFrame(data)
 
 def run_setup(df):
     """
@@ -176,6 +173,7 @@ def run_setup(df):
         if not setup_instance.found_best_values:
             setup_instance.e_ref += 50
     
+    setup_instance.e_ref = setup_instance.minimize_epsilon(setup_instance.k, setup_instance.m)
     setup_instance.no_privacy()
     
     print(f"Optimal parameters found: k={setup_instance.k}, m={setup_instance.m}, e={setup_instance.e_ref}")
@@ -193,5 +191,11 @@ if __name__ == "__main__":
         print(f"❌ File not found: {args.i}")
         sys.exit(1)
 
-    df = pd.read_excel(args.i)
+    df_temp = pd.read_excel(args.i)
+
+    if any(col.startswith("Unnamed") for col in df_temp.columns):
+        df = pd.read_excel(args.i, header=1)  
+    else:
+        df = df_temp
+
     run_setup(df)

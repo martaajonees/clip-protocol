@@ -60,13 +60,18 @@ class privateCMSClient:
     
     def execute_client(self):
         privatized_data = []
-        def process(d):
-            return self.client(d)
+
+        data_with_users = list(zip(self.df['value'].tolist(), self.df['user'].tolist()))
+        
+        def process(d_u):
+            d, user = d_u
+            v_aux, j = self.client(d)
+            return (v_aux, j, user)
         
         with Progress() as progress:
-            bar = progress.add_task("Processing client data", total=len(self.dataset))
+            bar = progress.add_task("Processing client data", total=len(data_with_users))
             with ThreadPoolExecutor() as executor:
-                for result in executor.map(process, self.dataset):
+                for result in executor.map(process, data_with_users):
                     privatized_data.append(result)
                     progress.update(bar, advance=1)
         self.client_matrix = privatized_data
@@ -76,7 +81,7 @@ class privateCMSClient:
         with Progress() as progress:
             bar = progress.add_task('Update sketch matrix', total=len(privatized_data))
             
-            for v, j in privatized_data:
+            for v, j, _ in privatized_data:
                 update_sketch_matrix(self.M, v, j, self.epsilon, self.k, self.m)
                 progress.update(bar, advance=1)
 

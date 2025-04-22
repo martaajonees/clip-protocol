@@ -68,13 +68,18 @@ class privateHCMSClient:
     
     def execute_client(self):
         privatized_data = []
-        def process(d):
-            return self.client(d)
+
+        data_with_users = list(zip(self.df['value'].tolist(), self.df['user'].tolist()))
+
+        def process(d_u):
+            d, user = d_u
+            w, j, l = self.client(d)
+            return (w, j, l, user)
         
         with Progress() as progress:
-            task = progress.add_task('Processing client data', total=len(self.dataset))
+            task = progress.add_task('Processing client data', total=len(data_with_users))
             with ThreadPoolExecutor() as executor:
-                for result in executor.map(process, self.dataset):
+                for result in executor.map(process, data_with_users):
                     privatized_data.append(result)
                     progress.update(task, advance=1)
         self.client_matrix = privatized_data
@@ -83,7 +88,7 @@ class privateHCMSClient:
     def server_simulator(self, privatized_data):
         with Progress() as progress:
             task = progress.add_task('[cyan]Update sketch matrix', total=len(privatized_data))
-            for v, j, w in privatized_data:
+            for v, j, w, _ in privatized_data:
                 update_sketch_matrix(self.epsilon, self.k, self.M, v, j, w)
                 progress.update(task, advance=1)
 

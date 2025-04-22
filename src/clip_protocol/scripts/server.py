@@ -57,36 +57,36 @@ class Server:
             h = np.block([[h_half, h_half], [h_half, -h_half]])
         return h
 
-    def update_sketch_matrix(self, data_point):
-        """Updates the sketch matrix based on the privatized data."""
-        if self.method == "PCMeS":
-            v, j = data_point
-            c_e = (np.exp(self.epsilon / 2) + 1) / (np.exp(self.epsilon / 2) - 1)
-            x = self.k * ((c_e / 2) * v + (1 / 2) * np.ones_like(v))
-            self.M[j, :] += x
-        elif self.method == "PHCMS":
-            w, j, l = data_point
-            c_e = (np.exp(self.epsilon / 2) + 1) / (np.exp(self.epsilon / 2) - 1)
-            x = self.k * c_e * w
-            self.M[j, l] += x
+    # def update_sketch_matrix(self, data_point):
+    #     """Updates the sketch matrix based on the privatized data."""
+    #     if self.method == "PCMeS":
+    #         v, j = data_point
+    #         c_e = (np.exp(self.epsilon / 2) + 1) / (np.exp(self.epsilon / 2) - 1)
+    #         x = self.k * ((c_e / 2) * v + (1 / 2) * np.ones_like(v))
+    #         self.M[j, :] += x
+    #     elif self.method == "PHCMS":
+    #         w, j, l = data_point
+    #         c_e = (np.exp(self.epsilon / 2) + 1) / (np.exp(self.epsilon / 2) - 1)
+    #         x = self.k * c_e * w
+    #         self.M[j, l] += x
     
-    def execute_server(self, privatized_data):
-        """Processes privatized data and estimates frequencies."""
-        with Progress() as progress:
-            task = progress.add_task("[cyan]Updating sketch matrix", total=len(privatized_data))
-            for data in privatized_data:
-                self.update_sketch_matrix(data)
-                progress.update(task, advance=1)
+    # def execute_server(self, privatized_data):
+    #     """Processes privatized data and estimates frequencies."""
+    #     with Progress() as progress:
+    #         task = progress.add_task("[cyan]Updating sketch matrix", total=len(privatized_data))
+    #         for data in privatized_data:
+    #             self.update_sketch_matrix(data)
+    #             progress.update(task, advance=1)
             
-            if self.method == "PHCMS":
-                self.M = self.M @ np.transpose(self.H)
+    #         if self.method == "PHCMS":
+    #             self.M = self.M @ np.transpose(self.H)
             
-            F_estimated = {}
-            task = progress.add_task("[cyan]Estimating frequencies", total=len(self.domain))
-            for x in self.domain:
-                F_estimated[x] = self.estimate_server(x)
-                progress.update(task, advance=1)
-        return F_estimated
+    #         F_estimated = {}
+    #         task = progress.add_task("[cyan]Estimating frequencies", total=len(self.domain))
+    #         for x in self.domain:
+    #             F_estimated[x] = self.estimate_server(x)
+    #             progress.update(task, advance=1)
+    #     return F_estimated
     
     def estimate_server(self, d):
         """Estimates the frequency of an element in the dataset."""
@@ -101,28 +101,28 @@ class Server:
             return "Element not in the domain"
         return self.estimate_server(query_element)
 
-def run_private_sketch_server(method, k, m, e, df, hashes, privatized_data):
-    """
-    Runs the private sketch server pipeline.
+# def run_private_sketch_server(method, k, m, e, df, hashes, privatized_data):
+#     """
+#     Runs the private sketch server pipeline.
     
-    :param method: Either 'PCMeS' or 'PHCMS'
-    :param k: Number of hash functions
-    :param m: Number of columns in the sketch matrix
-    :param e: Privacy parameter
-    :param df: Dataframe containing the dataset
-    :param hashes: List of hash functions
-    :param privatized_data: List of privatized data points
-    """
-    server = Server( e, k, m, df, hashes, method)
-    privatized_data_save = pd.DataFrame(privatized_data)
-    f_estimated = server.execute_server(privatized_data)
-    display_results(df, f_estimated)
+#     :param method: Either 'PCMeS' or 'PHCMS'
+#     :param k: Number of hash functions
+#     :param m: Number of columns in the sketch matrix
+#     :param e: Privacy parameter
+#     :param df: Dataframe containing the dataset
+#     :param hashes: List of hash functions
+#     :param privatized_data: List of privatized data points
+#     """
+#     server = Server( e, k, m, df, hashes, method)
+#     privatized_data_save = pd.DataFrame(privatized_data)
+#     f_estimated = server.execute_server(privatized_data)
+#     display_results(df, f_estimated)
     
-    while True:
-        query = input("Enter an element to query the server or 'exit' to finish: ")
-        if query.lower() == 'exit':
-            break
-        estimation = server.query_server(query)
-        print(f"The estimated frequency of {query} is {estimation:.2f}")
+#     while True:
+#         query = input("Enter an element to query the server or 'exit' to finish: ")
+#         if query.lower() == 'exit':
+#             break
+#         estimation = server.query_server(query)
+#         print(f"The estimated frequency of {query} is {estimation:.2f}")
     
-    return privatized_data_save
+#     return privatized_data_save

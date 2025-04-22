@@ -3,10 +3,13 @@ import pandas as pd
 import random
 import json
 import os
+import pickle
+import hashlib
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "../../../data")
 CONFIG_FILE = os.path.join(DATA_PATH, "setup_config.json")
 CONFIG_MASK = os.path.join(DATA_PATH, "mask_config.json")
+CONFIG_AGREGATE = os.path.join(DATA_PATH, "agregate_config.json")
 
 def save_setup_json(setup_instance):
     config = {
@@ -38,9 +41,15 @@ def save_mask_json(mask_instance, e, coeffs, privatized_dataset):
         "hash": coeffs,
         "privacy_method": str(mask_instance.privacy_method),
     }
+
     dataset_path = os.path.join(DATA_PATH, f"privatized_dataset.csv")
 
-    df = pd.DataFrame(privatized_dataset)
+    converted_data = []
+    for v, j, u in privatized_dataset:
+        v_str = " ".join(map(str, v.tolist()))
+        converted_data.append([v_str, j, u])
+
+    df = pd.DataFrame(converted_data)
     df.to_csv(dataset_path, index=False)
 
     with open(CONFIG_MASK, "w") as f:
@@ -54,34 +63,44 @@ def load_mask_json():
     hash_params = config["hash"]
     hash_functions = rebuild_hash_functions(hash_params)
 
-    return config["k"], config["m"], config["e"], hash_functions, config["privacy_method"]
-        
+    dataset_path = os.path.join(DATA_PATH, f"privatized_dataset.csv")
+    df = pd.read_csv(dataset_path)
+    # df["vector"] = df["0"].apply(lambda x: np.array(list(map(int, x.strip().split()))))
+
+    return config["k"], config["m"], config["e"], hash_functions, config["privacy_method"], df
+
+def save_agregate_json(agregate_instance):
+    dataset_path = os.path.join(DATA_PATH, f"sketch_by_user")
+
+    with open(dataset_path, "wb") as f:
+        pickle.dump(agregate_instance.sketch_by_user, f)
+    print("✅ Agregate configuration saved")
+
+def load_agregate_json():
+    dataset_path = os.path.join(DATA_PATH, f"sketch_by_user")
+    with open(dataset_path, "rb") as f:
+        sketch_by_user = pickle.load(f)
+    return sketch_by_user
+
+def deterministic_hash(x):
+    return int(hashlib.sha256(str(x).encode('utf-8')).hexdigest(), 16)
+
 def generate_hash_functions(k, p, c, m):
-    """
-    Generates a set of k c-independent hash functions (D -> m).
-
-    Args:
-        c (int): Number of coefficients for c-independent hash functions.
-        k (int): Number of hash functions.
-        p (int): Large prime number for hash function construction.
-        m (int): Maximum domain value to which the hash functions map.
-
-    Returns:
-        hash_functions (list): Set of k hash functions.
-    """
     hash_functions = []
     coeffs = []
     functions_params = {}
+
     for _ in range(k):
         coefficients = [random.randint(1, p - 1) for _ in range(c)]
-        hash_func = lambda x, coeffs=coefficients, p=p: (sum((coeffs[i] * (hash(x) ** i)) % p for i in range(c)) % p) % m
+        hash_func = lambda x, coeffs=coefficients, p=p: (sum((coeffs[i] * (deterministic_hash(x) ** i)) % p for i in range(c)) % p) % m
         hash_functions.append(hash_func)
         coeffs.append(coefficients)
     
     functions_params = {
         "coefficients": coeffs,
         "p": p,
-        "m": m
+        "m": m,
+        "c": c
     }
     return hash_functions, functions_params
 
@@ -101,8 +120,9 @@ def rebuild_hash_functions(functions_params):
     hash_coeffs = functions_params["coefficients"]
     p = functions_params["p"]
     m = functions_params["m"]
+    c = functions_params["c"]
     for coeffs in hash_coeffs:
-        hash_func = lambda x, coeffs=coeffs, p=p: (sum((coeffs[i] * (hash(x) ** i)) % p for i in range(len(coeffs))) % p) % m
+        hash_func = lambda x, coeffs=coeffs, p=p: (sum((coeffs[i] * (deterministic_hash(x) ** i)) % p for i in range(c)) % p) % m
         hash_functions.append(hash_func)
     return hash_functions
 

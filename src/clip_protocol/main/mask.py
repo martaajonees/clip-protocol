@@ -63,8 +63,7 @@ class Mask:
         elif self.privacy_method == "PHCMS":
             coeffs, privatized_data, df_estimated = run_private_hcms_client(self.k, self.m, e, self.df)
         
-        self.f_estimated = df_estimated
-        return coeffs, privatized_data
+        return coeffs, privatized_data, df_estimated
 
     def optimize_e(self):
         """
@@ -82,8 +81,8 @@ class Mask:
             real_freq = get_real_frequency(self.df)
             min_freq_value = real_freq['Frequency'].min()
 
-            e = round(trial.suggest_float('e', 0.1, 20, step=0.1), 4)
-            coeffs, privatized_data = self.run_command(e)
+            e = round(trial.suggest_float('e', 0.1, self.e_ref, step=0.1), 4)
+            coeffs, privatized_data, df_estimated = self.run_command(e)
 
             headers=[
                 "Element", "Real Frequency", "Real Percentage", 
@@ -91,12 +90,13 @@ class Mask:
                 "Percentage Error"
             ]
 
-            table = display_results(get_real_frequency(self.df),self.f_estimated)
+            table = display_results(get_real_frequency(self.df), df_estimated)
             print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
             percentage_errors = [float(row[-1].strip('%')) for row in table]
-            min_error = min(percentage_errors)
+            max_error = max(percentage_errors)
 
+            trial.set_user_attr('e', e)
             trial.set_user_attr('hash', coeffs)
             trial.set_user_attr('privatized_data', privatized_data)
 
@@ -109,19 +109,22 @@ class Mask:
             #     objective_value = error_calc - ((self.error_value-self.tolerance) * min_freq_value)
 
             if self.privacy_level == "high":
-                objective_value = (self.error_value + self.tolerance)
+                objective_high = (self.error_value + self.tolerance)*100
+                objective_low = (self.error_value * 100)
             elif self.privacy_level == "medium":
-                objective_value = self.error_value 
+                objective_high = (self.error_value * 100)
+                objective_low = (self.error_value-self.tolerance)*100
             elif self.privacy_level == "low":
-                objective_value = self.error_value-self.tolerance
+                objective_high = (self.error_value-self.tolerance)*100
+                objective_low = 0
 
-            if min_error> objective_value:
-                return float('inf')
-            else:
-                return e
+            if objective_high >= max_error > objective_low:
+                trial.study.stop()
+            
+            return abs(objective_high - max_error)
 
         study = optuna.create_study(direction='minimize') 
-        study.optimize(objective, n_trials=5)
+        study.optimize(objective, n_trials=20)
                
         best_e = study.best_params['e']
         coeffs = study.best_trial.user_attrs['hash']
@@ -138,26 +141,6 @@ def run_mask(df):
     mask_instance.filter_dataframe()
     best_e, privatized_data, coeffs = mask_instance.optimize_e()    
     save_mask_json(mask_instance, best_e, coeffs, privatized_data)
-    
-
-def generate_dataset(n_rows=1000, n_users=50, n_events=1, unique_values_per_event=10):
-    np.random.seed(42)
-    data = {}
-
-    data["user"] = np.random.choice(
-        [f"user_{i+1}" for i in range(n_users)],
-        size=n_rows
-    )
-
-    for i in range(n_events):
-        column_name = f"value"
-        data[column_name] = np.random.choice(
-            [f"value_{j}" for j in range(1, unique_values_per_event + 1)],
-            size=n_rows,
-            p=np.random.dirichlet(np.ones(unique_values_per_event))
-        )
-    
-    return pd.DataFrame(data)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run privatization mask with input CSV")
@@ -167,5 +150,10 @@ if __name__ == "__main__":
         print(f"❌ File not found: {args.i}")
         sys.exit(1)
 
-    df = pd.read_excel(args.i)
+    df_temp = pd.read_excel(args.i)
+
+    if any(col.startswith("Unnamed") for col in df_temp.columns):
+        df = pd.read_excel(args.i, header=1)  
+    else:
+        df = df_temp
     run_mask(df)

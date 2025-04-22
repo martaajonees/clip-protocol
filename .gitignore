@@ -1,3 +1,4 @@
 /external
 .DS_Store
 *.pkl
+/data

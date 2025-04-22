@@ -1,55 +1,37 @@
 import argparse
 import os
 import pandas as pd
-from colorama import Style
+import sys
 
-from clip_protocol.main.individual_method import run_individual_method  
-from clip_protocol.main.general_method import run_general_method
+from clip_protocol.main.setup import run_setup
+from clip_protocol.main.mask import run_mask
+from clip_protocol.main.agregate import run_agregate
+from clip_protocol.main.estimate import run_estimate
 
-def main():
-    parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
-    parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
-    parser.add_argument("output_path", type=str, help="The path to the output where you want the final database to be saved.")
+def cli_setup():
+    parser = argparse.ArgumentParser(description="Run privatization mask with input CSV")
+    parser.add_argument("-d", type=str, required=True, help="Path to the input excel file")
     args = parser.parse_args()
+    if not os.path.isfile(args.d):
+        print(f"❌ File not found: {args.d}")
+        sys.exit(1)
 
-    if not os.path.exists(args.file_path):
-        raise FileNotFoundError(f"File not found at {args.file_path}")
-    elif not os.path.exists(args.output_path):
-        raise FileNotFoundError(f"Output path not found at {args.output_path}")
-    
-    file_name = os.path.basename(args.file_path)
-    print(f"Processing {Style.BRIGHT}{file_name}{Style.RESET_ALL}")
-    df = pd.read_excel(args.file_path)
+    df = pd.read_excel(args.d)
+    run_setup(df)
 
-    priv_df = run_individual_method(df)
-    output = os.path.join(args.output_path, 'private_database.csv')
-    priv_df.to_csv(output, index=False)
-    print(f"{Style.BRIGHT}Private dataset saved at {args.output_path}{Style.RESET_ALL}")
-
-def main_general():
-    parser = argparse.ArgumentParser(description="Run the individual method for private frequency estimation.")
-    parser.add_argument("file_path", type=str, help="The path to the input dataset file.")
-    parser.add_argument("output_path", type=str, help="The path to the output where you want the final database to be saved.")
+def cli_mask():
+    parser = argparse.ArgumentParser(description="Run privatization mask with input CSV")
+    parser.add_argument("-d", type=str, required=True, help="Path to the input CSV file")
     args = parser.parse_args()
+    if not os.path.isfile(args.d):
+        print(f"❌ File not found: {args.d}")
+        sys.exit(1)
 
-    if not os.path.exists(args.file_path):
-        raise FileNotFoundError(f"File not found at {args.file_path}")
-    elif not os.path.exists(args.output_path):
-        raise FileNotFoundError(f"Output path not found at {args.output_path}")
-    
-    file_name = os.path.basename(args.file_path)
-    print(f"Processing {Style.BRIGHT}{file_name}{Style.RESET_ALL}")
-    df = pd.read_excel(args.file_path)
+    df = pd.read_excel(args.d)
+    run_mask(df)
 
-    priv = run_general_method(df)
+def cli_agregate():
+    run_agregate()
 
-    for user, privatized_data in priv.items():
-        output_file = os.path.join(args.output_path, f'{user}.csv')
-        privatized_data.to_csv(args.output_path, index=False)
-        
-    print(f"{Style.BRIGHT}Private datasets saved at {args.output_path}{Style.RESET_ALL}")
-
-
-
-
-
+def cli_estimate():
+    run_estimate()
