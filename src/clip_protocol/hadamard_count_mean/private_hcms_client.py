@@ -8,7 +8,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from clip_protocol.utils.utils import generate_hash_functions
 
-@njit
 def hadamard_matrix(n):
     if n == 1:
         return np.array([[1]])
@@ -22,7 +21,7 @@ def update_sketch_matrix(epsilon, k, M, w, j, l):
     x = k * c_e * w
     M[j,l] =  M[j,l] + x
 
-@njit
+
 def traspose_M(M, H):
     return M @ np.transpose(H)
 

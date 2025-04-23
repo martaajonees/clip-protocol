@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from tabulate import tabulate
 import argparse
+import hashlib
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from clip_protocol.utils.utils import load_setup_json, get_real_frequency, save_mask_json, display_results
@@ -35,6 +36,11 @@ class Mask:
         self.df = self.df[self.df['value'] != '-']
         self.df = self.df[self.df['value'].str.contains(r'\w', na=False)]
         
+        # Pseudonimize the user column
+        self.df['user'] = self.df['user'].apply(self.pseudonimize)
+
+        print(self.df.head(10))
+    
 
     def calculate_metrics(self, f_estimated, f_real):
         """
@@ -78,9 +84,6 @@ class Mask:
             tuple: Best `ϵ`, privatized data, error table, result, and data table.
         """
         def objective(trial):
-            real_freq = get_real_frequency(self.df)
-            min_freq_value = real_freq['Frequency'].min()
-
             e = round(trial.suggest_float('e', 0.1, self.e_ref, step=0.1), 4)
             coeffs, privatized_data, df_estimated = self.run_command(e)
 
@@ -99,14 +102,6 @@ class Mask:
             trial.set_user_attr('e', e)
             trial.set_user_attr('hash', coeffs)
             trial.set_user_attr('privatized_data', privatized_data)
-
-            # error_calc = self.calculate_metrics(self.f_estimated, get_real_frequency(self.df))
-            # if self.privacy_level == "high":
-            #     objective_value = error_calc - ((self.error_value + self.tolerance) * min_freq_value)
-            # elif self.privacy_level == "medium":
-            #     objective_value = error_calc - (self.error_value * min_freq_value)
-            # elif self.privacy_level == "low":
-            #     objective_value = error_calc - ((self.error_value-self.tolerance) * min_freq_value)
 
             if self.privacy_level == "high":
                 objective_high = (self.error_value + self.tolerance)*100
@@ -131,6 +126,10 @@ class Mask:
         privatized_data = study.best_trial.user_attrs['privatized_data']
                 
         return best_e, privatized_data, coeffs
+
+    def pseudonimize(self, user_name):
+        hash_object = hashlib.sha256(user_name.encode())
+        return hash_object.hexdigest()[:10]
     
 def run_mask(df):
     privacy_level = input("Enter the privacy level (high/medium/low): ").strip().lower()
@@ -140,6 +139,7 @@ def run_mask(df):
     mask_instance = Mask(privacy_level, df)
     mask_instance.filter_dataframe()
     best_e, privatized_data, coeffs = mask_instance.optimize_e()    
+    privatized_data = mask_instance.pseudonimize_data(privatized_data)
     save_mask_json(mask_instance, best_e, coeffs, privatized_data)
 
 if __name__ == "__main__":

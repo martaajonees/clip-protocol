@@ -5,6 +5,7 @@ import os
 import sys
 from tabulate import tabulate
 import argparse
+import math
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from clip_protocol.utils.utils import save_setup_json, get_real_frequency, display_results
@@ -72,7 +73,7 @@ class Setup:
         self.df['value'] = self.df['value'].astype(str).apply(lambda x: x.strip())
         self.df = self.df[self.df['value'] != '-']
         self.df = self.df[self.df['value'].str.contains(r'\w', na=False)]
-        
+        self.N = len(self.df)
     
     def run_command(self, e, k, m):
         """
@@ -106,17 +107,27 @@ class Setup:
             sobreestimation = float(min_freq_value * self.error_value) / self.N
             m_range = 2.718/sobreestimation
 
-            k = trial.suggest_int("k", 1, 1000)
-            m = trial.suggest_int("m", 2, m_range) # m cant be 1 because in the estimation m/m-1 -> 1/0
+            k = trial.suggest_int("k", 10, 1000)
             
+            if self.privacy_method == "PHCMS":
+                min_exp = int(math.log2(m_range // 2))
+                max_exp = int(math.log2(m_range))
+                m_options = [2 ** i for i in range(min_exp, max_exp + 1)]
+                m = trial.suggest_categorical("m", m_options)
+            else:
+                m = trial.suggest_int("m", m_range/2, m_range) # m cant be 1 because in the estimation m/m-1 -> 1/0
+
+                     
             error_table, _ = self.run_command(self.e_ref, k, m)
             error = float([v for k, v in error_table if k == self.error_metric][0])
+
 
             if error <= (self.error_value * min_freq_value):
                 self.found_best_values = True
                 trial.study.stop()
             
-            return error - (self.error_value * min_freq_value)
+            #return error - (self.error_value * min_freq_value)
+            return m
         
         study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=100)
@@ -125,9 +136,6 @@ class Setup:
     
     def minimize_epsilon(self, k, m):
         def objective(trial):
-            self.real_freq = get_real_frequency(self.df)
-            min_freq_value = self.real_freq['Frequency'].min()
-
             e = trial.suggest_int("e", 1, self.e_ref)
 
             error_table, df_estimated = self.run_command(self.e_ref, k, m)
