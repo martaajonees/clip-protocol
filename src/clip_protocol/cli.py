@@ -16,7 +16,13 @@ def cli_setup():
         print(f"❌ File not found: {args.d}")
         sys.exit(1)
 
-    df = pd.read_excel(args.d)
+    df_temp = pd.read_excel(args.d)
+
+    if any(col.startswith("Unnamed") for col in df_temp.columns):
+        df = pd.read_excel(args.d, header=1)  
+    else:
+        df = df_temp
+
     run_setup(df)
 
 def cli_mask():
@@ -27,7 +33,13 @@ def cli_mask():
         print(f"❌ File not found: {args.d}")
         sys.exit(1)
 
-    df = pd.read_excel(args.d)
+    df_temp = pd.read_excel(args.d)
+
+    if any(col.startswith("Unnamed") for col in df_temp.columns):
+        df = pd.read_excel(args.d, header=1)  
+    else:
+        df = df_temp
+        
     run_mask(df)
 
 def cli_agregate():

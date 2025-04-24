@@ -126,7 +126,6 @@ class Setup:
                 self.found_best_values = True
                 trial.study.stop()
             
-            #return error - (self.error_value * min_freq_value)
             return m
         
         study = optuna.create_study(direction="minimize")
@@ -138,13 +137,12 @@ class Setup:
         def objective(trial):
             e = trial.suggest_int("e", 1, self.e_ref)
 
-            error_table, df_estimated = self.run_command(self.e_ref, k, m)
+            _, df_estimated = self.run_command(self.e_ref, k, m)
 
             table = display_results(get_real_frequency(self.df), df_estimated)
             percentage_errors = [float(row[-1].strip('%')) for row in table]
             max_error = max(percentage_errors)
 
-            #error = float([v for k, v in error_table if k == self.error_metric][0])
             print(f"Max error: {max_error}")
             print(f"Error value: {self.error_value * 100}")
             if max_error <= (self.error_value * 100):
@@ -172,9 +170,14 @@ def run_setup(df):
     """
     Main function to run the setup process.
     """
+    df_temp = df.copy()
+    if any(col.startswith("Unnamed") for col in df_temp.columns):
+        df = pd.read_excel(args.i, header=1)  
+    else:
+        df = df_temp
+
     setup_instance = Setup(df)
     setup_instance.filter_dataframe()
-    
 
     while not setup_instance.found_best_values:
         setup_instance.k, setup_instance.m, setup_instance.e = setup_instance.optimize_k_m()
