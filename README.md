@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://github.com/user-attachments/assets/6b8ba777-81d5-4411-93ba-8bb4359c89f9" alt="Logo" width="500"> </p>
+<p align="center"> <img src="https://github.com/user-attachments/assets/f5f65605-55bd-4f4e-aaa3-29e9a3222057" alt="Logo" width="500"> </p>
 <p align="center">
 <img src="https://badgen.net/badge/license/MIT/orange?icon=github" alt="build badge">
 <img src="https://badgen.net/badge/language/Python/yellow" alt="language badge">
