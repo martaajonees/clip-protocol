@@ -90,7 +90,7 @@ agregate
   
 ## Documentation
 The complete documentation for this project is available online. You can access it at the following link:
-- [Project Documentation - Local Privacy in Learning Analytics](https://martaajonees.github.io/Local_Privacy/)
+- [Project Documentation - Local Privacy in Learning Analytics](https://martaajonees.github.io/clip-protocol/)
 
 This documentation includes detailed explanations of the algorithms, methods, and the overall structure of the project.
 
