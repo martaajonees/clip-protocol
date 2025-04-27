@@ -10,13 +10,16 @@
 </a>
 </p>
 
-This repository contains an adaptation of differential privacy algorithms applied to learning analytics.
+> Empowering learning analytics with state-of-the-art differential privacy. 
+> Your data stays meaningful — and safe. 🔒📊
+
+
 ## Index
-* [Project Description](#project-description)
-* [Repository Structure](#repository-structure)
-* [Online Execution](#online-execution)
-* [Usage](#usage)
-* [Documentation](#documentation)
+* [✨ Project Description](#project-description)
+* [🗂 Repository Structure](#repository-structure)
+* [🚀 Online Execution](#online-execution)
+* [⚙️ Usage](#usage)
+* [📚 Documentation](#documentation)
 
 ## Project Description
 Learning analytics involves collecting and analyzing data about learners to improve educational outcomes. However, this process raises concerns about the privacy of individual data. To address these concerns, this project implements differential privacy algorithms, which add controlled noise to data, ensuring individual privacy while maintaining the overall utility of the dataset. This approach aligns with recent advancements in safeguarding data privacy in learning analytics. 
@@ -27,7 +30,6 @@ In this project, we explore a privacy protocol for sketching with privacy consid
 * **Mask**
 * **Agregation**
 * **Estimation**
-
 
 ## Repository Structure
 The repository is organized as follows:
@@ -70,9 +72,10 @@ setup -d /path/to/dataset.xlsx
 ### Mask
 Use the following command:
 ```sh
-mask -d <dataset>
+mask -d <dataset> -o <output>
 ```
 - `dataset`: Path to the input dataset you want to privatize.
+- `output`: Path to where the privatized dataset will be saved.
 ### Agregation
 Use the following command:
 ```sh
@@ -89,7 +92,7 @@ The complete documentation for this project is available online. You can access 
 
 This documentation includes detailed explanations of the algorithms, methods, and the overall structure of the project.
 
-## Authors
+## 👩‍💻 Authors
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <table>

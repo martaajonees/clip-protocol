@@ -138,9 +138,9 @@ def run_mask(df):
         return
     mask_instance = Mask(privacy_level, df)
     mask_instance.filter_dataframe()
-    best_e, privatized_data, coeffs = mask_instance.optimize_e()    
-    privatized_data = mask_instance.pseudonimize_data(privatized_data)
+    best_e, privatized_data, coeffs = mask_instance.optimize_e()
     save_mask_json(mask_instance, best_e, coeffs, privatized_data)
+    return privatized_data
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run privatization mask with input CSV")
