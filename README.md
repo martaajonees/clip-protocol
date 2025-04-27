@@ -76,6 +76,8 @@ mask -d <dataset> -o <output>
 ```
 - `dataset`: Path to the input dataset you want to privatize.
 - `output`: Path to where the privatized dataset will be saved.
+
+> The output variable is optional, if it is not needed to save the privatized data you can skip it
 ### Agregation
 Use the following command:
 ```sh

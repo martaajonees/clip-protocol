@@ -35,6 +35,8 @@ mask -d <dataset> -o <output>
 
 > 📎 Note: After masking, a new `.csv` file will be created containing the privatized data.
 
+*The `output` variable is optional, if it is not needed to save the privatized data you can skip it*
+
 ### Aggregation
 Combines the privatized data points into **frequency sketches**.
 This command **updates the server-side structures** needed for final analysis.
