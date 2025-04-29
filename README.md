@@ -83,7 +83,16 @@ Use the following command:
 ```sh
 agregate
 ```
-### 
+### Estimation 
+Estimates the true frequencies from the aggregated privatized data. This command answers frequency queries based on the collected sketches.
+```sh
+estimate
+```
+### Clear 
+Use this command when it is needed to delete all data saved from the previous steps.
+```sh
+clip_clear
+```
 ### Important Notes
 - Ensure that the paths provided are correct, and that the necessary permissions are granted for writing to the output location.
 - In the mask step, the output will be a new file `.csv` containing the privatized data.
