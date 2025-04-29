@@ -1,4 +1,10 @@
-<p align="center"> <img src="https://github.com/user-attachments/assets/f5f65605-55bd-4f4e-aaa3-29e9a3222057" alt="Logo" width="500"> </p>
+<p align="center">
+  <picture>
+    <source srcset="https://github.com/user-attachments/assets/4e16d0b1-bc6f-4a77-8d67-496a6fa3a281" media="(prefers-color-scheme: dark)">
+    <img src="https://github.com/user-attachments/assets/f5f65605-55bd-4f4e-aaa3-29e9a3222057" alt="Logo" width="500">
+  </picture>
+</p>
+
 <p align="center">
 <img src="https://badgen.net/badge/license/MIT/orange?icon=github" alt="build badge">
 <img src="https://badgen.net/badge/language/Python/yellow" alt="language badge">
