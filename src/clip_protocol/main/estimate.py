@@ -19,7 +19,6 @@ class Estimation:
         for user_id, user_data in self.sketch_by_user.items():
             M = np.array(user_data["M"])
             N = user_data["N"]
-            print(f"N = {N}")
             est = self.estimate_element(event, M, N)
             print(f"🧑 User {user_id}: {est:.4f}")
 

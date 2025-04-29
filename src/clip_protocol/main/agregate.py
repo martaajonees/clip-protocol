@@ -49,7 +49,6 @@ class Agregate:
     def agregate_per_user(self):
         users = self.private_dataset["2"].unique() # List of all users
         user_groups = [self.private_dataset[self.private_dataset["2"] == user] for user in users] # List of sketches for each user
-        print(user_groups)
         sketch_by_user = {}
 
         for i in range(len(users)):

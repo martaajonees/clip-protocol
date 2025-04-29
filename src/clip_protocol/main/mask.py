@@ -38,8 +38,6 @@ class Mask:
         
         # Pseudonimize the user column
         self.df['user'] = self.df['user'].apply(self.pseudonimize)
-
-        print(self.df.head(10))
     
 
     def calculate_metrics(self, f_estimated, f_real):
