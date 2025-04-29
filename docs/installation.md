@@ -1,5 +1,5 @@
 
-#  Instalation
+#  Installation
 Setting up the **CLiP Protocol** on your device is simple and quick!
 
 ## 📦 Install via PyPI
