@@ -69,14 +69,12 @@ def load_mask_json():
     return config["k"], config["m"], config["e"], hash_functions, config["privacy_method"], df
 
 def save_agregate_json(agregate_instance):
-    dataset_path = os.path.join(CONFIG_AGREGATE, f"sketch_by_user")
-
-    with open(dataset_path, "wb") as f:
+    with open(CONFIG_AGREGATE, "w") as f:
         pickle.dump(agregate_instance.sketch_by_user, f)
     print("✅ Agregate configuration saved")
 
 def load_agregate_json():
-    with open(CONFIG_AGREGATE, "rb") as f:
+    with open(CONFIG_AGREGATE, "r") as f:
         sketch_by_user = pickle.load(f)
     return sketch_by_user
 

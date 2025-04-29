@@ -41,7 +41,7 @@ Issues = "https://github.com/martaajonees/Local_Privacy/issues"
 [project.scripts]
 setup = "clip_protocol.cli:cli_setup"
 mask = "clip_protocol.cli:cli_mask"
-agregate = "clip_protocol.cli:cli_agregate"
+aggregate = "clip_protocol.cli:cli_agregate"
 estimate = "clip_protocol.cli:cli_estimate"
 clip_clear = "clip_protocol.cli:clear"
 
