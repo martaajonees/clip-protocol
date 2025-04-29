@@ -5,11 +5,15 @@ import json
 import os
 import pickle
 import hashlib
+from appdirs import user_data_dir
 
-DATA_PATH = os.path.join(os.path.dirname(__file__), "../../../data")
-CONFIG_FILE = os.path.join(DATA_PATH, "setup_config.json")
-CONFIG_MASK = os.path.join(DATA_PATH, "mask_config.json")
-CONFIG_AGREGATE = os.path.join(DATA_PATH, "agregate_config.json")
+APP_NAME = "clip_protocol"
+DATA_DIR = user_data_dir(APP_NAME)
+CONFIG_FILE = os.path.join(DATA_DIR, "setup_config.json")
+CONFIG_MASK = os.path.join(DATA_DIR, "mask_config.json")
+CONFIG_AGREGATE = os.path.join(DATA_DIR, "sketch_by_user")
+PRIVATIZED_DATASET = os.path.join(DATA_DIR, "privatized_dataset.csv")
+os.makedirs(DATA_DIR, exist_ok=True)
 
 def save_setup_json(setup_instance):
     config = {
@@ -41,16 +45,13 @@ def save_mask_json(mask_instance, e, coeffs, privatized_dataset):
         "hash": coeffs,
         "privacy_method": str(mask_instance.privacy_method),
     }
-
-    dataset_path = os.path.join(DATA_PATH, f"privatized_dataset.csv")
-
     converted_data = []
     for v, j, u in privatized_dataset:
         v_str = " ".join(map(str, v.tolist()))
         converted_data.append([v_str, j, u])
 
     df = pd.DataFrame(converted_data)
-    df.to_csv(dataset_path, index=False)
+    df.to_csv(PRIVATIZED_DATASET, index=False)
 
     with open(CONFIG_MASK, "w") as f:
         json.dump(config, f)
@@ -63,22 +64,19 @@ def load_mask_json():
     hash_params = config["hash"]
     hash_functions = rebuild_hash_functions(hash_params)
 
-    dataset_path = os.path.join(DATA_PATH, f"privatized_dataset.csv")
-    df = pd.read_csv(dataset_path)
-    # df["vector"] = df["0"].apply(lambda x: np.array(list(map(int, x.strip().split()))))
+    df = pd.read_csv(PRIVATIZED_DATASET)
 
     return config["k"], config["m"], config["e"], hash_functions, config["privacy_method"], df
 
 def save_agregate_json(agregate_instance):
-    dataset_path = os.path.join(DATA_PATH, f"sketch_by_user")
+    dataset_path = os.path.join(CONFIG_AGREGATE, f"sketch_by_user")
 
     with open(dataset_path, "wb") as f:
         pickle.dump(agregate_instance.sketch_by_user, f)
     print("✅ Agregate configuration saved")
 
 def load_agregate_json():
-    dataset_path = os.path.join(DATA_PATH, f"sketch_by_user")
-    with open(dataset_path, "rb") as f:
+    with open(CONFIG_AGREGATE, "rb") as f:
         sketch_by_user = pickle.load(f)
     return sketch_by_user
 
