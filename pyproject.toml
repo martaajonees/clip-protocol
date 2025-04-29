@@ -30,7 +30,8 @@ dependencies = [
     "openpyxl",
     "rich",
     "colorama",
-    "numba"
+    "numba",
+    appdirs
 ]
 
 [project.urls]
