@@ -9,7 +9,7 @@ import math
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from clip_protocol.utils.utils import save_setup_json, get_real_frequency, display_results
-from clip_protocol.utils.errors import compute_error_table
+from clip_protocol.utils.errors import compute_error_table, display_error_table, calculate_lp
 
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
@@ -30,18 +30,20 @@ class Setup:
                    error_metric (str), error (float), tolerance (float)
         """
         print("Please enter the values for the parameters:")
-
-        print(self.df.columns)
+        print(", ".join(f"'{col}'" for col in df.columns))
+        print("\n")
         events_inputs = input("🔹 Event columns names (comma-separated): ")
         events_names = [e.strip() for e in events_inputs.split(",") if e.strip()]
 
         privacy_options = {"1": "PCMeS", "2": "PHCMS"}
         privacy_method = self._ask_option("🔹 Privacy method", privacy_options)
         
-        error_metric_options = { "1": "MSE", "2": "RMSE","3": "Lρ Norm"}
+        error_metric_options = { "1": "MAE", "2": "MSE", "3": "RMSE",  "4": "Lρ Norm"}
         error_metric = self._ask_option("🔹 Error metric", error_metric_options)
         if error_metric == "Lρ Norm":
-            self.p = int(input("🔹 ρ value: "))
+            self.p = float(input("🔹 ρ value: "))
+        else:
+            self.p = 1.5
         
         error_value = float(input("🔹 Error value: "))
         tolerance = float(input("🔹 Tolerance: "))
@@ -87,7 +89,7 @@ class Setup:
         elif self.privacy_method == "PHCMS":
             _, _, df_estimated = run_private_hcms_client(k, m, e, self.df)
     
-        error_table = compute_error_table(self.real_freq, df_estimated)
+        error_table = compute_error_table(self.real_freq, df_estimated, self.p)
         return error_table, df_estimated
     
     def optimize_k_m(self, er=150):
@@ -118,7 +120,7 @@ class Setup:
                 m = trial.suggest_int("m", m_range/2, m_range) # m cant be 1 because in the estimation m/m-1 -> 1/0
 
                      
-            error_table, _ = self.run_command(self.e_ref, k, m)
+            error_table, _ = self.run_command(self.e_ref, k, m)  
             error = float([v for k, v in error_table if k == self.error_metric][0])
 
 
@@ -139,6 +141,8 @@ class Setup:
 
             _, df_estimated = self.run_command(self.e_ref, k, m)
 
+            trial.set_user_attr('real', get_real_frequency(self.df))
+            trial.set_user_attr('estimated', df_estimated)
             table = display_results(get_real_frequency(self.df), df_estimated)
             percentage_errors = [float(row[-1].strip('%')) for row in table]
             max_error = max(percentage_errors)
@@ -153,18 +157,12 @@ class Setup:
         study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=100)
 
+        real = study.best_trial.user_attrs['real']
+        estimated = study.best_trial.user_attrs['estimated']
+
+        display_error_table(real, estimated, self.p)
+
         return study.best_params["e"]
-    
-    def no_privacy(self):
-        headers=[
-            "Element", "Real Frequency", "Real Percentage", 
-            "Estimated Frequency", "Estimated Percentage", "Estimation Difference", 
-            "Percentage Error"
-        ]
-        _, _, estimated = run_private_cms_client(self.k, self.m, self.e_ref, self.df)
-        real = get_real_frequency(self.df)
-        table = display_results(real, estimated)
-        print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
 def run_setup(df):
     """
@@ -185,7 +183,6 @@ def run_setup(df):
             setup_instance.e_ref += 50
     
     setup_instance.e_ref = setup_instance.minimize_epsilon(setup_instance.k, setup_instance.m)
-    setup_instance.no_privacy()
     
     print(f"Optimal parameters found: k={setup_instance.k}, m={setup_instance.m}, e={setup_instance.e_ref}")
     print(f"Events: {setup_instance.events_names}")

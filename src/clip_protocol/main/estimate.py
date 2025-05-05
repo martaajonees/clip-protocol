@@ -20,6 +20,8 @@ class Estimation:
             M = np.array(user_data["M"])
             N = user_data["N"]
             est = self.estimate_element(event, M, N)
+            if est < 0:
+                est = 0
             print(f"🧑 User {user_id}: {est:.4f}")
 
 def run_estimate():

@@ -60,7 +60,7 @@ class Agregate:
     
 def run_agregate():
     agregate_instance = Agregate()
-    print("🧑‍🤝‍🧑 Agregate per user")
+    print("🧑‍🤝‍🧑 Aggregate per user")
     agregate_instance.agregate_per_user()
     save_agregate_json(agregate_instance)
 

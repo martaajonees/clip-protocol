@@ -140,7 +140,7 @@ def display_results(real_freq: pd.DataFrame, estimated_freq: dict):
             diff = abs(real_count - estimated_count)
             
             if real_count > 0:
-                percent_error = abs(real_count - estimated_count) / real_count * 100
+                percent_error = (abs(real_count - estimated_count) / real_count) * 100
             else:
                 percent_error = 0.0
             
