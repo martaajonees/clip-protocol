@@ -30,7 +30,7 @@ class Setup:
                    error_metric (str), error (float), tolerance (float)
         """
         print("Please enter the values for the parameters:")
-        print(", ".join(f"'{col}'" for col in df.columns))
+        print(", ".join(f"'{col}'" for col in self.df.columns))
         print("\n")
         events_inputs = input("🔹 Event columns names (comma-separated): ")
         events_names = [e.strip() for e in events_inputs.split(",") if e.strip()]
