@@ -27,6 +27,8 @@ def generate_latex_line_plot(error_history, output_path="figures/error_plot.tex"
     ]
 
     for metric, values in error_history.items():
+        if metric == "Lρ Norm":
+            metric = "Lp Norm"
         tikz_lines.append(r"\addplot coordinates {")
         for epsilon, error in sorted(values):
             tikz_lines.append(f"    ({epsilon}, {error})")
