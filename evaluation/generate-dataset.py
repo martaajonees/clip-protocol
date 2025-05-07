@@ -5,7 +5,7 @@ import numpy as np
 
 
 N = [750, 2500, 10000]    # Dataset sizes
-num_aois = 5              # Number of Areas of Interest
+num_aois = 10              # Number of Areas of Interest
 num_users = 100         # Number of users
 
 def generate_user_id(length=5):

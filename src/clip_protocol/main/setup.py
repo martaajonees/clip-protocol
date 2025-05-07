@@ -9,7 +9,7 @@ import math
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from clip_protocol.utils.utils import save_setup_json, get_real_frequency, display_results
-from clip_protocol.utils.errors import compute_error_table, display_error_table, calculate_lp
+from clip_protocol.utils.errors import compute_error_table, display_error_table
 
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
@@ -191,8 +191,9 @@ def run_setup(df):
     
     save_setup_json(setup_instance)
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run privatization mask with input CSV")
+    parser = argparse.ArgumentParser(description="Run setup process")
     parser.add_argument("-i", type=str, required=True, help="Path to the input excel file")
     args = parser.parse_args()
     if not os.path.isfile(args.i):

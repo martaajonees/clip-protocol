@@ -1,0 +1,107 @@
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    xlabel={$\epsilon$},
+    ylabel={Error},
+    legend style={at={(0.5,-0.15)}, anchor=north,legend columns=-1},
+    xmin=0,
+    grid=major,
+    width=12cm,
+    height=8cm,
+    cycle list name=color list,
+]
+\addplot coordinates {
+    (10, 1.60)
+    (20, 0.93)
+    (30, 0.80)
+    (40, 0.54)
+    (50, 0.54)
+    (60, 0.64)
+    (70, 0.44)
+    (80, 0.80)
+    (90, 0.51)
+    (100, 0.54)
+    (110, 0.71)
+    (120, 0.57)
+    (130, 0.39)
+    (140, 0.40)
+    (150, 0.64)
+};
+\addlegendentry{MAE}
+\addplot coordinates {
+    (10, 4.72)
+    (20, 3.24)
+    (30, 1.54)
+    (40, 0.42)
+    (50, 0.43)
+    (60, 0.84)
+    (70, 0.21)
+    (80, 2.24)
+    (90, 0.40)
+    (100, 0.42)
+    (110, 0.91)
+    (120, 0.45)
+    (130, 0.15)
+    (140, 0.17)
+    (150, 0.64)
+};
+\addlegendentry{MSE}
+\addplot coordinates {
+    (10, 2.17)
+    (20, 1.80)
+    (30, 1.24)
+    (40, 0.65)
+    (50, 0.66)
+    (60, 0.92)
+    (70, 0.46)
+    (80, 1.50)
+    (90, 0.63)
+    (100, 0.65)
+    (110, 0.96)
+    (120, 0.67)
+    (130, 0.39)
+    (140, 0.41)
+    (150, 0.80)
+};
+\addlegendentry{RMSE}
+\addplot coordinates {
+    (10, 8.93)
+    (20, 6.22)
+    (30, 4.65)
+    (40, 2.74)
+    (50, 2.76)
+    (60, 3.56)
+    (70, 2.10)
+    (80, 5.24)
+    (90, 2.62)
+    (100, 2.73)
+    (110, 3.81)
+    (120, 2.85)
+    (130, 1.81)
+    (140, 1.89)
+    (150, 3.34)
+};
+\addlegendentry{Lρ Norm}
+\addplot coordinates {
+    (10, 0.21%)
+    (20, 0.12%)
+    (30, 0.11%)
+    (40, 0.07%)
+    (50, 0.07%)
+    (60, 0.09%)
+    (70, 0.06%)
+    (80, 0.11%)
+    (90, 0.07%)
+    (100, 0.07%)
+    (110, 0.09%)
+    (120, 0.08%)
+    (130, 0.05%)
+    (140, 0.05%)
+    (150, 0.09%)
+};
+\addlegendentry{Percentage Error}
+\end{axis}
+\end{tikzpicture}
+\caption{Evolución del error por métrica en función del parámetro $\epsilon$}
+\end{figure}
