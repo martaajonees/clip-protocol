@@ -8,7 +8,6 @@ import time
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from clip_protocol.utils.utils import get_real_frequency, display_results
 from clip_protocol.utils.errors import compute_error_table
-
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
@@ -16,7 +15,6 @@ class Experiment4:
     def __init__(self, df):
         self.df = df
         self.events_names = ["user_id", "aoi_hit"]
-        self.privacy_method = "PCMeS"  # "PCMeS" or "PHCMS"
         self.error_metric = "MAE"
         self.error_value = 0.3
         self.tolerance = 0.1
