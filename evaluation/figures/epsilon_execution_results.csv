@@ -1,0 +1,6 @@
+method,max error,dataset_size,execution_time_seconds
+PCMeS,1.32,2250,10.8534
+PCMeS,2.97,2000,10.2118
+PCMeS,1.35,3000,10.3142
+PCMeS,2.55,2500,10.2806
+PCMeS,1.53,2750,10.2431

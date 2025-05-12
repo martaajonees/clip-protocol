@@ -98,12 +98,13 @@ def run_experiment1(df):
     experiment.filter_dataframe()
 
     k, m, er = experiment.optimize_k_m()
+    print(f"---------k = {k} m = {m} ---------")
 
     error_history = {}
 
     # Run sketch with fixed k and m and vary e
-    er = 200
-    while er >= 10:
+    er = 10
+    while er >= 0.5:
         error_table, _ = experiment.run_command(er, k, m)
 
         for metric, value in error_table:
@@ -111,7 +112,7 @@ def run_experiment1(df):
                 error_history[metric] = []
             error_history[metric].append((er, value))
 
-        er -= 10
+        er -= 0.5
     
     generate_latex_line_plot(error_history)
         

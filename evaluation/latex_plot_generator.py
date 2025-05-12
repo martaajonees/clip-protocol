@@ -45,4 +45,4 @@ def generate_latex_line_plot(error_history, output_path="figures/error_plot.tex"
     with open(output_path, "w") as f:
         f.write("\n".join(tikz_lines))
 
-    print(f"✅ Gráfico LaTeX generado en: {output_path}")
+    print(f"✅LaTeX graph generated in: {output_path}")

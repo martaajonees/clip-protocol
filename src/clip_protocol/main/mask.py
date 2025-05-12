@@ -17,6 +17,7 @@ class Mask:
         self.k, self.m, self.e_ref, self.events_names, self.privacy_method, self.error_metric, self.error_value, self.tolerance, self.p = load_setup_json()
         self.privacy_level = privacy_level
         self.df = df
+        self.matching_trial = None
 
     def filter_dataframe(self):
         """
@@ -112,16 +113,22 @@ class Mask:
                 objective_low = 0
 
             if objective_high >= max_error > objective_low:
+                self.matching_trial = trial
                 trial.study.stop()
             
             return abs(objective_high - max_error)
 
         study = optuna.create_study(direction='minimize') 
         study.optimize(objective, n_trials=20)
+
+        if self.matching_trial is not None:
+            trial = self.matching_trial
+        else:
+            trial = study.best_trial
                
-        best_e = study.best_params['e']
-        coeffs = study.best_trial.user_attrs['hash']
-        privatized_data = study.best_trial.user_attrs['privatized_data']
+        best_e = trial.user_attrs['e']
+        coeffs = trial.user_attrs['hash']
+        privatized_data = trial.user_attrs['privatized_data']
                 
         return best_e, privatized_data, coeffs
 

@@ -3,9 +3,9 @@ import random
 import string
 import numpy as np
 
-
-N = [750, 2500, 10000]    # Dataset sizes
-num_aois = 10              # Number of Areas of Interest
+n = 2500
+N = [int(n*0.9), int(n*1.1)]    # Dataset sizes
+num_aois = 5              # Number of Areas of Interest
 num_users = 100         # Number of users
 
 def generate_user_id(length=5):

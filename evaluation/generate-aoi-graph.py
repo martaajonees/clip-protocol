@@ -1,8 +1,9 @@
 import pandas as pd
 import os
 
-csv_path = 'datasets/aoi-hits-750.xlsx'
+csv_path = 'datasets/aoi-hits-2500.xlsx'
 df = pd.read_excel(csv_path)
+num_aois = 5
 
 aoi_counts = df['aoi_hit'].value_counts().sort_index()
 
@@ -19,14 +20,14 @@ tikz_lines = [
     r"    legend style={at={(0.5,-0.1)}, anchor=north,legend columns=-1},",
     r"    ybar,",
     r"    bar width=15pt,",
-    "    symbolic x coords={" + ",".join([f"$\\text{{AOI}}_{{{i}}}$" for i in aoi_counts.index]) + "},",
+    "    symbolic x coords={" + ",".join([f"$\\text{{AOI}}_{{{i}}}$" for i in range(num_aois)]) + "},",
     r"    xtick=data",
     r"]",
     r"\addplot coordinates {"
 ]
 
 # Añadir coordenadas
-for i, count in zip(aoi_counts.index, aoi_counts.values):
+for i, count in zip(range(num_aois), aoi_counts.values):
     tikz_lines.append(f"    ($\\text{{AOI}}_{{{i}}}$, {count})")
 
 tikz_lines.append(r"};")
