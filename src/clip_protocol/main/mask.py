@@ -6,6 +6,7 @@ import pandas as pd
 from tabulate import tabulate
 import argparse
 import hashlib
+import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 from clip_protocol.utils.utils import load_setup_json, get_real_frequency, save_mask_json, display_results
@@ -18,6 +19,7 @@ class Mask:
         self.privacy_level = privacy_level
         self.df = df
         self.matching_trial = None
+        self.N = len(self.df)
 
     def filter_dataframe(self):
         """
@@ -36,33 +38,22 @@ class Mask:
         self.df['value'] = self.df['value'].astype(str).apply(lambda x: x.strip())
         self.df = self.df[self.df['value'] != '-']
         self.df = self.df[self.df['value'].str.contains(r'\w', na=False)]
+        self.N = len(self.df)
+
+        # Filter by percentage >= 0.1%
+        real_freq = get_real_frequency(self.df)
+        real_freq_dict = dict(zip(real_freq["Element"], real_freq["Frequency"]))
+        real_percent = {k: (v * 100 /self.N) for k, v in real_freq_dict.items()}
+        valid_elements = [k for k, v in real_percent.items() if v >= 0.1]
+        self.df = self.df[self.df["value"].isin(valid_elements)]
         
         # Pseudonimize the user column
         self.df['user'] = self.df['user'].apply(self.pseudonimize)
     
-
-    def calculate_metrics(self, f_estimated, f_real):
-        """
-        Placeholder for calculating metrics based on the privacy level.
-        """
-        metric = 0
-        m = f_real['Frequency'].sum()
-        merged = f_estimated.merge(f_real, on="Element", suffixes=("_estimated", "_real"))
-        if self.error_metric == "MSE":
-            metric = (1 / m) * sum((row["Frequency_estimated"] - row["Frequency_real"]) ** 2 for _, row in merged.iterrows())
-        elif self.error_metric == "RMSE":
-            metric = ((1 / m) * sum((row["Frequency_estimated"] - row["Frequency_real"]) ** 2 for _, row in merged.iterrows())) ** 0.5
-        elif self.error_metric == "Lρ Norm":
-            metric = sum(abs(row["Frequency_estimated"] - row["Frequency_real"]) ** self.p for _, row in merged.iterrows()) ** (1/self.p)  
-        return metric
+    def pseudonimize(self, user_name):
+        return hashlib.sha256(user_name.encode()).hexdigest()[:10] 
     
     def run_command(self, e):
-        """
-        Runs the selected privacy algorithm with a given privacy budget `e`, `k` y `m`.
-
-        Returns:
-            tuple: Containing result, data table, error table, privatized data, and estimated frequencies.
-        """
         if self.privacy_method == "PCMeS":
             coeffs, privatized_data, df_estimated = run_private_cms_client(self.k, self.m, e, self.df)
         elif self.privacy_method == "PHCMS":
@@ -71,17 +62,6 @@ class Mask:
         return coeffs, privatized_data, df_estimated
 
     def optimize_e(self):
-        """
-        Optimizes the privacy parameter `ϵ` using Optuna to reach a target error.
-        
-        Args:
-            target_error (float): Desired error value.
-            p (float): Order of the Lp norm.
-            metric (str): Metric type (1 = MSE, 2 = Lp norm, 3 = Percentage Error).
-        
-        Returns:
-            tuple: Best `ϵ`, privatized data, error table, result, and data table.
-        """
         def objective(trial):
             e = round(trial.suggest_float('e', 0.1, self.e_ref, step=0.1), 4)
             coeffs, privatized_data, df_estimated = self.run_command(e)
@@ -95,28 +75,18 @@ class Mask:
             table = display_results(get_real_frequency(self.df), df_estimated)
             print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
-            percentage_errors = [float(row[-1].strip('%')) for row in table]
-            max_error = max(percentage_errors)
+            max_error = max([float(row[-1].strip('%')) for row in table])
 
             trial.set_user_attr('e', e)
             trial.set_user_attr('hash', coeffs)
             trial.set_user_attr('privatized_data', privatized_data)
 
-            if self.privacy_level == "high":
-                objective_high = (self.error_value + self.tolerance)*100
-                objective_low = (self.error_value * 100)
-            elif self.privacy_level == "medium":
-                objective_high = (self.error_value * 100)
-                objective_low = (self.error_value-self.tolerance)*100
-            elif self.privacy_level == "low":
-                objective_high = (self.error_value-self.tolerance)*100
-                objective_low = 0
-
-            if objective_high >= max_error > objective_low:
+            bounds = self._get_error_bounds()
+            if bounds[0] < max_error <= bounds[1]:
                 self.matching_trial = trial
                 trial.study.stop()
             
-            return abs(objective_high - max_error)
+            return round(abs(bounds[1] - max_error), 4)
 
         study = optuna.create_study(direction='minimize') 
         study.optimize(objective, n_trials=20)
@@ -131,10 +101,14 @@ class Mask:
         privatized_data = trial.user_attrs['privatized_data']
                 
         return best_e, privatized_data, coeffs
-
-    def pseudonimize(self, user_name):
-        hash_object = hashlib.sha256(user_name.encode())
-        return hash_object.hexdigest()[:10]
+    
+    def _get_error_bounds(self):
+        if self.privacy_level == "high":
+                return self.error_value * 100, (self.error_value + self.tolerance)*100
+        elif self.privacy_level == "medium":
+            return (self.error_value-self.tolerance)*100, self.error_value * 100
+        elif self.privacy_level == "low":
+            return 0, (self.error_value-self.tolerance)*100
     
 def run_mask(df):
     privacy_level = input("Enter the privacy level (high/medium/low): ").strip().lower()
@@ -161,4 +135,9 @@ if __name__ == "__main__":
         df = pd.read_excel(args.i, header=1)  
     else:
         df = df_temp
+
+    start = time.time()
     run_mask(df)
+    end = time.time()
+    elapsed_time = end - start
+    print(f"Execution time: {elapsed_time:.2f} seconds")
