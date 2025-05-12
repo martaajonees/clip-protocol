@@ -24,8 +24,8 @@ PRIVACY_LEVEL = "low"
 E_REF = 100
 
 def filter_dataframe(df):
-    events_names = ["Participant", "AOI Name"]
-    matching_columns = [col for col in events_names if col in df.columns]
+    event_names = ["Participant", "AOI Name"]
+    matching_columns = [col for col in event_names if col in df.columns]
     if not matching_columns:
         print("⚠️ None of the specified event names match the DataFrame columns.")
     
@@ -165,7 +165,7 @@ def run_experiment_3(df, datasets):
     performance_records = []
 
     for data in datasets:
-        data_df = filter_dataframe(data)
+        data_df, _ = filter_dataframe(data)
         start_time = time.time()
         table, max_error, e = optimize_e(k, m, data_df, e_r)
         end_time = time.time()
@@ -206,6 +206,9 @@ if __name__ == "__main__":
     setup_path = os.path.join(data_path, setup_file)
 
     setup_df = pd.read_excel(setup_path)
+
+    if any(col.startswith("Unnamed") for col in setup_df.columns):
+        setup_df = pd.read_excel(setup_path, header=1)  
 
     datasets = []
     dataset_lengths = []
