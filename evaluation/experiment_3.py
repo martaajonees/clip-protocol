@@ -63,9 +63,6 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
 
         if privacy_level == "high":
             objective_high = (error_value + tolerance)*100
-            objective_low = (error_value * 100)
-        elif privacy_level == "medium":
-            objective_high = (error_value * 100)
             objective_low = (error_value-tolerance)*100
         elif privacy_level == "low":
             objective_high = (error_value-tolerance)*100
@@ -74,6 +71,9 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
         if objective_high >= max_error > objective_low:
             matching_trial["trial"] = trial
             trial.study.stop()
+        
+        if max_error > objective_high:
+            return float("inf")
         
         print(f"Trial {trial.number}: e = {e}, max_error = {max_error}")
         
@@ -94,7 +94,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
 def run_experiment_3(datasets):
    
     k, m,  e_r,  _,  privacy_method,  _,  error_value,  tolerance,  _ = load_setup_json()
-    privacy_level = input("Enter the privacy level (high, medium, low): ").strip().lower()
+    privacy_level = input("Enter the privacy level (high, low): ").strip().lower()
     
     tables = []
     performance_records = []
