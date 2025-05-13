@@ -86,6 +86,9 @@ class Mask:
                 self.matching_trial = trial
                 trial.study.stop()
             
+            if max_error > bounds[1]:
+                return float("inf")
+            
             return round(abs(bounds[1] - max_error), 4)
 
         study = optuna.create_study(direction='minimize') 
@@ -104,16 +107,14 @@ class Mask:
     
     def _get_error_bounds(self):
         if self.privacy_level == "high":
-                return self.error_value * 100, (self.error_value + self.tolerance)*100
-        elif self.privacy_level == "medium":
-            return (self.error_value-self.tolerance)*100, self.error_value * 100
+            return (self.error_value-self.tolerance)*100, (self.error_value + self.tolerance)*100
         elif self.privacy_level == "low":
             return 0, (self.error_value-self.tolerance)*100
     
 def run_mask(df):
-    privacy_level = input("Enter the privacy level (high/medium/low): ").strip().lower()
-    if privacy_level not in ["high", "medium", "low"]:
-        print("Invalid privacy level. Please enter 'high', 'medium', or 'low'.")
+    privacy_level = input("Enter the privacy level (high/low): ").strip().lower()
+    if privacy_level not in ["high", "low"]:
+        print("Invalid privacy level. Please enter 'high' or 'low'.")
         return
     mask_instance = Mask(privacy_level, df)
     mask_instance.filter_dataframe()
