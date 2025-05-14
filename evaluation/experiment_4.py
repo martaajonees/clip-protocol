@@ -67,7 +67,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance):
     max_error = final_trial.user_attrs['max_error']
     e = final_trial.user_attrs['e']
             
-    return table, max_error
+    return table, max_error, e
 
 
 def run_experiment_2(datasets):
@@ -81,12 +81,14 @@ def run_experiment_2(datasets):
         data.columns = ["user", "value"]
         data = filter_dataframe(data)
         start_time = time.time()
-        table, max_error = optimize_e(k, m, data, e_r, privacy_level, error_value, tolerance)
+        table, max_error, e = optimize_e(k, m, data, e_r, privacy_level, error_value, tolerance)
         end_time = time.time()
         elapsed_time = end_time - start_time
         tables.append(table)
     
         performance_records.append({
+            "privacy method": PRIVACY_METHOD,
+            "e":e,
             "max error": max_error,
             "dataset_size": len(data),
             "execution_time_seconds": round(elapsed_time, 4)
