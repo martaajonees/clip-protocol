@@ -1,33 +1,37 @@
 import pandas as pd
 import random
 import string
-import numpy as np
 
-n = 2500
-N = [int(n*0.9), int(n*1.1)]    # Dataset sizes
-num_aois = 5              # Number of Areas of Interest
-num_users = 100         # Number of users
+base_n = 5000
+N = [3000, 4000, 5000, 6000, 7000]    # Dataset sizes
+num_aois = 4                    # Number of Areas of Interest
+num_users = 50                 # Number of users
 
+#aoi_percentages = [0.7, 0.1, 0.01, 0.19]
+#aoi_percentages = [0.4, 0.2, 0.25, 0.15]
+aoi_percentages = [0.8, 0.13, 0.01, 0.07]
 def generate_user_id(length=5):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
-def generate_skewed_weights(num_aois, alpha=1.5):
-    ranks = np.arange(1, num_aois + 1)
-    weights = 1 / (ranks ** alpha)
-    return weights / weights.sum()
+aois = [f"subevent_{i}" for i in range(num_aois)]
+
+user_ids = [generate_user_id() for _ in range(num_users)]
 
 for n in N:
     records = []
 
-    user_ids = [generate_user_id() for _ in range(num_users)]
-    aois = [f"subevent_{i}" for i in range(num_aois)]
-    aois_weights = generate_skewed_weights(num_aois)
+    samples_per_aoi = [int(round(p * n)) for p in aoi_percentages]
 
-    for _ in range(n):
-        user_id = random.choice(user_ids)
-        aoi_hit = random.choices(aois, weights=aois_weights, k=1)[0]
-        records.append((user_id, aoi_hit))
+    diff = n - sum(samples_per_aoi)
+    if diff != 0:
+        samples_per_aoi[0] += diff
+    
+    for aoi, count in zip(aois, samples_per_aoi):
+        for _ in range(count):
+            user_id = random.choice(user_ids)
+            records.append((user_id, aoi))
         
 
     df = pd.DataFrame(records, columns=["user_id", "aoi_hit"])
-    df.to_excel(f'datasets/aoi-hits-{n}.xlsx', index=False)
+    df = df.sample(frac=1).reset_index(drop=True)
+    df.to_excel(f'datasets/aoi-hits-d3-{n}.xlsx', index=False)

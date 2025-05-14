@@ -36,7 +36,7 @@ def filter_dataframe(df):
     valid_elements = [k for k, v in real_percent.items() if v >= 0.1]
     df = df[df["value"].isin(valid_elements)]
     
-    return df, N
+    return df
 
 def run_command(e, k, m, df, privacy_method):
     if privacy_method == "PCMeS":
@@ -51,7 +51,7 @@ def run_command(e, k, m, df, privacy_method):
 def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_method):
     matching_trial = {"trial": None}
     def objective(trial):
-        e = round(trial.suggest_float('e', 0.1, e_r, step=0.1), 4)
+        e = round(trial.suggest_float('e', 0.1, e_r, step=1), 4)
         _, _, table = run_command(e, k, m, df, privacy_method)
 
         percentage_errors = [float(row[-1].strip('%')) for row in table]
@@ -100,7 +100,7 @@ def run_experiment_3(datasets):
     performance_records = []
 
     for data in datasets:
-        data_df, _ = filter_dataframe(data)
+        data_df = filter_dataframe(data)
         start_time = time.time()
         table, max_error, e = optimize_e(k, m, data_df, e_r, privacy_level, error_value, tolerance, privacy_method)
         end_time = time.time()

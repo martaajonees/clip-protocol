@@ -1,0 +1,19 @@
+max error,dataset_size,execution_time_seconds
+1.07,6000,12.0639
+0.81,7000,11.3439
+1.51,5000,11.6593
+1.06,4000,11.0563
+1.07,3000,10.4865
+
+todas 1 iteracion
+6000 -> e=34.1
+7000 -> e=21.1
+5000 -> e=4.1
+4000 -> e=45.1
+3000 -> e=47.1
+
+
+Optimal parameters found: k=124, m=375, e=52
+Events: ['user_id', 'aoi_hit']
+Privacy method: PCMeS
+Error metric: MSE

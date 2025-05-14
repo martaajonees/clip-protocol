@@ -21,6 +21,7 @@ class Setup:
         self.e_ref = 0
         self.found_best_values = False
         self.N = len(self.df)
+        self.matching_trial = None
 
     def ask_values(self):
         """
@@ -93,11 +94,7 @@ class Setup:
         return error_table, df_estimated
     
     def optimize_k_m(self, er=150):
-        """
-        Optimize the parameters k and m using Optuna.
-        Returns:
-            tuple: Contains the best k and m values found during optimization.
-        """
+       
         self.e_ref = er
 
         def objective(trial):
@@ -119,6 +116,8 @@ class Setup:
             else:
                 m = trial.suggest_int("m", m_range/2, m_range) # m cant be 1 because in the estimation m/m-1 -> 1/0
 
+            trial.set_user_attr('k', k)
+            trial.set_user_attr('m', m)
                      
             error_table, _ = self.run_command(self.e_ref, k, m)  
             error = float([v for k, v in error_table if k == self.error_metric][0])
@@ -126,6 +125,7 @@ class Setup:
 
             if error <= (self.error_value * min_freq_value):
                 self.found_best_values = True
+                self.matching_trial = trial
                 trial.study.stop()
             
             return m
@@ -133,9 +133,16 @@ class Setup:
         study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=100)
 
-        return study.best_params["k"], study.best_params["m"], er
+        if self.matching_trial is not None:
+            trial = self.matching_trial
+        else:
+            trial = study.best_trial
+        
+
+        return trial.user_attrs["k"], trial.user_attrs["m"], er
     
     def minimize_epsilon(self, k, m):
+        matching_trial = {"trial": None}
         def objective(trial):
             e = trial.suggest_int("e", 1, self.e_ref)
 
@@ -143,13 +150,16 @@ class Setup:
 
             trial.set_user_attr('real', get_real_frequency(self.df))
             trial.set_user_attr('estimated', df_estimated)
+            trial.set_user_attr('e', e)
             table = display_results(get_real_frequency(self.df), df_estimated)
             percentage_errors = [float(row[-1].strip('%')) for row in table]
             max_error = max(percentage_errors)
 
             print(f"Max error: {max_error}")
             print(f"Error value: {self.error_value * 100}")
+
             if max_error <= (self.error_value * 100):
+                matching_trial["trial"] = trial
                 trial.study.stop()
             
             return e
@@ -157,12 +167,14 @@ class Setup:
         study = optuna.create_study(direction="minimize")
         study.optimize(objective, n_trials=100)
 
-        real = study.best_trial.user_attrs['real']
-        estimated = study.best_trial.user_attrs['estimated']
+        final_trial = matching_trial["trial"] or study.best_trial
+
+        real = final_trial.user_attrs['real']
+        estimated = final_trial.user_attrs['estimated']
 
         display_error_table(real, estimated, self.p)
 
-        return study.best_params["e"]
+        return final_trial.user_attrs["e"]
 
 def run_setup(df):
     """
