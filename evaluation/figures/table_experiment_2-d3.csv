@@ -11,7 +11,7 @@ max error,dataset_size,execution_time_seconds
 7000-> 10 iteraciones -> e=11.1
 3000-> 1 iteraciones -> e=14.1 
 
-Optimal parameters found: k=14, m=3586, e=18
+Optimal parameters found: k= , m=3586, e=18
 Events: ['user_id', 'aoi_hit']
 Privacy method: PCMeS
 Error metric: MSE

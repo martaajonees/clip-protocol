@@ -41,6 +41,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance):
         trial.set_user_attr('e', e)
         trial.set_user_attr('max_error', max_error)
 
+
         if privacy_level == "high":
             objective_high = (error_value + tolerance)*100
             objective_low = (error_value-tolerance)*100
@@ -56,6 +57,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance):
             return float("inf")
         
         return round(abs(objective_high - max_error), 4)
+
         
 
     study = optuna.create_study(direction='minimize') 

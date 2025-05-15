@@ -23,8 +23,6 @@ def run_command(e, k, m, df):
 
 
 def run_experiment_2(datasets):
-    #k, m,  e_r,  _,  _,  _,  error_value,  tolerance,  _ = load_setup_json()
-    privacy_level = "low"
     k = 614
     m = 4575
     e_r = 44

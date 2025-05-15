@@ -107,14 +107,12 @@ class Setup:
             m_range = 2.718/sobreestimation
 
             k = trial.suggest_int("k", 10, 1000)
-            
+
+            m = trial.suggest_int("m", m_range/2, m_range)
+
             if self.privacy_method == "PHCMS":
-                min_exp = int(math.log2(m_range // 2))
-                max_exp = int(math.log2(m_range))
-                m_options = [2 ** i for i in range(min_exp, max_exp + 1)]
-                m = trial.suggest_categorical("m", m_options)
-            else:
-                m = trial.suggest_int("m", m_range/2, m_range) # m cant be 1 because in the estimation m/m-1 -> 1/0
+                m = 2 ** int(math.ceil(math.log2(m)))
+                print(f"m must be a power of 2, so m = {m}")
 
             trial.set_user_attr('k', k)
             trial.set_user_attr('m', m)
@@ -122,7 +120,7 @@ class Setup:
             error_table, _ = self.run_command(self.e_ref, k, m)  
             error = float([v for k, v in error_table if k == self.error_metric][0])
 
-
+            print(f"Error: {error}, Error value: {self.error_value * min_freq_value}")
             if error <= (self.error_value * min_freq_value):
                 self.found_best_values = True
                 self.matching_trial = trial
@@ -137,6 +135,7 @@ class Setup:
             trial = self.matching_trial
         else:
             trial = study.best_trial
+            
         
 
         return trial.user_attrs["k"], trial.user_attrs["m"], er
