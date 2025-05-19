@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import sys
 import time
+import argparse
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from clip_protocol.utils.utils import load_setup_json, display_results, get_real_frequency
@@ -112,8 +113,13 @@ def run_experiment_2(datasets):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run experiment 3")
+    parser.add_argument("-d1", type=str, required=True, help="Path to the input excel file")
+    args = parser.parse_args()
+
+    data_path = args.d1 # folder
+
     datasets = []
-    data_path = "/Users/martajones/Downloads/datos/d4"
     for file in os.listdir(data_path):
         if file.endswith(".xlsx"):
             filepath = os.path.join(data_path, file)
