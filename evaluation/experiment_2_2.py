@@ -23,9 +23,9 @@ def run_command(e, k, m, df):
 
 
 def run_experiment_2(datasets):
-    k = 104
-    m = 244
-    e_r = 72
+    k = 818
+    m = 326
+    e_r = 8
 
     headers=[
             "Element", "Real Frequency", "Real Percentage", 
@@ -44,63 +44,6 @@ def run_experiment_2(datasets):
         print(f"Dataset size: {len(data)}")
         print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
     
-
-def plot_relative_errors_multiple_tables(tables, dataset_sizes, output_path="figures/plot_experiment_2.tex"):
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Extraer labels y errores
-    all_errors = {}  # {AOI_label: {dataset_size: error_value}}
-
-    for table, size in zip(tables, dataset_sizes):
-        for row in table:
-            aoi_index = row[0].split("_")[-1]
-            aoi_label = f"$AOI_{{{aoi_index}}}$"
-            error_percent = float(row[-1].strip('%'))
-            if aoi_label not in all_errors:
-                all_errors[aoi_label] = {}
-            all_errors[aoi_label][size] = error_percent
-
-    # Generar código TikZ
-    tikz_lines = [
-        r"\begin{figure}[h]",
-        r"\centering",
-        r"\begin{tikzpicture}",
-        r"\begin{axis}[",
-        r"    ybar,",
-        r"    bar width=10pt,",
-        r"    ylabel={Error porcentual (\%)},",
-        r"    xlabel={Áreas de Interés},",
-        r"    symbolic x coords={" + ", ".join(all_errors.keys()) + "},",
-        r"    xtick=data,",
-        r"    x tick label style={rotate=45, anchor=east},",
-        r"    ymin=0,",
-        r"    enlarge x limits=0.15,",
-        r"    legend style={at={(0.5,-0.2)}, anchor=north,legend columns=-1},",
-        r"    legend cell align={left}",
-        r"]"
-    ]
-
-    # Añadir un \addplot por cada dataset
-    for size in dataset_sizes:
-        tikz_lines.append(r"\addplot coordinates {")
-        for aoi_label in all_errors:
-            value = all_errors[aoi_label].get(size, 0)
-            tikz_lines.append(f"({aoi_label}, {value})")
-        tikz_lines.append("};")
-
-    legend_entries = [f"{size} muestras" for size in dataset_sizes]
-    tikz_lines.append(r"\legend{" + ", ".join(legend_entries) + "}")
-    tikz_lines.append(r"\end{axis}")
-    tikz_lines.append(r"\end{tikzpicture}")
-    tikz_lines.append(r"\caption{Errores porcentuales por AOI en distintos tamaños de dataset}")
-    tikz_lines.append(r"\end{figure}")
-
-    with open(output_path, "w") as f:
-        f.write("\n".join(tikz_lines))
-
-    print(f"Gráfico LaTeX generado en: {output_path}")
-        
 
 if __name__ == "__main__":
     datasets = []

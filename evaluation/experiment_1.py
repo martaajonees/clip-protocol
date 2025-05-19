@@ -7,7 +7,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 from clip_protocol.utils.utils import get_real_frequency, load_setup_json
 from clip_protocol.utils.errors import compute_error_table
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
+from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
+privacy_method = "PHCMS"  # or "PCMeS"
 
 def filter_dataframe(df):
     df.columns = ["user", "value"]
@@ -15,9 +17,14 @@ def filter_dataframe(df):
     return df, N
 
 def run_command(e, k, m, df):
-    _, _, df_estimated = run_private_cms_client(k, m, e,  df)
-    error_table = compute_error_table(get_real_frequency(df), df_estimated,  2)
-    return error_table, df_estimated
+    if privacy_method == "PCMeS":
+        _, _, df_estimated = run_private_cms_client(k, m, e, df)
+    elif privacy_method == "PHCMS":
+        _, _, df_estimated = run_private_hcms_client(k, m, e, df)
+    
+    error = compute_error_table(get_real_frequency(df), df_estimated, 2)
+    return error, df_estimated
+
 
 def generate_latex_line_plot(error_history, output_path="figures/plot_experiment_1.tex"):
     tikz_lines = [
@@ -58,7 +65,7 @@ def generate_latex_line_plot(error_history, output_path="figures/plot_experiment
     print(f"✅LaTeX graph generated in: {output_path}")
 
 def run_experiment1(df):
-    k, m,  _,  _,  _,  _,  _,  _,  _ = load_setup_json()
+    k, m,  _, _,  _,  _,  _,  _,  _,  _ = load_setup_json()
     error_history = {}
     df, _ = filter_dataframe(df)
 

@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import sys
 from tabulate import tabulate
+import argparse
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from clip_protocol.utils.utils import load_setup_json, display_results, get_real_frequency
@@ -28,9 +29,9 @@ def run_command(e, k, m, df):
 
 
 def run_experiment_2(datasets):
-    k = 505
-    m = 256
-    e_r = 83
+    k = 617
+    m = 5326
+    e_r = 10
 
     headers=[
                 "Element", "Real Frequency", "Real Percentage", 
@@ -107,8 +108,13 @@ def plot_relative_errors_multiple_tables(tables, dataset_sizes, output_path="fig
         
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run experiment 3")
+    parser.add_argument("-d1", type=str, required=True, help="Path to the input excel file")
+    args = parser.parse_args()
+
+    data_path = args.d1 # folder
+
     datasets = []
-    data_path = "datasets"
     for file in os.listdir(data_path):
         if file.endswith(".xlsx"):
             filepath = os.path.join(data_path, file)

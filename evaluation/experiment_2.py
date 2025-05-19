@@ -11,7 +11,7 @@ from clip_protocol.utils.errors import compute_error_table
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
-privacy_method = "PHCMS"  # or "PHCMS"
+privacy_method = "PCMeS" 
 
 def filter_dataframe(df):
     df.columns = ["user", "value"]
@@ -72,9 +72,9 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance):
 def run_experiment_2(datasets):
     k, m,  e_r, _, _,  _,  _,  error_value,  tolerance,  _ = load_setup_json()
     privacy_level = "high"
-    # k = 973
-    # m = 256
-    # e_r = 7
+    # k = 818
+    # m = 286
+    # e_r = 8
 
     tables = []
     performance_records = []
