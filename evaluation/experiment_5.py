@@ -6,6 +6,7 @@ import time
 from tqdm import tqdm
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import pickle
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from clip_protocol.utils.utils import get_real_frequency, display_results, load_setup_json
@@ -48,10 +49,10 @@ def run_command(e, k, m, df, privacy_method):
     table = display_results(get_real_frequency(df), df_estimated)
     return error, df_estimated, table
 
-def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_method):
+def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_method, n_trials):
     matching_trial = {"trial": None}
     def objective(trial):
-        e = round(trial.suggest_float('e', 0.1, e_r, step=1), 4)
+        e = round(trial.suggest_float('e', 0.1, e_r, step=0.1), 4)
         _, _, table = run_command(e, k, m, df, privacy_method)
 
         percentage_errors = [float(row[-1].strip('%')) for row in table]
@@ -60,6 +61,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
         trial.set_user_attr('table', table)
         trial.set_user_attr('e', e)
         trial.set_user_attr('max_error', max_error)
+        print(f"Trial: e = {e}, max_error = {max_error}")
 
         if privacy_level == "high":
             objective_high = (error_value + tolerance)*100
@@ -75,8 +77,6 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
         if max_error > objective_high:
             return float("inf")
         
-        print(f"Trial {trial.number}: e = {e}, max_error = {max_error}")
-        
         return round(abs(objective_high - max_error), 4)
         
 
@@ -91,9 +91,8 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
             
     return table, max_error, e
     
-def run_experiment_3(datasets):
-   
-    k, m,  e_r,  _,  privacy_method,  _,  error_value,  tolerance,  _ = load_setup_json()
+def run_experiment_5(datasets):
+    k, m,  e_r, n_trials, _,  privacy_method,  _,  error_value,  tolerance,  _ = load_setup_json()
     privacy_level = input("Enter the privacy level (high, low): ").strip().lower()
     
     tables = []
@@ -102,7 +101,7 @@ def run_experiment_3(datasets):
     for data in datasets:
         data_df = filter_dataframe(data)
         start_time = time.time()
-        table, max_error, e = optimize_e(k, m, data_df, e_r, privacy_level, error_value, tolerance, privacy_method)
+        table, max_error, e = optimize_e(k, m, data_df, e_r, privacy_level, error_value, tolerance, privacy_method, n_trials)
         end_time = time.time()
         elapsed_time = end_time - start_time
         tables.append(table)
@@ -115,7 +114,7 @@ def run_experiment_3(datasets):
         })
     
     performance_df = pd.DataFrame(performance_records)
-    performance_df.to_csv("figures/epsilon_execution_results.csv", index=False)
+    performance_df.to_csv("figures/experiment_5.csv", index=False)
 
 
 def load_excel_with_header_check(filepath):
@@ -136,21 +135,33 @@ if __name__ == "__main__":
 
     data_path = args.d1 # folder
 
-    datasets = []
-    dataset_lengths = []
+    CACHE_PATH = os.path.join(data_path, "cached_datasets.pkl")
+    if os.path.exists(CACHE_PATH):
+        print("✅ Cargando datasets desde caché...")
+        with open(CACHE_PATH, "rb") as f:
+            datasets = pickle.load(f)
 
-    excel_files = [f for f in os.listdir(data_path) if f.endswith(".xlsx")]
-    full_paths = [os.path.join(data_path, f) for f in excel_files]
+    else:
+        print("📥 Procesando archivos Excel...")
+        datasets = []
+        dataset_lengths = []
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        future_to_file = {executor.submit(load_excel_with_header_check, path): path for path in full_paths}
-        for future in tqdm(as_completed(future_to_file), total=len(full_paths), desc="Cargando archivos"):
-            df = future.result()
-            if df is not None and not df.empty:
-                datasets.append(df)
-                dataset_lengths.append(len(df))
-            else:
-                print(f"⚠️ Archivo inválido o vacío: {future_to_file[future]}")
+        excel_files = [f for f in os.listdir(data_path) if f.endswith(".xlsx")]
+        full_paths = [os.path.join(data_path, f) for f in excel_files]
+
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            future_to_file = {executor.submit(load_excel_with_header_check, path): path for path in full_paths}
+            for future in tqdm(as_completed(future_to_file), total=len(full_paths), desc="Cargando archivos"):
+                df = future.result()
+                if df is not None and not df.empty:
+                    datasets.append(df)
+                    dataset_lengths.append(len(df))
+                else:
+                    print(f"⚠️ Archivo inválido o vacío: {future_to_file[future]}")
+        
+        with open(CACHE_PATH, "wb") as f:
+            pickle.dump(datasets, f)
+            print(f"💾 Datasets guardados en caché: {CACHE_PATH}")
     
 
-    run_experiment_3(datasets)
+    run_experiment_5(datasets)

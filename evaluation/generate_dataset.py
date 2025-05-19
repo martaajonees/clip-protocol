@@ -3,13 +3,15 @@ import random
 import string
 
 base_n = 5000
-N = [3000, 4000, 5000, 6000, 7000]    # Dataset sizes
-num_aois = 4                    # Number of Areas of Interest
-num_users = 50                 # Number of users
+N = [3000, 4000, 5000, 6000, 7000]  # Dataset sizes
+num_aois = 4                        # Number of Areas of Interest
+num_users = 50                      # Number of users
 
 #aoi_percentages = [0.7, 0.1, 0.01, 0.19]
 #aoi_percentages = [0.4, 0.2, 0.25, 0.15]
-aoi_percentages = [0.8, 0.13, 0.01, 0.07]
+#aoi_percentages = [0.8, 0.13, 0.01, 0.07]
+aoi_percentages = [0.30, 0.20, 0.30, 0.20]
+
 def generate_user_id(length=5):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
@@ -34,4 +36,4 @@ for n in N:
 
     df = pd.DataFrame(records, columns=["user_id", "aoi_hit"])
     df = df.sample(frac=1).reset_index(drop=True)
-    df.to_excel(f'datasets/aoi-hits-d3-{n}.xlsx', index=False)
+    df.to_excel(f'datasets/aoi-hits-d4-{n}.xlsx', index=False)

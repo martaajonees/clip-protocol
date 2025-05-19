@@ -16,9 +16,10 @@ from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hc
 class Setup:
     def __init__(self, df):
         self.df = df
-        
+        self.e_ref = 150
+        self.n_trials = 30
+        self.failure_prob = 0.001
         self.events_names, self.privacy_method, self.error_metric, self.error_value, self.tolerance = self.ask_values()
-        self.e_ref = 0
         self.found_best_values = False
         self.N = len(self.df)
         self.matching_trial = None
@@ -48,11 +49,16 @@ class Setup:
         
         error_value = float(input("🔹 Error value: "))
         tolerance = float(input("🔹 Tolerance: "))
+        default_parameters = input("🔹 Do you want to change the default parameters (y/n): ")
+        if default_parameters.lower() == "y":
+            self.e_ref = float(input("🔹 Epsilon reference value: "))
+            self.n_trials = int(input("🔹 Number of trials: "))
+            self.failure_prob = float(input("🔹 Failure probability value: "))
+
 
         return events_names, privacy_method, error_metric, error_value, tolerance
     
     def _ask_option(self, prompt, options):
-        """Prompt the user to input configuration parameters."""
         print(f"{prompt}:\n" + "\n".join([f"\t {k}. {v}" for k, v in options.items()]))
         choice = input(f"\t Enter option ({'/'.join(options)}): ").strip()
         while choice not in options:
@@ -60,12 +66,6 @@ class Setup:
         return options[choice]
     
     def filter_dataframe(self):
-        """
-        Filters the DataFrame to keep only the columns specified,
-        if they exist in the DataFrame.
-        Returns:
-            pd.DataFrame: Filtered DataFrame with selected columns.
-        """
         matching_columns = [col for col in self.events_names if col in self.df.columns]
         if not matching_columns:
             print("⚠️ None of the specified event names match the DataFrame columns.")
@@ -79,12 +79,6 @@ class Setup:
         self.N = len(self.df)
     
     def run_command(self, e, k, m):
-        """
-        Runs the selected privacy algorithm with a given privacy budget `e`, `k` y `m`.
-
-        Returns:
-            tuple: Containing result, data table, error table, privatized data, and estimated frequencies.
-        """
         if self.privacy_method == "PCMeS":
             _, _, df_estimated = run_private_cms_client(k, m, e, self.df)
         elif self.privacy_method == "PHCMS":
@@ -93,10 +87,8 @@ class Setup:
         error_table = compute_error_table(self.real_freq, df_estimated, self.p)
         return error_table, df_estimated
     
-    def optimize_k_m(self, er=150):
+    def optimize_k_m(self):
        
-        self.e_ref = er
-
         def objective(trial):
             # Choose the event with less frequency
             self.real_freq = get_real_frequency(self.df)
@@ -106,13 +98,16 @@ class Setup:
             sobreestimation = float(min_freq_value * self.error_value) / self.N
             m_range = 2.718/sobreestimation
 
-            k = trial.suggest_int("k", 10, 1000)
-
-            m = trial.suggest_int("m", m_range/2, m_range)
-
             if self.privacy_method == "PHCMS":
-                m = 2 ** int(math.ceil(math.log2(m)))
+                k_range = 1/self.failure_prob
+                k = trial.suggest_int("k", 100, k_range)
+                exp_max = int(math.floor(math.log2(m_range)))
+                m = 2 ** exp_max
                 print(f"m must be a power of 2, so m = {m}")
+
+            else:
+                k = trial.suggest_int("k", 10, 1000)
+                m = trial.suggest_int("m", m_range/2, m_range)
 
             trial.set_user_attr('k', k)
             trial.set_user_attr('m', m)
@@ -129,16 +124,14 @@ class Setup:
             return m
         
         study = optuna.create_study(direction="minimize")
-        study.optimize(objective, n_trials=100)
+        study.optimize(objective, n_trials=self.n_trials)
 
         if self.matching_trial is not None:
             trial = self.matching_trial
         else:
             trial = study.best_trial
-            
         
-
-        return trial.user_attrs["k"], trial.user_attrs["m"], er
+        return trial.user_attrs["k"], trial.user_attrs["m"]
     
     def minimize_epsilon(self, k, m):
         matching_trial = {"trial": None}
@@ -164,7 +157,7 @@ class Setup:
             return e
         
         study = optuna.create_study(direction="minimize")
-        study.optimize(objective, n_trials=100)
+        study.optimize(objective, n_trials=self.n_trials)
 
         final_trial = matching_trial["trial"] or study.best_trial
 
@@ -189,7 +182,7 @@ def run_setup(df):
     setup_instance.filter_dataframe()
 
     while not setup_instance.found_best_values:
-        setup_instance.k, setup_instance.m, setup_instance.e = setup_instance.optimize_k_m()
+        setup_instance.k, setup_instance.m = setup_instance.optimize_k_m()
         if not setup_instance.found_best_values:
             setup_instance.e_ref += 50
     

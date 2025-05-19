@@ -15,19 +15,13 @@ from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hc
 
 class Mask:
     def __init__(self, privacy_level, df):
-        self.k, self.m, self.e_ref, self.events_names, self.privacy_method, self.error_metric, self.error_value, self.tolerance, self.p = load_setup_json()
+        self.k, self.m, self.e_ref, self.n_trials, self.events_names, self.privacy_method, self.error_metric, self.error_value, self.tolerance, self.p = load_setup_json()
         self.privacy_level = privacy_level
         self.df = df
         self.matching_trial = None
         self.N = len(self.df)
 
     def filter_dataframe(self):
-        """
-        Filters the DataFrame to keep only the columns specified,
-        if they exist in the DataFrame.
-        Returns:
-            pd.DataFrame: Filtered DataFrame with selected columns.
-        """
         matching_columns = [col for col in self.events_names if col in self.df.columns]
         if not matching_columns:
             print("⚠️ None of the specified event names match the DataFrame columns.")
@@ -92,7 +86,7 @@ class Mask:
             return round(abs(bounds[1] - max_error), 4)
 
         study = optuna.create_study(direction='minimize') 
-        study.optimize(objective, n_trials=20)
+        study.optimize(objective, n_trials=self.n_trials)
 
         if self.matching_trial is not None:
             trial = self.matching_trial
@@ -119,7 +113,7 @@ def run_mask(df):
     mask_instance = Mask(privacy_level, df)
     mask_instance.filter_dataframe()
     best_e, privatized_data, coeffs = mask_instance.optimize_e()
-    save_mask_json(mask_instance, best_e, coeffs, privatized_data)
+    save_mask_json(mask_instance, best_e, coeffs, privatized_data, mask_instance.privacy_method)
     return privatized_data
 
 if __name__ == "__main__":

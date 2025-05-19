@@ -19,7 +19,8 @@ def save_setup_json(setup_instance):
     config = {
         "k": setup_instance.k,
         "m": setup_instance.m,
-        "e": setup_instance.e_ref,
+        "e_ref": setup_instance.e_ref,
+        "n_trials": setup_instance.n_trials,
         "events_names": setup_instance.events_names,
         "privacy_method": setup_instance.privacy_method,
         "error_metric": setup_instance.error_metric,
@@ -35,9 +36,9 @@ def load_setup_json():
     with open(CONFIG_FILE, "r") as f:
         config = json.load(f)
 
-    return config["k"], config["m"], config["e"],config["events_names"], config["privacy_method"], config["error_metric"], config["error_value"], config["tolerance"], config["p"]
+    return config["k"], config["m"], config["e_ref"], config["n_trials"], config["events_names"], config["privacy_method"], config["error_metric"], config["error_value"], config["tolerance"], config["p"]
 
-def save_mask_json(mask_instance, e, coeffs, privatized_dataset):
+def save_mask_json(mask_instance, e, coeffs, privatized_dataset, privacy_method):
     config = {
         "k": mask_instance.k,
         "m": mask_instance.m,
@@ -46,9 +47,13 @@ def save_mask_json(mask_instance, e, coeffs, privatized_dataset):
         "privacy_method": str(mask_instance.privacy_method),
     }
     converted_data = []
-    for v, j, u in privatized_dataset:
-        v_str = " ".join(map(str, v.tolist()))
-        converted_data.append([v_str, j, u])
+    if privacy_method == "PCMeS":
+        for v, j, u in privatized_dataset:
+            v_str = " ".join(map(str, v.tolist()))
+            converted_data.append([v_str, j, u])
+    elif privacy_method == "PHCMS":
+        for w, j, l, u in privatized_dataset:
+            converted_data.append([w, j, l, u])
 
     df = pd.DataFrame(converted_data)
     df.to_csv(PRIVATIZED_DATASET, index=False)
@@ -101,17 +106,6 @@ def generate_hash_functions(k, p, c, m):
     return hash_functions, functions_params
 
 def rebuild_hash_functions(functions_params):
-    """
-    Rebuilds the hash functions from the coefficients.
-
-    Args:
-        hash_coeff (list): Coefficients of the hash functions.
-        p (int): Large prime number for hash function construction.
-        m (int): Maximum domain value to which the hash functions map.
-
-    Returns:
-        list: Rebuilt hash functions.
-    """
     hash_functions = []
     hash_coeffs = functions_params["coefficients"]
     p = functions_params["p"]

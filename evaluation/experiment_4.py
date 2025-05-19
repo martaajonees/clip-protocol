@@ -2,7 +2,6 @@ import optuna
 import pandas as pd
 import os
 import sys
-import math
 import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
@@ -12,7 +11,7 @@ from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
 
-PRIVACY_METHOD = "PHCMS"
+PRIVACY_METHOD = "PCMeS"
 
 def filter_dataframe(df):
     df.columns = ["user", "value"]
@@ -57,7 +56,6 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance):
             return float("inf")
         
         return round(abs(objective_high - max_error), 4)
-
         
 
     study = optuna.create_study(direction='minimize') 
@@ -102,7 +100,7 @@ def run_experiment_2(datasets):
 
 if __name__ == "__main__":
     datasets = []
-    data_path = "datasets"
+    data_path = "/Users/martajones/Downloads/Databases"
     for file in os.listdir(data_path):
         if file.endswith(".xlsx"):
             filepath = os.path.join(data_path, file)
