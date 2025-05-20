@@ -184,7 +184,7 @@ def run_setup(df):
     while not setup_instance.found_best_values:
         setup_instance.k, setup_instance.m = setup_instance.optimize_k_m()
         if not setup_instance.found_best_values:
-            setup_instance.e_ref += 50
+            setup_instance.e_ref += (setup_instance.e_ref*0.2)
     
     setup_instance.e_ref = setup_instance.minimize_epsilon(setup_instance.k, setup_instance.m)
     

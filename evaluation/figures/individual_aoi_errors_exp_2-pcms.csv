@@ -19,3 +19,9 @@ dataset_7000,subevent_0,0.87
 dataset_7000,subevent_1,1.94
 dataset_7000,subevent_2,4.38
 dataset_7000,subevent_3,2.68
+
+dataset_3000,subevent_3,3.58
+dataset_4000,subevent_3,1.17
+dataset_5000,subevent_3,4.9
+dataset_6000,subevent_3,3.42
+dataset_7000,subevent_3,2.68

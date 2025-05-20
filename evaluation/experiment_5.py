@@ -93,7 +93,13 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
     
 def run_experiment_5(datasets):
     k, m,  e_r, n_trials, _,  privacy_method,  _,  error_value,  tolerance,  _ = load_setup_json()
-    privacy_level = input("Enter the privacy level (high, low): ").strip().lower()
+    privacy_level = "high"
+    privacy_method = "PCMeS"
+    k = 841
+    m = 41356
+    e_r = 16
+    error_value = 0.04
+    tolerance = 0.01
     
     tables = []
     performance_records = []

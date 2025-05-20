@@ -11,7 +11,7 @@ from clip_protocol.utils.errors import compute_error_table
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
 
-privacy_method = "PCMeS" 
+privacy_method = "PHCMSrec" 
 
 def filter_dataframe(df):
     df.columns = ["user", "value"]
@@ -29,8 +29,8 @@ def run_command(e, k, m, df):
 
 
 def run_experiment_2(datasets):
-    k = 617
-    m = 5326
+    k = 348
+    m = 128
     e_r = 10
 
     headers=[
