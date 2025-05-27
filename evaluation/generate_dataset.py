@@ -10,7 +10,9 @@ num_users = 50                      # Number of users
 #aoi_percentages = [0.7, 0.1, 0.01, 0.19]
 #aoi_percentages = [0.4, 0.2, 0.25, 0.15]
 #aoi_percentages = [0.8, 0.13, 0.01, 0.07]
-aoi_percentages = [0.30, 0.20, 0.30, 0.20]
+#aoi_percentages = [0.30, 0.20, 0.30, 0.20]
+#aoi_percentages = [0.158, 0.316, 0.316, 0.21] poisson lambda=2
+aoi_percentages = [0.25, 0.25, 0.25, 0.25] # Uniform distribution
 
 def generate_user_id(length=5):
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
@@ -36,4 +38,4 @@ for n in N:
 
     df = pd.DataFrame(records, columns=["user_id", "aoi_hit"])
     df = df.sample(frac=1).reset_index(drop=True)
-    df.to_excel(f'datasets/aoi-hits-d4-{n}.xlsx', index=False)
+    df.to_excel(f'datasets-article/aoi-hits-d4-{n}.xlsx', index=False)

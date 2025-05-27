@@ -1,17 +1,17 @@
-import optuna
+
 import pandas as pd
 import os
 import sys
-import time
 import argparse
+import optuna
+
+# Experimento 3. Ejecutar con ajuste y sin ajuste de epsilon
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from clip_protocol.utils.utils import display_results, get_real_frequency
 from clip_protocol.utils.errors import compute_error_table
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
-
-# Escalabilidad: misma distribución distintos tamaños
 
 def filter_dataframe(df):
     df.columns = ["user", "value"]
@@ -22,22 +22,20 @@ def run_command(e, k, m, df, privacy_method):
         _, _, df_estimated = run_private_cms_client(k, m, e, df)
     elif privacy_method == "PHCMS":
         _, _, df_estimated = run_private_hcms_client(k, m, e, df)
-    
-    error = compute_error_table(get_real_frequency(df), df_estimated, 2)
-    table = display_results(get_real_frequency(df), df_estimated)
-    return error, df_estimated, table
+    return display_results(get_real_frequency(df), df_estimated)
+
+def get_max_error_from_table(table):
+    # Última columna, quitando '%' y convirtiendo a float
+    percentage_errors = [float(row[-1].strip('%')) for row in table]
+    return max(percentage_errors)
 
 def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_method):
     matching_trial = {"trial": None}
-    trial_counter = {"count": 0}
 
     def objective(trial):
-        trial_counter["count"] += 1
         e = round(trial.suggest_float('e', 0.1, e_r, step=0.1), 4)
         _, _, table = run_command(e, k, m, df, privacy_method)
-
-        percentage_errors = [float(row[-1].strip('%')) for row in table]
-        max_error = max(percentage_errors)
+        max_error = get_max_error_from_table(table)
 
         trial.set_user_attr('table', table)
         trial.set_user_attr('e', e)
@@ -62,15 +60,10 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
 
     final_trial = matching_trial["trial"] or study.best_trial
             
-    table = final_trial.user_attrs['table']
-    max_error = final_trial.user_attrs['max_error']
-    e = final_trial.user_attrs['e']
-            
-    return table, max_error, e, trial_counter["count"]
+    return final_trial.user_attrs['max_error'], final_trial.user_attrs['e']
 
 
-def run_experiment_2(datasets_by_size):
-    n_repeats = 10
+def run_experiment_3(datasets):
     error_value = 0.05
     tolerance = 0.01
     privacy_level = "high"
@@ -78,43 +71,26 @@ def run_experiment_2(datasets_by_size):
     m = int(input("🔢 Enter m value: "))
     e_r = int(input("🔄 Enter e_r value: "))
 
-    all_results = []
-    
-    for repeat in range(n_repeats):
-        print(f"🔁 Repetición {repeat + 1}/{n_repeats}...")
+    for method in ["PCMeS", "PHCMS"]:
+        row_apple = {"Método": "Método de Apple"}
+        row_clip = {"Método": "CLiP"}
 
-        for size, df in datasets_by_size.items():
+        for size, df in datasets.items():
             df.columns = ["user", "value"]
             df = filter_dataframe(df)
+            
+            # Ejecutar sin ajuste de epsilon
+            table = run_command(e_r, k, m, df, method)
+            max_error = get_max_error_from_table(table)
+            row_apple[size] = f"{e_r:.2f} / {max_error:.2f}"
 
-            for method in ["PCMeS", "PHCMS"]:
-                print(f"🔍 Ejecutando {method} con tamaño {size}...")
-
-                start_time = time.time()
-                _, _, _, n_iter = optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, method)
-                end_time = time.time()
-
-                all_results.append({
-                    "Número de registros": size,
-                    "Método": method,
-                    "Iteraciones": n_iter,
-                    "Tiempo de ejecución": round(end_time - start_time, 4)
-                })
-
-    df = pd.DataFrame(all_results)
-    df_mean = df.groupby(["Número de registros", "Método"]).mean(numeric_only=True).reset_index()
-
-    df_pivot = df_mean.pivot(index="Número de registros", columns="Método", values=["Iteraciones", "Tiempo de ejecución"])
-    df_pivot.columns = [f"{col[0]} {col[1]}" for col in df_pivot.columns]
-    df_pivot = df_pivot.reset_index()
-
-    final_cols = ["Número de registros",
-                  "Iteraciones PHCMS", "Tiempo de ejecución PHCMS",
-                  "Iteraciones PCMeS", "Tiempo de ejecución PCMeS"]
-    df_pivot = df_pivot[final_cols]
-
-    df_pivot.to_csv("figures/table_experiment_2.csv", index=False)
-
+            # Ejecutar con ajuste de epsilon
+            pe_error, epsilon  = optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, method)
+            row_clip[size] = f"{epsilon:.2f} / {pe_error:.2f}"
+        
+        df_result = pd.DataFrame([row_apple, row_clip])
+        df_result.to_csv(f"figures/table_experiment_3_{method}.csv", index=False)
+        
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run scalability experiment")
@@ -134,4 +110,4 @@ if __name__ == "__main__":
         datasets[size] = df
         
     
-    run_experiment_2(datasets)
+    run_experiment_3(datasets)

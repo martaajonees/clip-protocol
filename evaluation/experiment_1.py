@@ -3,98 +3,92 @@ import os
 import sys
 import argparse
 
+# Experimento 1. Influencia de epsilon en PCMeS y PHCMeS
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-from clip_protocol.utils.utils import get_real_frequency, load_setup_json
+from clip_protocol.utils.utils import get_real_frequency
 from clip_protocol.utils.errors import compute_error_table
 from clip_protocol.count_mean.private_cms_client import run_private_cms_client
 from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hcms_client
-
-privacy_method = "PHCMS"  # or "PCMeS"
 
 def filter_dataframe(df):
     df.columns = ["user", "value"]
     N = len(df)
     return df, N
 
-def run_command(e, k, m, df):
+def run_command(e, k, m, df, privacy_method):
     if privacy_method == "PCMeS":
         _, _, df_estimated = run_private_cms_client(k, m, e, df)
     elif privacy_method == "PHCMS":
         _, _, df_estimated = run_private_hcms_client(k, m, e, df)
-    
-    error = compute_error_table(get_real_frequency(df), df_estimated, 2)
-    return error, df_estimated
+
+    return compute_error_table(get_real_frequency(df), df_estimated, 2), df_estimated
 
 
-def generate_latex_line_plot(error_history, output_path="figures/plot_experiment_1.tex"):
-    tikz_lines = [
+def plot_latex(errors, path):
+    lines = [
         r"\begin{figure}[h]",
         r"\centering",
         r"\begin{tikzpicture}",
         r"\begin{axis}[",
-        r"    xlabel={$\epsilon$},",
-        r"    ylabel={Error},",
-        r"    legend style={at={(0.5,-0.15)}, anchor=north,legend columns=-1},",
-        r"    xmin=0,",
-        r"    grid=major,",
-        r"    width=12cm,",
-        r"    height=8cm,",
-        r"    cycle list name=color list,",
+        r"  xlabel={$\epsilon$}, ylabel={Error},",
+        r"  legend style={at={(0.5,-0.15)}, anchor=north,legend columns=-1},",
+        r"  xmin=0, grid=major, width=12cm, height=8cm,",
+        r"  cycle list name=color list,",
         r"]"
     ]
 
-    for metric, values in error_history.items():
-        if metric == "Lρ Norm":
-            metric = "Lp Norm"
-        tikz_lines.append(r"\addplot coordinates {")
-        for epsilon, error in sorted(values):
-            tikz_lines.append(f"    ({epsilon}, {error})")
-        tikz_lines.append(r"};")
-        tikz_lines.append(fr"\addlegendentry{{{metric}}}")
+    for metric, points in errors.items():
+        name = "Lp Norm" if metric == "Lρ Norm" else metric
+        lines.append(r"\addplot coordinates {")
+        lines += [f"  ({eps}, {err})" for eps, err in sorted(points)]
+        lines.append(r"};")
+        lines.append(fr"\addlegendentry{{{name}}}")
 
-    tikz_lines += [
+    lines += [
         r"\end{axis}",
         r"\end{tikzpicture}",
         r"\caption{Evolución del error por métrica en función del parámetro $\epsilon$}",
         r"\end{figure}"
     ]
 
-    with open(output_path, "w") as f:
-        f.write("\n".join(tikz_lines))
+    with open(path, "w") as f:
+        f.write("\n".join(lines))
+    print(f"✅ LaTeX graph saved to {path}")
 
-    print(f"✅LaTeX graph generated in: {output_path}")
-
-def run_experiment1(df):
-    k, m,  _, _,  _,  _,  _,  _,  _,  _ = load_setup_json()
-    error_history = {}
+def run_experiment1(df, privacy_method):
+    k = int(input("🔑 Enter k value: "))
+    m = int(input("🔢 Enter m value: "))
     df, _ = filter_dataframe(df)
+    error_history = {}
 
-    er = 10
-    while er >= 0.5:
-        error_table, _ = run_command(er, k, m, df)
+    epsilons = [round(e, 1) for e in list(reversed([x * 0.5 for x in range(1, 21)])) + [0.4, 0.3, 0.2, 0.1]]
 
-        for metric, value in error_table:
-            if metric not in error_history:
-                error_history[metric] = []
-            error_history[metric].append((er, value))
-
-        er -= 0.5
+    for eps in epsilons:
+        table, _ = run_command(eps, k, m, df, method)
+        for metric, val in table:
+            error_history.setdefault(metric, []).append((eps, val))
     
-    generate_latex_line_plot(error_history)
+    df = pd.DataFrame(error_history)
+    df.to_csv(f"figures/table_experiment_1_{privacy_method}.csv", index=False)
+    plot_latex(error_history, f"figures/experiment_1_{privacy_method}.tex")
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run experiment 1")
-    parser.add_argument("-i", type=str, required=True, help="Path to the input excel file")
+    parser.add_argument("-f", required=True, help="Path to input Excel file")
     args = parser.parse_args()
-    if not os.path.isfile(args.i):
-        print(f"❌ File not found: {args.i}")
-        sys.exit(1)
+    
+    distribution = input(" Enter the distribution 1/2/3/4: ")
 
-    df_temp = pd.read_excel(args.i)
+    pattern = f"aoi-hits-d{distribution}-5000"
+    matching_files = [f for f in os.listdir(args.f) if pattern in f and f.endswith(".xlsx")]
 
-    if any(col.startswith("Unnamed") for col in df_temp.columns):
-        df = pd.read_excel(args.i, header=1)  
-    else:
-        df = df_temp
+    file_path = os.path.join(args.f, matching_files[0])
+    print(f"📂 Usando archivo: {file_path}")
 
-    run_experiment1(df)
+    header = 1 if "Unnamed" in pd.read_excel(file_path, nrows=1).columns[0] else 0
+    df = pd.read_excel(file_path, header=header)
+
+    for method in ["PCMeS", "PHCMS"]:
+        print(f"Running experiment with {method}...")
+        run_experiment1(df, method)
