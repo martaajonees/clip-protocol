@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import argparse
+import json
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from clip_protocol.utils.utils import display_results, get_real_frequency
@@ -69,14 +70,11 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
     return table, max_error, e, trial_counter["count"]
 
 
-def run_experiment_2(datasets_by_size):
+def run_experiment_2(datasets_by_size, params):
     n_repeats = 10
     error_value = 0.05
     tolerance = 0.01
     privacy_level = "high"
-    k = int(input("🔑 Enter k value: "))
-    m = int(input("🔢 Enter m value: "))
-    e_r = int(input("🔄 Enter e_r value: "))
 
     all_results = []
     
@@ -89,6 +87,10 @@ def run_experiment_2(datasets_by_size):
 
             for method in ["PCMeS", "PHCMS"]:
                 print(f"🔍 Ejecutando {method} con tamaño {size}...")
+
+                k = params[method]["k"]
+                m = params[method]["m"]
+                e_r = params[method]["e_r"]
 
                 start_time = time.time()
                 _, _, _, n_iter = optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, method)
@@ -122,6 +124,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     data_path = args.f # folder
 
+    params_path = os.path.join(os.path.dirname(__file__), "figures", "experiment_2_params.json")
+    with open(params_path, 'r') as f:
+        params = json.load(f)
+
     distribution = input("📌 Enter the distribution 1/2/3/4: ")
     sizes = [3000, 4000, 5000, 6000, 7000]
 
@@ -134,4 +140,4 @@ if __name__ == "__main__":
         datasets[size] = df
         
     
-    run_experiment_2(datasets)
+    run_experiment_2(datasets, params)
