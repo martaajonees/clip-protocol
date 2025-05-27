@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import optuna
+import json
 
 # Experimento 3. Ejecutar con ajuste y sin ajuste de epsilon
 
@@ -63,17 +64,17 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
     return final_trial.user_attrs['max_error'], final_trial.user_attrs['e']
 
 
-def run_experiment_3(datasets):
+def run_experiment_3(datasets, params):
     error_value = 0.05
     tolerance = 0.01
     privacy_level = "high"
-    k = int(input("🔑 Enter k value: "))
-    m = int(input("🔢 Enter m value: "))
-    e_r = int(input("🔄 Enter e_r value: "))
 
     for method in ["PCMeS", "PHCMS"]:
         row_apple = {"Método": "Método de Apple"}
         row_clip = {"Método": "CLiP"}
+        k = params[method]["k"]
+        m = params[method]["m"]
+        e_r = params[method]["e_r"]
 
         for size, df in datasets.items():
             df.columns = ["user", "value"]
@@ -98,6 +99,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     data_path = args.f # folder
 
+    params_path = os.path.join(os.path.dirname(__file__), "figures", "experiment_2_params.json")
+    with open(params_path, 'r') as f:
+        params = json.load(f)
+
     distribution = input("📌 Enter the distribution 1/2/3/4: ")
     sizes = [3000, 4000, 5000, 6000, 7000]
 
@@ -110,4 +115,4 @@ if __name__ == "__main__":
         datasets[size] = df
         
     
-    run_experiment_3(datasets)
+    run_experiment_3(datasets, params)
