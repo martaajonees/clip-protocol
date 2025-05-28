@@ -26,17 +26,22 @@ def run_command(e, k, m, df, privacy_method):
 
 def run_experiment_4(datasets, params):
     for distribution, df in datasets.items():
-        k = params["k"]
-        m = params["m"]
-        e = params["e"]
-
         df.columns = ["user", "value"]
         df = filter_dataframe(df)
 
         for method in ["PCMeS", "PHCMS"]:
             print(f"🔍 Ejecutando {method} en distribución {distribution}...")
-            error_by_aoi, _, _ = run_command(e, k, m, df, method)
 
+            method_params = params[distribution][method]
+            k = method_params["k"]
+            m = method_params["m"]
+            e = method_params["e"]
+            _, _, table = run_command(e, k, m, df, method)
+
+            filtered_table = [[row[0], row[-1]] for row in table]
+            cleaned_table = [[col[0], col[1].replace('%', '') if isinstance(col[1], str) else col[1]] for col in filtered_table]
+
+            error_by_aoi = pd.DataFrame(cleaned_table, columns=['AOI', 'Error'])
             path_individual = f"figures/experimet_4_d{distribution}_{method}.csv"
             error_by_aoi.to_csv(path_individual, index=False)
         

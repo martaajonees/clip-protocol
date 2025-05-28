@@ -16,7 +16,7 @@ from clip_protocol.hadamard_count_mean.private_hcms_client import run_private_hc
 class Setup:
     def __init__(self, df):
         self.df = df
-        self.e_ref = 150
+        self.e_ref = 20
         self.n_trials = 30
         self.failure_prob = 0.001
         self.events_names, self.privacy_method, self.error_metric, self.error_value, self.tolerance = self.ask_values()

@@ -35,7 +35,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
 
     def objective(trial):
         e = round(trial.suggest_float('e', 0.1, e_r, step=0.1), 4)
-        _, _, table = run_command(e, k, m, df, privacy_method)
+        table = run_command(e, k, m, df, privacy_method)
         max_error = get_max_error_from_table(table)
 
         trial.set_user_attr('table', table)
