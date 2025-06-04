@@ -20,7 +20,7 @@ def run_command(e, k, m, df, privacy_method):
         _, _, df_estimated = run_private_cms_client(k, m, e, df)
     elif privacy_method == "PHCMS":
         _, _, df_estimated = run_private_hcms_client(k, m, e, df)
-        
+
     return display_results(get_real_frequency(df), df_estimated)
 
 def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_method):
