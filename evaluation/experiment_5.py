@@ -95,6 +95,7 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
 
 def measure_size_on_disk(df, prefix):
     temp_path = f"temp_{prefix}.csv"
+    df = pd.DataFrame(df)
     df.to_csv(temp_path, index=False)
     size_on_disk = os.path.getsize(temp_path)
     os.remove(temp_path)
@@ -116,7 +117,7 @@ def run_experiment_5(datasets, privatized_path):
 
     for data in datasets:
         data_df = filter_dataframe(data)
-        original_size = measure_size_on_disk(data_df, f"original_user_{user_id}")
+        original_size = measure_size_on_disk(data_df, f"original_user")
 
         start_time = time.time()
         table, max_error, e, privatized_data = optimize_e(k, m, data_df, e_r, privacy_level, error_value, tolerance, privacy_method, n_trials)
@@ -126,7 +127,7 @@ def run_experiment_5(datasets, privatized_path):
             tables.append(table)
 
             # Save the privatized data temporarily to check its size
-            privatized_size = measure_size_on_disk(privatized_data, f"priv_user_{user_id}")
+            privatized_size = measure_size_on_disk(privatized_data, f"priv_user")
         
             performance_records.append({
                 "User": data_df["user"].iloc[0],
@@ -144,6 +145,7 @@ def run_experiment_5(datasets, privatized_path):
 
             user_id = data_df["user"].iloc[0]
             filename = f"{privatized_path}/user_{user_id}_privatized.csv"
+            privatized_data = pd.DataFrame(privatized_data)
             privatized_data.to_csv(filename, index=False)
     
     performance_df = pd.DataFrame(performance_records)
