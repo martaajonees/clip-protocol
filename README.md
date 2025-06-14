@@ -56,7 +56,7 @@ Local_Privacy
 ## Online Execution
 You can execute the code online using Google Colab. Google Colab sessions are intended for individual users and have limitations such as session timeouts after periods of inactivity and maximum session durations. 
 
-For **single-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab (Single-User)](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
+For **single-user dataset** scenarios, click this link to execute the method: [Execute in Google Colab](https://colab.research.google.com/drive/1dY1OSfRECHFBFYaX_5ToZy-KynjT_0z0?usp=sharing)
 
 ## Usage 
 These methods are included in PyPI as you can view [here](https://pypi.org/project/clip-protocol/), and can be installed on your device with:
