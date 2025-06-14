@@ -11,7 +11,7 @@
 <img src="https://badgen.net/badge/build/passing/green?icon=githubactions" alt="build badge">
 <img src="https://badgen.net/pypi/v/clip-protocol" alt="PyPI version">
 <img src="https://img.shields.io/pypi/pyversions/clip-protocol?color=red" alt="Python version supported">
-<a href="https://martaajonees.github.io/Local_Privacy/src.html">
+<a href="https://clip-protocol.readthedocs.io/en/latest/">
   <img src="https://img.shields.io/badge/docs-online-blueviolet" alt="documentation">
 </a>
 </p>
