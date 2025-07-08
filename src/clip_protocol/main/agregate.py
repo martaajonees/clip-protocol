@@ -64,9 +64,10 @@ def run_agregate():
     print("🧑‍🤝‍🧑 Aggregate per user")
     agregate_instance.agregate_per_user()
     save_agregate_json(agregate_instance)
-    res = input("Do you want to save the private sketches? (y/n)")
+    res = input("Do you want to save the private sketches? (y/n): ")
     if res.lower() == "y":
-        path = input("Enter the path to save the private sketches: ")
+        path = input("Enter the path to the folder to save the private sketches: ")
+        path = os.path.join(os.getcwd(), "sketches.pkl")
         with open(path, "wb") as f:
             pickle.dump(agregate_instance.sketch_by_user, f)
         print("✅ Private sketches saved")
