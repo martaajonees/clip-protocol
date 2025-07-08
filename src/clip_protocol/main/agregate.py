@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
+import pickle
 from rich.progress import Progress
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
@@ -63,6 +64,12 @@ def run_agregate():
     print("🧑‍🤝‍🧑 Aggregate per user")
     agregate_instance.agregate_per_user()
     save_agregate_json(agregate_instance)
+    res = input("Do you want to save the private sketches? (y/n)")
+    if res.lower() == "y":
+        path = input("Enter the path to save the private sketches: ")
+        with open(path, "wb") as f:
+            pickle.dump(agregate_instance.sketch_by_user, f)
+        print("✅ Private sketches saved")
 
 if __name__ == "__main__":
     run_agregate()
