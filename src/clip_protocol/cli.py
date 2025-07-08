@@ -58,7 +58,17 @@ def cli_agregate():
     run_agregate()
 
 def cli_estimate():
-    run_estimate()
+    parser = argparse.ArgumentParser(description="Run estimation")
+    parser.add_argument("-d", type=str, required=False, help="Path to the input excel file")
+    args = parser.parse_args()
+    df = None
+    if args.d:
+        if not os.path.isfile(args.d):
+            print(f"❌ File not found: {args.d}")
+            sys.exit(1)
+        df = pd.read_excel(args.d)
+
+    run_estimate(df)
 
 def clear():
     DATA_DIR = user_data_dir("clip_protocol")

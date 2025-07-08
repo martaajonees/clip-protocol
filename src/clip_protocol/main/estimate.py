@@ -6,8 +6,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from clip_protocol.utils.utils import load_agregate_json, load_mask_json
 
 class Estimation:
-    def __init__(self):
-        self.sketch_by_user = load_agregate_json()
+    def __init__(self, df=None):
+        self.sketch_by_user = df if df is not None else load_agregate_json()
         self.k, self.m, self.epsilon, self.hashes, self.method, _ = load_mask_json()
     
     def estimate_element(self, d, M, N):
@@ -24,8 +24,8 @@ class Estimation:
                 est = 0
             print(f"🧑 User {user_id}: {est:.4f}")
 
-def run_estimate():
-    estimation = Estimation()
+def run_estimate(df=None):
+    estimation = Estimation(df=df)
     event = str(input("Enter the event to estimate or q' to quit: "))
     while event != "q":
         estimation.query_all_users_event(event)
