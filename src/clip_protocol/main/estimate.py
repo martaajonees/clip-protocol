@@ -30,6 +30,3 @@ def run_estimate(df=None):
     while event != "q":
         estimation.query_all_users_event(event)
         event = str(input("Enter the event to estimate or q' to quit: "))
-
-if __name__ == "__main__":
-    run_estimate()

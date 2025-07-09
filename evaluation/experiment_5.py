@@ -103,7 +103,7 @@ def measure_size_on_disk(df, prefix):
     
 def run_experiment_5(datasets, privatized_path):
     k, m,  e_r, n_trials, _,  privacy_method,  _,  error_value,  tolerance,  _ = load_setup_json()
-    privacy_level = "high"
+    privacy_level = "low"
     privacy_method = "PCMeS"
     k = 841
     m = 41356
