@@ -25,10 +25,8 @@ def update_sketch_matrix(M, k, e, privacy_method, data_point):
     return M
 
 class Agregate:
-    def __init__(self, df=None):
+    def __init__(self):
         self.k, self.m, self.e, _, self.privacy_method, self.private_dataset = load_mask_json()
-        if df is not None:
-            self.private_dataset = df
         self.sketch_by_user = {}
 
     def compute_data(self, user_data):
@@ -61,8 +59,8 @@ class Agregate:
         self.sketch_by_user = sketch_by_user
         
     
-def run_agregate(df=None):
-    agregate_instance = Agregate(df=df)
+def run_agregate():
+    agregate_instance = Agregate()
     print("🧑‍🤝‍🧑 Aggregate per user")
     agregate_instance.agregate_per_user()
     save_agregate_json(agregate_instance)

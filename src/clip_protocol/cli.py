@@ -56,17 +56,7 @@ def cli_mask():
         print(f"✅ Privatized dataset saved to {args.o}")
 
 def cli_agregate():
-    parser = argparse.ArgumentParser(description="Run agregation")
-    parser.add_argument("-d", type=str, required=False, help="Path to the input pickle file")
-    args = parser.parse_args()
-    df = None
-    if args.d:
-        if not os.path.isfile(args.d):
-            print(f"❌ File not found: {args.d}")
-            sys.exit(1)
-        with open(args.d, "rb") as f:
-            df = pd.read_csv(f)
-    run_agregate(df)
+    run_agregate()
 
 def cli_estimate():
     parser = argparse.ArgumentParser(description="Run estimation")
