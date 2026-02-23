@@ -149,10 +149,10 @@ def run_experiment_5(datasets, privatized_path):
             privatized_data.to_csv(filename, index=False)
     
     performance_df = pd.DataFrame(performance_records)
-    performance_df.to_csv("figures/experiment_5.csv", index=False)
+    performance_df.to_csv("experiment_5.csv", index=False)
 
     size_df = pd.DataFrame(size_comparison_records)
-    size_df.to_csv("figures/experiment_5_size_comparison.csv", index=False)
+    size_df.to_csv("experiment_5_size_comparison.csv", index=False)
 
 def load_excel_with_header_check(filepath):
     try:

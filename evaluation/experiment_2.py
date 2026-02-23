@@ -115,7 +115,7 @@ def run_experiment_2(datasets_by_size, params):
                   "Iteraciones PCMeS", "Tiempo de ejecución PCMeS"]
     df_pivot = df_pivot[final_cols]
 
-    df_pivot.to_csv("figures/table_experiment_2.csv", index=False)
+    df_pivot.to_csv("table_experiment_2.csv", index=False)
 
 
 if __name__ == "__main__":
@@ -133,7 +133,8 @@ if __name__ == "__main__":
 
     datasets = {}
     for size in sizes:
-        pattern = f"aoi-hits-d{distribution}-{size}"
+        
+        pattern = f"SynLog-{size}-d{distribution}"
         file_path = os.path.join(args.f, pattern + ".xlsx")
         header = 1 if "Unnamed" in pd.read_excel(file_path, nrows=1).columns[0] else 0
         df = pd.read_excel(file_path, header=header)

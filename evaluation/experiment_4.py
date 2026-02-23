@@ -84,7 +84,7 @@ def run_experiment_4(datasets, params):
             cleaned_table = [[col[0], col[1].replace('%', '') if isinstance(col[1], str) else col[1]] for col in filtered_table]
 
             error_by_aoi = pd.DataFrame(cleaned_table, columns=['AOI', 'Error'])
-            path_individual = f"figures/experimet_4_d{distribution}_{method}.csv"
+            path_individual = f"experimet_4_d{distribution}_{method}.csv"
             error_by_aoi.to_csv(path_individual, index=False)
         
 if __name__ == "__main__":
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     datasets = {}
     for distribution in distributions:
-        pattern = f"aoi-hits-d{distribution}-5000"
+        pattern = f"SynLog-5000-d{distribution}"
         file_path = os.path.join(args.f, pattern + ".xlsx")
         header = 1 if "Unnamed" in pd.read_excel(file_path, nrows=1).columns[0] else 0
         df = pd.read_excel(file_path, header=header)

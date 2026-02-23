@@ -89,7 +89,7 @@ def run_experiment_3(datasets, params):
             row_clip[size] = f"{epsilon:.2f} / {pe_error:.2f}"
         
         df_result = pd.DataFrame([row_apple, row_clip])
-        df_result.to_csv(f"figures/table_experiment_3_{method}.csv", index=False)
+        df_result.to_csv(f"table_experiment_3_{method}.csv", index=False)
         
 
 if __name__ == "__main__":
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     datasets = {}
     for size in sizes:
-        pattern = f"aoi-hits-d{distribution}-{size}"
+        pattern = f"SynLog-{size}-d{distribution}"
         file_path = os.path.join(args.f, pattern + ".xlsx")
         header = 1 if "Unnamed" in pd.read_excel(file_path, nrows=1).columns[0] else 0
         df = pd.read_excel(file_path, header=header)
