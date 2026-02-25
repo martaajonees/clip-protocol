@@ -66,7 +66,8 @@ def optimize_e(k, m, df, e_r, privacy_level, error_value, tolerance, privacy_met
 def run_experiment_3(datasets, params):
     error_value = 0.05
     tolerance = 0.01
-    privacy_level = "high"
+    # privacy_level = "high"
+    privacy_level = "low"
 
     for method in ["PCMeS", "PHCMS"]:
         row_apple = {"Método": "Método de Apple"}
