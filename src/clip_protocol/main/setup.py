@@ -76,6 +76,7 @@ class Setup:
         self.df['value'] = self.df['value'].astype(str).apply(lambda x: x.strip())
         self.df = self.df[self.df['value'] != '-']
         self.df = self.df[self.df['value'].str.contains(r'\w', na=False)]
+        self.df = self.df.sample(frac=1, random_state=None).reset_index(drop=True)
         self.N = len(self.df)
     
     def run_command(self, e, k, m):

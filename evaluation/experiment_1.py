@@ -33,6 +33,7 @@ def run_experiment1(df, privacy_method):
     epsilons = [round(e, 1) for e in list(reversed([x * 0.5 for x in range(1, 21)])) + [0.4, 0.3, 0.2, 0.1]]
 
     for eps in epsilons:
+        print(f"Running with epsilon: {eps}")
         table, _ = run_command(eps, k, m, df, privacy_method)
         for metric, val in table:
             error_history.setdefault(metric, []).append((eps, val))
