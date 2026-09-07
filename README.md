@@ -100,36 +100,10 @@ clip_clear
 - Ensure that the paths provided are correct, and that the necessary permissions are granted for writing to the output location.
 - In the mask step, the output will be a new file `.csv` containing the privatized data.
 
-## Pseudocode of the Dynamic Privacy Budget (ε) Optimization for a single student in CLiP (via Optuna)
+## Pseudocode of the Dynamic Privacy Budget Optimization
  
-**Require:**
-- Sequential event dataset $D$
-- Reference budget $\epsilon_{ref}$
-- Sketch dimensions $k, m$
-- Acceptable error range ($l$ as the error value and $t$ as the tolerance) $[l-t,\ l+t]$
-- Number of trials $N_{trials}$
-- Level of privacy (*low* or *high*)
+<img width="733" height="351" alt="image" src="https://github.com/user-attachments/assets/b6eb0466-1e40-4b24-b327-17bb31fa02a6" />
 
-**Ensure:**
-- Optimized privacy budget $\epsilon$
-- Privatized dataset $D'$
-```
-1:  ε_priv ← ε_ref
-2:  D_priv ← ∅
-3:  F_real ← CalculateFrequencies(D)
-4:  for i = 1 to N_trials do
-5:      Propose candidate ε_priv ∈ [0.1, ε_ref]
-6:      D_priv ← LDPMechanism(D, k, m, ε_priv)      // Applies PCMeS or PHCMeS
-7:      F_est ← CalculateFrequencies(D_priv)
-8:      PE_max ← MaxPercentageError(F_real, F_est)
-9:      if (l - t)·100 ≤ PE_max ≤ (l + t)·100 then
-10:         D' ← D_priv
-11:         ε ← ε_priv
-12:         break                                    // LA utility condition satisfied
-13:     end if
-14: end for
-15: return ε, D'
-```
  
   
 ## Documentation
