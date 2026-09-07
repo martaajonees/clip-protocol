@@ -100,12 +100,13 @@ clip_clear
 - Ensure that the paths provided are correct, and that the necessary permissions are granted for writing to the output location.
 - In the mask step, the output will be a new file `.csv` containing the privatized data.
 
-## Pseudocode of the Dynamic Privacy Budget Optimization
- 
-<img width="733" height="351" alt="image" src="https://github.com/user-attachments/assets/b6eb0466-1e40-4b24-b327-17bb31fa02a6" />
+## Pseudocode
+ ## Setup
+<img width="586" height="371" alt="image" src="https://github.com/user-attachments/assets/8338801e-522a-4365-80d9-7500d2e7cf78" />
 
- 
-  
+## Dynamic Privacy Budget Optimization 
+<img width="722" height="348" alt="image" src="https://github.com/user-attachments/assets/678f1e46-8a5a-4d15-922e-559a8b3bfbda" />
+
 ## Documentation
 The complete documentation for this project is available online. You can access it at the following link:
 - [Project Documentation - Local Privacy in Learning Analytics](https://clip-protocol.readthedocs.io/en/latest/)
